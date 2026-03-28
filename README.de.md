@@ -1,0 +1,116 @@
+<p align="center">
+  <img src="Screenshots/logo.svg" alt="PicoClaw LuCI" width="120">
+</p>
+
+<h1 align="center">PicoClaw LuCI — OpenWrt Webverwaltung</h1>
+
+<p align="center">
+  <b>Eine schöne LuCI-Weboberfläche zur Verwaltung von <a href="https://github.com/sipeed/picoclaw">PicoClaw</a> auf OpenWrt-Routern</b>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/OpenWrt-24.10%20%7C%2025.xx-blue?logo=openwrt" alt="OpenWrt">
+  <img src="https://img.shields.io/badge/LuCI-Web%20Interface-green?logo=lua" alt="LuCI">
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
+  <img src="https://img.shields.io/badge/Arch-ARM64%20%7C%20AMD64%20%7C%20ARMv7-orange" alt="Architecture">
+</p>
+
+<p align="center">
+  <a href="README.md">English</a> ·
+  <a href="README.zh.md">简体中文</a> ·
+  <a href="README.ja.md">日本語</a> ·
+  <a href="README.de.md">Deutsch</a> ·
+  <a href="README.pt.md">Português</a>
+</p>
+
+---
+
+## 📸 Screenshots
+
+| Desktop | Mobil |
+|:---:|:---:|
+| ![Dashboard](Screenshots/screenshot_main.png) | ![Mobil](Screenshots/screenshot_mobile.png) |
+| ![Konfiguration](Screenshots/screenshot_config.png) | — |
+
+## ✨ Funktionen
+
+- 🖥️ **Modernes Dashboard** — Echtzeit-Service-Status, PID, Speichernutzung und Port-Überwachung
+- 🚀 **Service-Steuerung** — PicoClaw mit einem Klick starten / stoppen / neu starten
+- ⚡ **Autostart-Umschalter** — Autostart direkt in der Weboberfläche aktivieren/deaktivieren
+- 📡 **Kanalverwaltung** — Alle Kanäle anzeigen und verwalten (Feishu, Telegram, Discord, WeChat, WeCom, Slack, QQ, LINE, DingTalk, WhatsApp, MaixCam)
+- 🔧 **Formular-Konfiguration** — Intuitive Formular-Benutzeroberfläche für AI-Modell, Anbieter, Systemeinstellungen und Tools
+- 📝 **JSON-Editor** — Direkte JSON-Bearbeitung mit Formatierung und Validierung
+- 🌍 **5 Sprachen** — Eingebauter i18n: English, 简体中文, 日本語, Português, Deutsch
+- 🔄 **Online-Update** — Neue Versionen prüfen und direkt aktualisieren
+- 🔑 **Multi-Anbieter** — API-Schlüssel für Zhipu, OpenAI, ChatGPT, Claude, DeepSeek, Anthropic, Ollama, Azure OpenAI
+
+## 📋 Voraussetzungen
+
+| Anforderung | Details |
+|---|---|
+| **OpenWrt** | 24.10 / 25.xx (mit LuCI) |
+| **Architektur** | ARM64, AMD64, ARMv7 |
+| **SSH** | Für das Installationsskript erforderlich |
+| **Python** | 3.6+ (auf dem PC) |
+| **PicoClaw** | [sipeed/picoclaw](https://github.com/sipeed/picoclaw) neueste Version |
+
+## 🚀 Installation
+
+### Methode 1: Python-Installer (Empfohlen)
+
+```bash
+pip install paramiko
+wget https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/install_picoclaw_luci.py
+python install_picoclaw_luci.py
+```
+
+### Methode 2: .ipk-Paket
+
+```bash
+# OpenWrt 24.10
+opkg install luci-compat
+wget -O /tmp/luci-app-picoclaw.ipk https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_24.10_all.ipk
+opkg install /tmp/luci-app-picoclaw.ipk
+
+# OpenWrt 25.xx
+wget -O /tmp/luci-app-picoclaw.ipk https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_25.xx_all.ipk
+opkg install /tmp/luci-app-picoclaw.ipk
+```
+
+### Methode 3: Manuelle Installation
+
+```bash
+# PicoClaw installieren
+ARCH=$(uname -m)
+if echo "$ARCH" | grep -q "x86"; then PLAT="linux_amd64";
+elif echo "$ARCH" | grep -q "armv7"; then PLAT="linux_armv7";
+else PLAT="linux_arm64"; fi
+wget -O /tmp/picoclaw "https://github.com/sipeed/picoclaw/releases/latest/download/picoclaw_${PLAT}"
+chmod +x /tmp/picoclaw && mv /tmp/picoclaw /usr/bin/picoclaw
+
+# LuCI-Dateien und init.d Service einrichten
+# (Dateien aus diesem Repository kopieren)
+```
+
+## 🎯 Zugriff
+
+```
+http://<ROUTER-IP>/cgi-bin/luci/admin/services/picoclaw
+```
+
+## ⚠️ Haftungsausschluss
+
+Dieses Projekt ist eine Community-getriebene LuCI-Verwaltungsoberfläche für PicoClaw und ist **kein** Teil des offiziellen PicoClaw-Projekts.
+
+- **PicoClaw** wird von [Sipeed](https://github.com/sipeed) unter der MIT-Lizenz entwickelt
+- Diese LuCI-Oberfläche ist ein unabhängiges Open-Source-Tool
+- „PicoClaw" und „Sipeed" sind Marken ihrer jeweiligen Eigentümer
+
+## 📄 Lizenz
+
+[MIT-Lizenz](LICENSE)
+
+## 🙏 Danksagungen
+
+- [PicoClaw](https://github.com/sipeed/picoclaw) by Sipeed
+- [OpenWrt](https://openwrt.org/) / [LuCI](https://github.com/openwrt/luci)
