@@ -70,7 +70,7 @@
 pip install paramiko
 
 # 下载安装脚本
-wget https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/install_picoclaw_luci.py
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/install_picoclaw_luci.py
 
 # 运行 — 按提示输入路由器信息
 python install_picoclaw_luci.py
@@ -178,3 +178,22 @@ http://<路由器IP>/cgi-bin/luci/admin/services/picoclaw
 3. 提交更改 (`git commit -m 'Add amazing feature'`)
 4. 推送分支 (`git push origin feature/amazing-feature`)
 5. 发起 Pull Request
+
+---
+
+<p align="center">
+  如果这个项目对你有帮助，请给一个 ⭐ 支持一下！
+</p>
+
+<p align="center">
+  <a href="https://github.com/GennKann/luci-app-picoclaw">
+    <img src="https://img.shields.io/github/stars/GennKann/luci-app-picoclaw?style=social" alt="Stars">
+  </a>
+  <a href="https://github.com/GennKann/luci-app-picoclaw/fork">
+    <img src="https://img.shields.io/github/forks/GennKann/luci-app-picoclaw?style=social" alt="Forks">
+  </a>
+</p>
+
+<p align="center">
+  <b>❤️ 由 <a href="https://github.com/GennKann">GennKann</a> 用心制作</b>
+</p>

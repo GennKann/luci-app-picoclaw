@@ -247,7 +247,7 @@ end
 
 # NOTE: TEMPLATE_HTM is loaded from the main.htm file in the repo
 # to keep install.py manageable in size.
-# The full template is at: lucl/view/picoclaw/main.htm
+# The full template is at: luci/view/picoclaw/main.htm
 
 
 def print_step(msg):

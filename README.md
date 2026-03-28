@@ -70,7 +70,7 @@ Run on your PC — the script will SSH into your router and do everything automa
 pip install paramiko
 
 # Download the installer
-wget https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/install_picoclaw_luci.py
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/install_picoclaw_luci.py
 
 # Run — it will guide you through setup
 python install_picoclaw_luci.py
@@ -104,8 +104,8 @@ chmod +x /tmp/picoclaw
 mv /tmp/picoclaw /usr/bin/picoclaw
 
 # 2. Deploy LuCI files (copy from this repo)
-# controller: lucl/controller/picoclaw.lua → /usr/lib/lua/luci/controller/picoclaw.lua
-# template: lucl/view/picoclaw/main.htm → /usr/lib/lua/luci/view/picoclaw/main.htm
+# controller: luci/controller/picoclaw.lua → /usr/lib/lua/luci/controller/picoclaw.lua
+# template: luci/view/picoclaw/main.htm → /usr/lib/lua/luci/view/picoclaw/main.htm
 
 # 3. Set up init.d service
 cp scripts/picoclaw.init /etc/init.d/picoclaw
@@ -195,3 +195,22 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+---
+
+<p align="center">
+  If you find this project useful, please consider giving it a ⭐!
+</p>
+
+<p align="center">
+  <a href="https://github.com/GennKann/luci-app-picoclaw">
+    <img src="https://img.shields.io/github/stars/GennKann/luci-app-picoclaw?style=social" alt="Stars">
+  </a>
+  <a href="https://github.com/GennKann/luci-app-picoclaw/fork">
+    <img src="https://img.shields.io/github/forks/GennKann/luci-app-picoclaw?style=social" alt="Forks">
+  </a>
+</p>
+
+<p align="center">
+  <b>Made with ❤️ by <a href="https://github.com/GennKann">GennKann</a></b>
+</p>

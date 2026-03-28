@@ -60,7 +60,7 @@
 
 ```bash
 pip install paramiko
-wget https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/install_picoclaw_luci.py
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/install_picoclaw_luci.py
 python install_picoclaw_luci.py
 ```
 
