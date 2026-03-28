@@ -349,8 +349,8 @@ def main():
     # Step 4: Deploy LuCI
     if has_luci.strip() == 'yes':
         print_step("Step 4/6: Deploy LuCI Interface")
-        controller_path = os.path.join(os.path.dirname(__file__), 'lucl', 'controller', 'picoclaw.lua')
-        template_path = os.path.join(os.path.dirname(__file__), 'lucl', 'view', 'picoclaw', 'main.htm')
+        controller_path = os.path.join(os.path.dirname(__file__), 'luci', 'controller', 'picoclaw.lua')
+        template_path = os.path.join(os.path.dirname(__file__), 'luci', 'view', 'picoclaw', 'main.htm')
 
         with sftp.open('/usr/lib/lua/luci/controller/picoclaw.lua', 'w') as f:
             f.write(open(controller_path, 'r').read())

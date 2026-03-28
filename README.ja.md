@@ -126,7 +126,7 @@ http://<ルーターIP>/cgi-bin/luci/admin/services/picoclaw
 
 ## ⚠️ 免責事項
 
-本项目はコミュニティ駆動のPicoClaw管理インターフェースであり、PicoClaw公式プロジェクトの一部ではありません。
+このプロジェクトはコミュニティ駆動のPicoClaw管理インターフェースであり、PicoClaw公式プロジェクトの一部ではありません。
 
 - **PicoClaw**は[Sipeed](https://github.com/sipeed)によってMITライセンスで開発されています
 - 本LuCIインターフェースは独立したオープンソースツールです
