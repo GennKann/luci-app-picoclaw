@@ -117,20 +117,35 @@ rm -rf /tmp/luci-*
 /etc/init.d/picoclaw start
 ```
 
-### Method 3: OpenWrt 24.10 / 25.xx Package Installation
+### Method 3: Package Installation
 
-For OpenWrt 24.10 and 25.xx, you can also install via `.ipk` package:
+> **Note:** OpenWrt 24.10 uses `.ipk` (opkg), while OpenWrt 25.xx uses `.apk` (apk-tools). They are **different** package managers.
+
+#### OpenWrt 24.10 (opkg / .ipk)
 
 ```bash
-# OpenWrt 24.10
 opkg install luci-compat
-wget -O /tmp/luci-app-picoclaw.ipk https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_24.10_all.ipk
-opkg install /tmp/luci-app-picoclaw.ipk
-
-# OpenWrt 25.xx
-wget -O /tmp/luci-app-picoclaw.ipk https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_25.xx_all.ipk
+wget -O /tmp/luci-app-picoclaw.ipk https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_24.10_all.ipk
 opkg install /tmp/luci-app-picoclaw.ipk
 ```
+
+#### OpenWrt 25.xx (apk / .apk)
+
+Since OpenWrt 25.x switched from `opkg` to `apk-tools`, the package format has changed from `.ipk` to `.apk`. You can build the package directly on your router:
+
+```bash
+# Download the build script
+wget -O /tmp/build-apk-25xx.sh https://raw.githubusercontent.com/GennKann/luci-app-picoclaw/main/scripts/build-apk-25xx.sh
+chmod +x /tmp/build-apk-25xx.sh
+
+# Run it to build the .apk package
+/tmp/build-apk-25xx.sh
+
+# Install the generated package
+apk add --allow-untrusted /root/luci-app-picoclaw_1.0.0_all.apk
+```
+
+> **Why build on-device?** OpenWrt 25.xx uses APKv3 (Alpine Package Keeper) format which requires `apk-tools` to build properly. Building on the router ensures full compatibility.
 
 ## 🎯 Access
 

@@ -110,18 +110,35 @@ chmod +x /etc/init.d/picoclaw && /etc/init.d/picoclaw enable
 rm -rf /tmp/luci-* && /etc/init.d/picoclaw start
 ```
 
-### 方式三：OpenWrt 24.10 / 25.xx 包安装
+### 方式三：包管理器安装
+
+> **注意：** OpenWrt 24.10 使用 `.ipk`（opkg 包管理器），OpenWrt 25.xx 使用 `.apk`（apk-tools 包管理器），两者是**不同的**包格式。
+
+#### OpenWrt 24.10（opkg / .ipk）
 
 ```bash
-# OpenWrt 24.10
 opkg install luci-compat
-wget -O /tmp/luci-app-picoclaw.ipk https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_24.10_all.ipk
-opkg install /tmp/luci-app-picoclaw.ipk
-
-# OpenWrt 25.xx
-wget -O /tmp/luci-app-picoclaw.ipk https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_25.xx_all.ipk
+wget -O /tmp/luci-app-picoclaw.ipk https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_24.10_all.ipk
 opkg install /tmp/luci-app-picoclaw.ipk
 ```
+
+#### OpenWrt 25.xx（apk / .apk）
+
+OpenWrt 25.x 已将包管理器从 `opkg` 切换为 `apk-tools`，包格式从 `.ipk` 变为 `.apk`。需要在路由器上直接构建：
+
+```bash
+# 下载构建脚本
+wget -O /tmp/build-apk-25xx.sh https://raw.githubusercontent.com/GennKann/luci-app-picoclaw/main/scripts/build-apk-25xx.sh
+chmod +x /tmp/build-apk-25xx.sh
+
+# 运行构建 .apk 包
+/tmp/build-apk-25xx.sh
+
+# 安装生成的包
+apk add --allow-untrusted /root/luci-app-picoclaw_1.0.0_all.apk
+```
+
+> **为什么需要在路由器上构建？** OpenWrt 25.xx 使用 APKv3（Alpine Package Keeper）格式，需要 `apk-tools` 来正确构建。在路由器上构建可确保完全兼容。
 
 ## 🎯 访问地址
 

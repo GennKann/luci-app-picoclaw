@@ -69,17 +69,32 @@ wget https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download
 python install_picoclaw_luci.py
 ```
 
-### 方法2：.ipkパッケージインストール
+### 方法2：パッケージインストール
+
+> **注意：** OpenWrt 24.10は`.ipk`（opkg）、OpenWrt 25.xxは`.apk`（apk-tools）を使用します。**別の**パッケージ形式です。
+
+#### OpenWrt 24.10（opkg / .ipk）
 
 ```bash
-# OpenWrt 24.10
 opkg install luci-compat
-wget -O /tmp/luci-app-picoclaw.ipk https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_24.10_all.ipk
+wget -O /tmp/luci-app-picoclaw.ipk https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_24.10_all.ipk
 opkg install /tmp/luci-app-picoclaw.ipk
+```
 
-# OpenWrt 25.xx
-wget -O /tmp/luci-app-picoclaw.ipk https://github.com/YOUR_USERNAME/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_25.xx_all.ipk
-opkg install /tmp/luci-app-picoclaw.ipk
+#### OpenWrt 25.xx（apk / .apk）
+
+OpenWrt 25.xではパッケージマネージャーが`opkg`から`apk-tools`に変更され、形式も`.ipk`から`.apk`になりました。ルーター上で直接ビルドします：
+
+```bash
+# ビルドスクリプトをダウンロード
+wget -O /tmp/build-apk-25xx.sh https://raw.githubusercontent.com/GennKann/luci-app-picoclaw/main/scripts/build-apk-25xx.sh
+chmod +x /tmp/build-apk-25xx.sh
+
+# .apkパッケージをビルド
+/tmp/build-apk-25xx.sh
+
+# 生成されたパッケージをインストール
+apk add --allow-untrusted /root/luci-app-picoclaw_1.0.0_all.apk
 ```
 
 ### 方法3：手動インストール
