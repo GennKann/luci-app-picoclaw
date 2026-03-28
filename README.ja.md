@@ -138,9 +138,35 @@ http://<ルーターIP>/cgi-bin/luci/admin/services/picoclaw
 
 ## 🙏 クレジット
 
-- [PicoClaw](https://github.com/sipeed/picoclaw) by Sipeed
-- [OpenWrt](https://openwrt.org/) / [LuCI](https://github.com/openwrt/luci)
+- [PicoClaw](https://github.com/sipeed/picoclaw) by Sipeed — このプロジェクトが管理する素晴らしいAIアシスタント
+- [OpenWrt](https://openwrt.org/) — 実行環境
+- [LuCI](https://github.com/openwrt/luci) — Webインターフェースフレームワーク
 
 ## 🤝 コントリビューション
 
-Pull Requestをお待ちしています！
+コントリビューションをお待ちしています！お気軽にPull Requestをどうぞ。
+
+1. リポジトリをフォーク
+2. フィーチャーブランチを作成 (`git checkout -b feature/amazing-feature`)
+3. 変更をコミット (`git commit -m 'Add amazing feature'`)
+4. ブランチをプッシュ (`git push origin feature/amazing-feature`)
+5. Pull Requestを作成
+
+---
+
+<p align="center">
+  このプロジェクトが役立つと思ったら、⭐ をお願いします！
+</p>
+
+<p align="center">
+  <a href="https://github.com/GennKann/luci-app-picoclaw">
+    <img src="https://img.shields.io/github/stars/GennKann/luci-app-picoclaw?style=social" alt="Stars">
+  </a>
+  <a href="https://github.com/GennKann/luci-app-picoclaw/fork">
+    <img src="https://img.shields.io/github/forks/GennKann/luci-app-picoclaw?style=social" alt="Forks">
+  </a>
+</p>
+
+<p align="center">
+  <b>Made with ❤️ by <a href="https://github.com/GennKann">GennKann</a></b>
+</p>

@@ -127,5 +127,35 @@ Dieses Projekt ist eine Community-getriebene LuCI-Verwaltungsoberfläche für Pi
 
 ## 🙏 Danksagungen
 
-- [PicoClaw](https://github.com/sipeed/picoclaw) by Sipeed
-- [OpenWrt](https://openwrt.org/) / [LuCI](https://github.com/openwrt/luci)
+- [PicoClaw](https://github.com/sipeed/picoclaw) by Sipeed — Der großartige KI-Assistent, den dieses Projekt verwaltet
+- [OpenWrt](https://openwrt.org/) — Das Fundament, auf dem dies läuft
+- [LuCI](https://github.com/openwrt/luci) — Das Web-Interface-Framework
+
+## 🤝 Mitmachen
+
+Beiträge sind willkommen! Bitte erstellen Sie einen Pull Request.
+
+1. Forken Sie das Repository
+2. Erstellen Sie einen Feature-Branch (`git checkout -b feature/amazing-feature`)
+3. Committen Sie Ihre Änderungen (`git commit -m 'Add amazing feature'`)
+4. Pushen Sie den Branch (`git push origin feature/amazing-feature`)
+5. Erstellen Sie einen Pull Request
+
+---
+
+<p align="center">
+  Wenn Sie dieses Projekt nützlich finden, geben Sie ihm bitte einen ⭐!
+</p>
+
+<p align="center">
+  <a href="https://github.com/GennKann/luci-app-picoclaw">
+    <img src="https://img.shields.io/github/stars/GennKann/luci-app-picoclaw?style=social" alt="Stars">
+  </a>
+  <a href="https://github.com/GennKann/luci-app-picoclaw/fork">
+    <img src="https://img.shields.io/github/forks/GennKann/luci-app-picoclaw?style=social" alt="Forks">
+  </a>
+</p>
+
+<p align="center">
+  <b>Made with ❤️ by <a href="https://github.com/GennKann">GennKann</a></b>
+</p>

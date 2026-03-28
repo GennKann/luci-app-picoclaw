@@ -127,5 +127,35 @@ Este projeto é uma interface LuCI de gerenciamento do PicoClaw desenvolvida pel
 
 ## 🙏 Créditos
 
-- [PicoClaw](https://github.com/sipeed/picoclaw) by Sipeed
-- [OpenWrt](https://openwrt.org/) / [LuCI](https://github.com/openwrt/luci)
+- [PicoClaw](https://github.com/sipeed/picoclaw) by Sipeed — O excelente assistente de IA que este projeto gerencia
+- [OpenWrt](https://openwrt.org/) — A base sobre a qual isso é executado
+- [LuCI](https://github.com/openwrt/luci) — O framework de interface web
+
+## 🤝 Contribuição
+
+Contribuições são bem-vindas! Sinta-se à vontade para enviar um Pull Request.
+
+1. Faça um Fork do repositório
+2. Crie um branch de funcionalidade (`git checkout -b feature/amazing-feature`)
+3. Faça commit das alterações (`git commit -m 'Add amazing feature'`)
+4. Faça push do branch (`git push origin feature/amazing-feature`)
+5. Abra um Pull Request
+
+---
+
+<p align="center">
+  Se você achar este projeto útil, por favor, dê uma ⭐!
+</p>
+
+<p align="center">
+  <a href="https://github.com/GennKann/luci-app-picoclaw">
+    <img src="https://img.shields.io/github/stars/GennKann/luci-app-picoclaw?style=social" alt="Stars">
+  </a>
+  <a href="https://github.com/GennKann/luci-app-picoclaw/fork">
+    <img src="https://img.shields.io/github/forks/GennKann/luci-app-picoclaw?style=social" alt="Forks">
+  </a>
+</p>
+
+<p align="center">
+  <b>Made with ❤️ by <a href="https://github.com/GennKann">GennKann</a></b>
+</p>
