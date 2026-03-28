@@ -35,11 +35,11 @@ def run_cmd(client, cmd, timeout=120):
     stdin, stdout, stderr = client.exec_command(cmd, timeout=timeout)
     try:
         out = stdout.read().decode('utf-8', errors='replace').strip()
-    except:
+    except Exception:
         out = "(timeout)"
     try:
         err = stderr.read().decode('utf-8', errors='replace').strip()
-    except:
+    except Exception:
         err = ""
     if out:
         print(f"  {out}")

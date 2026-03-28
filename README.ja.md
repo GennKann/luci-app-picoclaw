@@ -43,8 +43,10 @@
 - 🌍 **5言語対応** — 組み込みi18n：English、简体中文、日本語、Português、Deutsch
 - 🔄 **オンライン更新** — 新バージョンの確認とUIからの直接更新
 - 📊 **システムログ** — PicoClawシステムログをリアルタイム表示
+- 💬 **WeChatガイド** — WeChat個人アカウントのセットアップガイド
 - 🔑 **マルチプロバイダー対応** — Zhipu、OpenAI、ChatGPT、Claude、DeepSeek、Anthropic、Ollama、Azure OpenAIのAPIキー設定
 - 🎨 **レスポンシブデザイン** — デスクトップとモバイルブラウザの両方に対応
+- 📦 **ワンクリックインストール** — SSH経由でOpenWrtデバイスに自動デプロイするPythonインストーラー
 
 ## 📋 動作要件
 
@@ -123,6 +125,16 @@ rm -rf /tmp/luci-* && /etc/init.d/picoclaw start
 ```
 http://<ルーターIP>/cgi-bin/luci/admin/services/picoclaw
 ```
+
+## 🛠️ テクノロジースタック
+
+| コンポーネント | テクノロジー |
+|---|---|
+| バックエンドコントローラー | Lua (LuCI) |
+| フロントエンドテンプレート | HTML + CSS + JavaScript (サーバーサイドレンダリング) |
+| サービスマネージャー | OpenWrt procd (init.d) |
+| インストーラー | Python + Paramiko (SSH) |
+| AIエンジン | [PicoClaw](https://github.com/sipeed/picoclaw) (Go) |
 
 ## ⚠️ 免責事項
 

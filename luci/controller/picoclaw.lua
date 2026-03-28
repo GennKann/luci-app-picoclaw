@@ -34,6 +34,7 @@ function get_status()
     if nf then
         local c = nf:read("*a")
         nf:close()
+        -- 4966 is hex for port 18790 (0x4966 = 18790), used by /proc/net/tcp format
         if c:find(":4966") then port_active = true end
     end
     return {running=running, pid=pid, memory_kb=memory_kb, port_active=port_active}
@@ -183,24 +184,7 @@ function action_do()
     elseif action == "autostart_off" then
         os.execute("/etc/init.d/picoclaw disable 2>/dev/null; rm -f /etc/rc.d/S99picoclaw 2>/dev/null")
         msg = "已关闭开机自动启动。"
-    elseif action == "save_config" then
-        local config = http.formvalue("config") or ""
-        if config ~= "" then
-            local f = io.open("/root/.picoclaw/config.json", "w")
-            if f then
-                f:write(config)
-                f:close()
-                os.execute("pkill -f 'picoclaw gateway' 2>/dev/null; sleep 1; picoclaw gateway >/dev/null 2>&1 &")
-                msg = "配置已保存，服务已重启！"
-            else
-                msg = "错误：无法写入配置文件"
-                ok = false
-            end
-        else
-            msg = "错误：配置内容为空"
-            ok = false
-        end
-    elseif action == "save_form_config" then
+    elseif action == "save_config" or action == "save_form_config" then
         local config = http.formvalue("config") or ""
         if config ~= "" then
             local f = io.open("/root/.picoclaw/config.json", "w")

@@ -42,7 +42,11 @@
 - 📝 **JSON-Editor** — Direkte JSON-Bearbeitung mit Formatierung und Validierung
 - 🌍 **5 Sprachen** — Eingebauter i18n: English, 简体中文, 日本語, Português, Deutsch
 - 🔄 **Online-Update** — Neue Versionen prüfen und direkt aktualisieren
+- 📊 **Systemprotokolle** — PicoClaw-Systemlogs in Echtzeit anzeigen
+- 💬 **WeChat-Anleitung** — Schritt-für-Schritt WeChat-Personalaccount-Einrichtung
 - 🔑 **Multi-Anbieter** — API-Schlüssel für Zhipu, OpenAI, ChatGPT, Claude, DeepSeek, Anthropic, Ollama, Azure OpenAI
+- 🎨 **Responsives Design** — Funktioniert auf Desktop und mobilen Browsern
+- 📦 **Ein-Klick-Installation** — Python-Installer für jedes OpenWrt-Gerät via SSH
 
 ## 📋 Voraussetzungen
 
@@ -50,6 +54,7 @@
 |---|---|
 | **OpenWrt** | 24.10 / 25.xx (mit LuCI) |
 | **Architektur** | ARM64, AMD64, ARMv7 |
+| **LuCI** | Standard LuCI-Installation |
 | **SSH** | Für das Installationsskript erforderlich |
 | **Python** | 3.6+ (auf dem PC) |
 | **PicoClaw** | [sipeed/picoclaw](https://github.com/sipeed/picoclaw) neueste Version |
@@ -112,6 +117,16 @@ chmod +x /tmp/picoclaw && mv /tmp/picoclaw /usr/bin/picoclaw
 ```
 http://<ROUTER-IP>/cgi-bin/luci/admin/services/picoclaw
 ```
+
+## 🛠️ Tech-Stack
+
+| Komponente | Technologie |
+|---|---|
+| Backend-Controller | Lua (LuCI) |
+| Frontend-Template | HTML + CSS + JavaScript (serverseitig gerendert) |
+| Service-Manager | OpenWrt procd (init.d) |
+| Installer | Python + Paramiko (SSH) |
+| KI-Engine | [PicoClaw](https://github.com/sipeed/picoclaw) (Go) |
 
 ## ⚠️ Haftungsausschluss
 

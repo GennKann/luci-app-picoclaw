@@ -150,6 +150,16 @@ http://<路由器IP>/cgi-bin/luci/admin/services/picoclaw
 
 例如：`http://192.168.1.1/cgi-bin/luci/admin/services/picoclaw`
 
+## 🛠️ 技术栈
+
+| 组件 | 技术 |
+|---|---|
+| 后端控制器 | Lua (LuCI) |
+| 前端模板 | HTML + CSS + JavaScript（服务端渲染） |
+| 服务管理 | OpenWrt procd (init.d) |
+| 安装器 | Python + Paramiko (SSH) |
+| AI 引擎 | [PicoClaw](https://github.com/sipeed/picoclaw) (Go) |
+
 ## ⚠️ 免责声明
 
 本项目是社区驱动的 PicoClaw LuCI 管理界面，**不是** PicoClaw 官方项目的一部分。

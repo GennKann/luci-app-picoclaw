@@ -43,47 +43,25 @@ mkdir -p "${BUILD_DIR}/pkg"
 # --- Install files ---
 echo "[1/5] Installing files..."
 
-# LuCI Controller
+# LuCI Controller — copy from repo source
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_DIR="$(dirname "$SCRIPT_DIR")"
 mkdir -p "${BUILD_DIR}/pkg/usr/lib/lua/luci/controller"
-cat > "${BUILD_DIR}/pkg/usr/lib/lua/luci/controller/picoclaw.lua" << 'LUACONTROLLER'
-module("luci.controller.picoclaw", package.seeall)
+if [ -f "${REPO_DIR}/luci/controller/picoclaw.lua" ]; then
+    cp "${REPO_DIR}/luci/controller/picoclaw.lua" "${BUILD_DIR}/pkg/usr/lib/lua/luci/controller/picoclaw.lua"
+    echo "  -> controller/picoclaw.lua (copied from repo)"
+else
+    echo "  [WARN] luci/controller/picoclaw.lua not found, skipping"
+fi
 
-function index()
-    entry({"admin", "services", "picoclaw"}, call("action_main"), "PicoClaw", 60)
-    entry({"admin", "services", "picoclaw", "action"}, call("action_do"), nil)
-end
-
-function action_main()
-    local uci = require "luci.model.uci".cursor()
-    luci.http.prepare_content("text/html")
-    luci.http.render("picoclaw/main", { })
-end
-
-function action_do()
-    local act = luci.http.formvalue("act")
-    if act == "start" then
-        os.execute("/etc/init.d/picoclaw start")
-    elseif act == "stop" then
-        os.execute("/etc/init.d/picoclaw stop")
-    elseif act == "restart" then
-        os.execute("/etc/init.d/picoclaw restart")
-    elseif act == "enable" then
-        os.execute("/etc/init.d/picoclaw enable")
-    elseif act == "disable" then
-        os.execute("/etc/init.d/picoclaw disable")
-    elseif act == "update" then
-        os.execute("picoclaw update 2>&1")
-    end
-    luci.http.redirect(luci.dispatcher.build_url("admin/services/picoclaw"))
-end
-LUACONTROLLER
-echo "  -> controller/picoclaw.lua"
-
-# LuCI View
+# LuCI View Template — copy from repo source
 mkdir -p "${BUILD_DIR}/pkg/usr/lib/lua/luci/view/picoclaw"
-# The view template is large; we'll copy it via the install script
-# For the APK build, we include a placeholder and the full install script will deploy it
-echo "  (LuCI view template will be deployed by install_picoclaw_luci.py)"
+if [ -f "${REPO_DIR}/luci/view/picoclaw/main.htm" ]; then
+    cp "${REPO_DIR}/luci/view/picoclaw/main.htm" "${BUILD_DIR}/pkg/usr/lib/lua/luci/view/picoclaw/main.htm"
+    echo "  -> view/picoclaw/main.htm (copied from repo)"
+else
+    echo "  [WARN] luci/view/picoclaw/main.htm not found, skipping"
+fi
 
 # init.d service script
 mkdir -p "${BUILD_DIR}/pkg/etc/init.d"
@@ -97,11 +75,16 @@ USE_PROCD=1
 start_service() {
     procd_open_instance picoclaw
     procd_set_param command /usr/bin/picoclaw gateway
-    procd_set_param respawn
+    procd_set_param env HOME=/root
+    procd_set_param respawn 3600 5 5
     procd_set_param stdout 1
     procd_set_param stderr 1
     procd_set_param user root
     procd_close_instance
+}
+
+stop_service() {
+    killall picoclaw 2>/dev/null
 }
 
 service_triggers() {
@@ -181,11 +164,6 @@ if [ -f "/tmp/${OUTPUT_FILE}" ]; then
     echo "Or copy to another router and install:"
     echo "  scp /root/${OUTPUT_FILE} root@<router-ip>:/tmp/"
     echo "  ssh root@<router-ip> 'apk add --allow-untrusted /tmp/${OUTPUT_FILE}'"
-    echo ""
-    echo "NOTE: The LuCI view template is large. For the full management"
-    echo "interface with status monitoring, config editing, and 5-language"
-    echo "support, also run the install_picoclaw_luci.py script from:"
-    echo "  https://github.com/GennKann/luci-app-picoclaw"
 else
     echo "[ERROR] Failed to create package!"
     exit 1
