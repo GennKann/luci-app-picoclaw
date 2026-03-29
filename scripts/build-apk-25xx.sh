@@ -109,7 +109,7 @@ cat > pkg/.PKGINFO/pkginfo << PKGINFO
 pkgname = ${PKG_NAME}
 pkgver = ${PKG_VERSION}
 pkgdesc = ${PKG_DESC}
-url = https://github.com/GennKann/luci-app-picoclaw
+url = https://github.com/sipeed/picoclaw
 builddate = $(date +%s)
 packager = ${PKG_MAINTAINER}
 size = $(du -sb pkg | cut -f1)

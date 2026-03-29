@@ -110,6 +110,7 @@ if flash_msg ~= "" then
       <div class="detail">v<%=cur_ver%> → v<%=latest_ver%></div>
     </div>
     <form method="post" action="<%=action_url%>" style="display:inline;flex-shrink:0">
+      <input type="hidden" name="token" value="<%=csrf_token%>">
       <input type="hidden" name="action" value="update">
       <button type="submit" class="pc-btn purple" onclick="return confirm(I('confirm_update'))" data-i18n="update_now">立即更新</button>
     </form>
@@ -155,14 +156,14 @@ if flash_msg ~= "" then
       </div>
     </div>
     <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
-      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="action" value="start"><button type="submit" class="pc-btn green" data-i18n="start">启动</button></form>
-      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="action" value="stop"><button type="submit" class="pc-btn orange" data-i18n="stop">停止</button></form>
-      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="action" value="restart"><button type="submit" class="pc-btn blue" data-i18n="restart">重启</button></form>
+      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="token" value="<%=csrf_token%>"><input type="hidden" name="action" value="start"><button type="submit" class="pc-btn green" data-i18n="start">启动</button></form>
+      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="token" value="<%=csrf_token%>"><input type="hidden" name="action" value="stop"><button type="submit" class="pc-btn orange" data-i18n="stop">停止</button></form>
+      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="token" value="<%=csrf_token%>"><input type="hidden" name="action" value="restart"><button type="submit" class="pc-btn blue" data-i18n="restart">重启</button></form>
       <div style="width:1px;height:24px;background:#ddd;margin:0 4px"></div>
       <% if autostart then %>
-      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="action" value="autostart_off"><button type="submit" class="pc-btn" style="background:#e8f5e9;color:#2e7d32;border-color:#c8e6c9" data-i18n="autostart_on">&#9889; 开机自启: 开</button></form>
+      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="token" value="<%=csrf_token%>"><input type="hidden" name="action" value="autostart_off"><button type="submit" class="pc-btn" style="background:#e8f5e9;color:#2e7d32;border-color:#c8e6c9" data-i18n="autostart_on">&#9889; 开机自启: 开</button></form>
       <% else %>
-      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="action" value="autostart_on"><button type="submit" class="pc-btn gray" data-i18n="autostart_off">&#9889; 开机自启: 关</button></form>
+      <form method="post" action="<%=action_url%>" style="display:inline"><input type="hidden" name="token" value="<%=csrf_token%>"><input type="hidden" name="action" value="autostart_on"><button type="submit" class="pc-btn gray" data-i18n="autostart_off">&#9889; 开机自启: 关</button></form>
       <% end %>
     </div>
   </div>
@@ -199,6 +200,7 @@ if flash_msg ~= "" then
     <!-- Form Mode -->
     <div id="cfg-form-mode">
       <form id="config-form" method="post" action="<%=action_url%>">
+        <input type="hidden" name="token" value="<%=csrf_token%>">
         <input type="hidden" name="action" value="save_form_config">
         <input type="hidden" name="config" id="form-config-json" value="">
 
@@ -295,6 +297,7 @@ if flash_msg ~= "" then
     <!-- JSON Mode -->
     <div id="cfg-json-mode" style="display:none">
       <form method="post" action="<%=action_url%>">
+        <input type="hidden" name="token" value="<%=csrf_token%>">
         <input type="hidden" name="action" value="save_config">
         <textarea name="config" class="pc-editor" id="json-editor"><%=config_content%></textarea>
         <div class="pc-actions">

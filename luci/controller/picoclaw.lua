@@ -1,8 +1,24 @@
 module("luci.controller.picoclaw", package.seeall)
 
+local jsonc = require("luci.jsonc")
+local sys = require("luci.sys")
+local http = require("luci.http")
+local dispatcher = require("luci.dispatcher")
+
 function index()
-    entry({"admin", "services", "picoclaw"}, call("action_main"), "PicoClaw", 60)
+    entry({"admin", "services", "picoclaw"}, call("action_main"), _("PicoClaw"), 60)
     entry({"admin", "services", "picoclaw", "action"}, call("action_do"), nil)
+end
+
+-- Parse JSON using luci.jsonc instead of manual regex
+function parse_json_file(filepath)
+    local f = io.open(filepath, "r")
+    if not f then return nil end
+    local content = f:read("*a")
+    f:close()
+    local ok, data = pcall(jsonc.parse, jsonc, content)
+    if ok then return data end
+    return nil
 end
 
 function get_status()
@@ -34,7 +50,7 @@ function get_status()
     if nf then
         local c = nf:read("*a")
         nf:close()
-        -- 4966 is hex for port 18790 (0x4966 = 18790), used by /proc/net/tcp format
+        -- 4966 is hex for port 18790
         if c:find(":4966") then port_active = true end
     end
     return {running=running, pid=pid, memory_kb=memory_kb, port_active=port_active}
@@ -52,16 +68,11 @@ function get_version_info()
     local cur_ver = "N/A"
     local build_time = ""
     local git_commit = ""
-    local f = io.open("/root/.picoclaw/config.json", "r")
-    if f then
-        local c = f:read("*a")
-        f:close()
-        local v = c:match('"version"%s*:%s*"([^"]+)"')
-        if v then cur_ver = v end
-        local bt = c:match('"build_time"%s*:%s*"([^"]+)"')
-        if bt then build_time = bt end
-        local gc = c:match('"git_commit"%s*:%s*"([^"]+)"')
-        if gc then git_commit = gc end
+    local config = parse_json_file("/root/.picoclaw/config.json")
+    if config then
+        if config.version then cur_ver = tostring(config.version) end
+        if config.build_time then build_time = tostring(config.build_time) end
+        if config.git_commit then git_commit = tostring(config.git_commit) end
     end
     return cur_ver, build_time, git_commit
 end
@@ -91,10 +102,20 @@ function check_latest_version()
     if f then
         local body = f:read("*a")
         f:close()
-        local v = body:match('"tag_name"%s*:%s*"v?([^"]+)"')
-        if v then latest_ver = v end
-        local u = body:match('"browser_download_url"%s*:%s*"(.-linux_arm64)"')
-        if u then latest_url = u end
+        local ok, data = pcall(jsonc.parse, jsonc, body)
+        if ok and data then
+            if data.tag_name then
+                latest_ver = data.tag_name:gsub("^v", "")
+            end
+            if data.assets then
+                for _, asset in ipairs(data.assets) do
+                    if asset.browser_download_url and asset.browser_download_url:find("linux_arm64") then
+                        latest_url = asset.browser_download_url
+                        break
+                    end
+                end
+            end
+        end
     else
         err_msg = "curl failed"
     end
@@ -115,16 +136,9 @@ function check_latest_version()
 end
 
 function get_logs()
-    local f = io.popen("logread 2>/dev/null | grep -i picoclaw | tail -50")
-    if not f then return "" end
-    local l = f:read("*a") or ""
-    f:close()
+    local l = sys.exec("logread 2>/dev/null | grep -i picoclaw | tail -50")
     if l == "" then
-        local f2 = io.popen("logread 2>/dev/null | tail -30")
-        if f2 then
-            l = f2:read("*a") or ""
-            f2:close()
-        end
+        l = sys.exec("logread 2>/dev/null | tail -30")
     end
     return l
 end
@@ -141,61 +155,76 @@ end
 
 function do_update()
     local arch = "linux_arm64"
-    local f = io.popen("uname -m 2>/dev/null")
-    if f then
-        local m = f:read("*l") or ""
-        f:close()
-        if m:find("x86") then arch = "linux_amd64" end
-    end
+    local m = sys.exec("uname -m")
+    if m:find("x86") then arch = "linux_amd64" end
     local dl_url = "https://github.com/sipeed/picoclaw/releases/latest/download/picoclaw_" .. arch
-    os.execute("pkill -f 'picoclaw gateway' 2>/dev/null")
-    os.execute("sleep 1")
-    os.execute("curl -L -o /tmp/picoclaw_new '" .. dl_url .. "' --max-time 120 2>&1")
-    os.execute("chmod +x /tmp/picoclaw_new")
-    os.execute("cp /usr/bin/picoclaw /usr/bin/picoclaw.bak 2>/dev/null")
-    os.execute("mv /tmp/picoclaw_new /usr/bin/picoclaw")
-    os.execute("picoclaw gateway >/dev/null 2>&1 &")
-    os.execute("sleep 3")
+    sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
+    sys.exec("sleep 1")
+    sys.exec("curl -L -o /tmp/picoclaw_new '" .. dl_url .. "' --max-time 120 2>&1")
+    sys.exec("chmod +x /tmp/picoclaw_new")
+    sys.exec("cp /usr/bin/picoclaw /usr/bin/picoclaw.bak 2>/dev/null")
+    sys.exec("mv /tmp/picoclaw_new /usr/bin/picoclaw")
+    sys.exec("picoclaw gateway >/dev/null 2>&1 &")
+    sys.exec("sleep 3")
+end
+
+-- Validate CSRF token for POST actions
+function check_csrf()
+    local token = http.formvalue("token")
+    if not token or token ~= dispatcher.csrf_token() then
+        http.status(403, "Forbidden")
+        http.write("Invalid CSRF token")
+        return false
+    end
+    return true
 end
 
 function action_do()
-    local http = require("luci.http")
+    if not check_csrf() then return end
+
     local action = http.formvalue("action") or ""
     local msg = ""
     local ok = true
 
     if action == "start" then
-        os.execute("picoclaw gateway >/dev/null 2>&1 &")
-        os.execute("sleep 2")
+        sys.exec("picoclaw gateway >/dev/null 2>&1 &")
+        sys.exec("sleep 2")
         msg = "服务正在启动..."
     elseif action == "stop" then
-        os.execute("pkill -f 'picoclaw gateway' 2>/dev/null")
-        os.execute("sleep 1")
+        sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
+        sys.exec("sleep 1")
         msg = "服务已停止。"
     elseif action == "restart" then
-        os.execute("pkill -f 'picoclaw gateway' 2>/dev/null")
-        os.execute("sleep 1")
-        os.execute("picoclaw gateway >/dev/null 2>&1 &")
-        os.execute("sleep 2")
+        sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
+        sys.exec("sleep 1")
+        sys.exec("picoclaw gateway >/dev/null 2>&1 &")
+        sys.exec("sleep 2")
         msg = "服务已重启。"
     elseif action == "autostart_on" then
-        os.execute("/etc/init.d/picoclaw enable 2>/dev/null; ln -sf /etc/init.d/picoclaw /etc/rc.d/S99picoclaw 2>/dev/null")
+        sys.exec("/etc/init.d/picoclaw enable 2>/dev/null")
         msg = "已启用开机自动启动。"
     elseif action == "autostart_off" then
-        os.execute("/etc/init.d/picoclaw disable 2>/dev/null; rm -f /etc/rc.d/S99picoclaw 2>/dev/null")
+        sys.exec("/etc/init.d/picoclaw disable 2>/dev/null")
         msg = "已关闭开机自动启动。"
     elseif action == "save_config" or action == "save_form_config" then
         local config = http.formvalue("config") or ""
         if config ~= "" then
-            local f = io.open("/root/.picoclaw/config.json", "w")
-            if f then
-                f:write(config)
-                f:close()
-                os.execute("pkill -f 'picoclaw gateway' 2>/dev/null; sleep 1; picoclaw gateway >/dev/null 2>&1 &")
-                msg = "配置已保存，服务已重启！"
-            else
-                msg = "错误：无法写入配置文件"
+            -- Validate JSON before saving
+            local valid, _ = pcall(jsonc.parse, jsonc, config)
+            if not valid then
+                msg = "错误：JSON 格式无效"
                 ok = false
+            else
+                local f = io.open("/root/.picoclaw/config.json", "w")
+                if f then
+                    f:write(config)
+                    f:close()
+                    sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null; sleep 1; picoclaw gateway >/dev/null 2>&1 &")
+                    msg = "配置已保存，服务已重启！"
+                else
+                    msg = "错误：无法写入配置文件"
+                    ok = false
+                end
             end
         else
             msg = "错误：配置内容为空"
@@ -206,16 +235,14 @@ function action_do()
         msg = "更新完成，服务已重启！"
     end
 
-    local dispatcher = require("luci.dispatcher")
     local url = dispatcher.build_url("admin", "services", "picoclaw")
     if msg ~= "" then
-        url = url .. "?msg=" .. luci.http.urlencode(msg) .. "&ok=" .. (ok and "1" or "0")
+        url = url .. "?msg=" .. http.urlencode(msg) .. "&ok=" .. (ok and "1" or "0")
     end
-    luci.http.redirect(url)
+    http.redirect(url)
 end
 
 function action_main()
-    local http = require("luci.http")
     local status = get_status()
     local config_content, config_err = get_config()
     local logs = get_logs()
@@ -256,30 +283,21 @@ function action_main()
         pid_str = tostring(status.pid)
     end
 
+    -- Parse weixin status using proper JSON parser
     local weixin_status = "none"
     local weixin_configured = false
-    if config_content then
-        local ws = config_content:find('"weixin"')
-        if ws then
-            local wblock = config_content:sub(ws, ws + 2000)
-            local wenabled = false
-            local wep = wblock:find('"enabled"')
-            if wep then
-                local wrest = wblock:sub(wep + 9)
-                wrest = wrest:match("^[%s]*:[%s]*(.*)")
-                if wrest and wrest:sub(1, 4) == "true" then
-                    local wnc = wrest:sub(5, 5)
-                    if wnc == "" or wnc == "," or wnc == "}" or wnc:match("%s") then
-                        wenabled = true
-                    end
-                end
-            end
-            local burl = wblock:match('"base_url"%s*:%s*"([^"]+)"')
-            weixin_configured = (burl ~= nil and burl ~= "")
-            if wenabled then
+    local config = parse_json_file("/root/.picoclaw/config.json")
+    if config then
+        local weixin = config.weixin
+        if weixin and type(weixin) == "table" then
+            if weixin.enabled == true then
                 weixin_status = "connected"
-            elseif weixin_configured then
-                weixin_status = "configured"
+            end
+            if weixin.base_url and weixin.base_url ~= "" then
+                weixin_configured = true
+                if weixin_status == "none" then
+                    weixin_status = "configured"
+                end
             end
         end
     end
@@ -311,7 +329,8 @@ function action_main()
         logs = html_escape(logs),
         flash_msg = html_escape(flash_msg),
         flash_ok = flash_ok,
-        action_url = luci.dispatcher.build_url("admin", "services", "picoclaw", "action"),
+        action_url = dispatcher.build_url("admin", "services", "picoclaw", "action"),
+        csrf_token = dispatcher.csrf_token(),
         autostart = autostart
     })
 end
