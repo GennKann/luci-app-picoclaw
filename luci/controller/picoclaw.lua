@@ -68,11 +68,15 @@ function get_version_info()
     local cur_ver = "N/A"
     local build_time = ""
     local git_commit = ""
-    local config = parse_json_file("/root/.picoclaw/config.json")
-    if config then
-        if config.version then cur_ver = tostring(config.version) end
-        if config.build_time then build_time = tostring(config.build_time) end
-        if config.git_commit then git_commit = tostring(config.git_commit) end
+    local output = sys.exec("picoclaw version 2>/dev/null | sed 's/\\x1b\\[[0-9;]*m//g'")
+    if output and output ~= "" then
+        -- Match: "picoclaw 0.2.4 (git: 5f50ae5)"
+        local v, g = output:match("picoclaw%s+([%d.]+)%s*%(%s*git:%s*([a-f0-9]+)%s*%)")
+        if v then cur_ver = v end
+        if g then git_commit = g end
+        -- Match: "Build: 2026-03-25T09:09:15Z"
+        local bt = output:match("Build:%s*([%dT:Z%d%-]+)")
+        if bt then build_time = bt end
     end
     return cur_ver, build_time, git_commit
 end
