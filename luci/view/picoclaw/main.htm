@@ -93,6 +93,27 @@
 .hw-gpio-table td{padding:3px 8px;border-bottom:1px solid #f0f0f0}
 .hw-gpio-table tr:hover{background:#f5f7fa}
 .hw-empty{color:#bbb;font-size:13px;text-align:center;padding:16px 0}
+.chat-container{display:flex;flex-direction:column;height:450px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;background:#fff}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.chat-msg{max-width:80%;padding:10px 14px;border-radius:12px;font-size:14px;line-height:1.6;word-break:break-word}
+.chat-msg.user{align-self:flex-end;background:#e3f2fd;color:#1a237e;border-bottom-right-radius:4px}
+.chat-msg.assistant{align-self:flex-start;background:#f5f5f5;color:#333;border-bottom-left-radius:4px}
+.chat-msg .time{font-size:11px;color:#999;margin-top:4px}
+.chat-msg.user .time{text-align:right}
+.chat-msg.system{align-self:center;background:#fff8e1;color:#f57f17;font-size:12px;border-radius:6px;padding:6px 12px;max-width:90%}
+.chat-input-bar{display:flex;gap:8px;padding:12px;border-top:1px solid #e0e0e0;background:#fafbfc;align-items:center}
+.chat-input{flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px;outline:none;transition:border-color .2s;box-sizing:border-box}
+.chat-input:focus{border-color:#1976d2}
+.chat-input:disabled{background:#f0f0f0;color:#999}
+.chat-send{padding:10px 20px;border:none;border-radius:8px;background:#1976d2;color:#fff;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
+.chat-send:hover{background:#1565c0}.chat-send:disabled{background:#bbb;cursor:not-allowed}
+.chat-typing{display:none;align-self:flex-start;padding:8px 16px;color:#888;font-size:13px}
+.chat-typing.show{display:flex;align-items:center;gap:8px}
+.chat-typing-dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#999;margin:0 1px;animation:chatBounce .6s infinite alternate}
+.chat-typing-dots span:nth-child(2){animation-delay:.2s}.chat-typing-dots span:nth-child(3){animation-delay:.4s}
+@keyframes chatBounce{to{opacity:.3;transform:translateY(-4px)}}
+.chat-clear{padding:4px 10px;border:1px solid #e0e0e0;border-radius:4px;background:#fff;cursor:pointer;font-size:12px;color:#888;margin-left:auto}
+.chat-clear:hover{background:#fff3e0;border-color:#ffcc80;color:#e65100}
 </style>
 <%
 local flash_msg = flash_msg or ""
@@ -197,6 +218,7 @@ if flash_msg ~= "" then
 <div class="pc-card" style="padding:0;overflow:hidden">
   <div class="pc-tabs" style="padding:0 24px">
     <button class="pc-tab act" onclick="switchTab('channels',this)" data-i18n="tab_channels">通道列表</button>
+    <button class="pc-tab" onclick="switchTab('chat',this)" data-i18n="tab_chat">&#128172; 对话</button>
     <button class="pc-tab" onclick="switchTab('config',this)" data-i18n="tab_config">配置编辑</button>
     <button class="pc-tab" onclick="switchTab('logs',this)" data-i18n="tab_logs">系统日志</button>
     <button class="pc-tab" onclick="switchTab('hardware',this)" data-i18n="tab_hardware">硬件控制</button>
@@ -205,6 +227,28 @@ if flash_msg ~= "" then
   <!-- Channels Panel -->
   <div class="pc-panel act" id="panel-channels" style="padding:16px 24px 24px">
     <div id="channels-list"></div>
+  </div>
+
+  <!-- Chat Panel -->
+  <div class="pc-panel" id="panel-chat" style="padding:16px 24px 24px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <h3 data-i18n="chat_title" style="margin:0;font-size:16px">&#128172; <span data-i18n="chat_title_text">与 PicoClaw 对话</span></h3>
+      <button class="chat-clear" onclick="clearChat()" data-i18n="chat_clear">&#128465; 清空对话</button>
+    </div>
+    <div style="font-size:12px;color:#888;margin-bottom:10px" data-i18n="chat_hint">通过 PicoClaw Agent 直接对话，回复可能需要几秒钟。</div>
+    <div class="chat-container" id="chatBox">
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-msg system" data-i18n="chat_welcome">&#128075; 你好！我是 PicoClaw AI 助手，有什么可以帮你的？</div>
+      </div>
+      <div class="chat-typing" id="chatTyping">
+        <div class="chat-typing-dots"><span></span><span></span><span></span></div>
+        <span data-i18n="chat_thinking">正在思考...</span>
+      </div>
+      <div class="chat-input-bar">
+        <input class="chat-input" id="chatInput" type="text" placeholder="输入消息..." data-i18n-placeholder="chat_placeholder" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
+        <button class="chat-send" id="chatSendBtn" onclick="sendChat()" data-i18n="chat_send">发送</button>
+      </div>
+    </div>
   </div>
 
   <!-- Config Panel -->
@@ -483,7 +527,11 @@ zh: {
   service_not_running:"服务未运行", start:"启动", stop:"停止", restart:"重启", normal:"正常", abnormal:"异常",
   autostart_on:"开机自启: 开", autostart_off:"开机自启: 关",
   memory_mb:"内存 (MB)", process_id:"进程 ID", port_18790:"端口 18790",
-  tab_channels:"通道列表", tab_config:"配置编辑", tab_logs:"系统日志", tab_hardware:"硬件控制",
+  tab_channels:"通道列表", tab_config:"配置编辑", tab_logs:"系统日志", tab_hardware:"硬件控制", tab_chat:"对话",
+  chat_title_text:"与 PicoClaw 对话", chat_hint:"通过 PicoClaw Agent 直接对话，回复可能需要几秒钟。",
+  chat_placeholder:"输入消息...", chat_send:"发送", chat_clear:"清空对话",
+  chat_welcome:"你好！我是 PicoClaw AI 助手，有什么可以帮你的？", chat_thinking:"正在思考...",
+  chat_not_running:"PicoClaw 服务未运行", chat_empty:"消息不能为空", chat_error:"请求失败",
   select_mode:"选择编辑模式：", mode_form:"表单模式", mode_json:"JSON 模式",
   save_restart:"保存并重启", reset_form:"重置", format_json:"格式化", sync_from_form:"从表单同步",
   no_logs:"暂无 picoclaw 日志", refresh_logs:"刷新日志",
@@ -535,7 +583,11 @@ en: {
   service_not_running:"Service not running", start:"Start", stop:"Stop", restart:"Restart", normal:"OK", abnormal:"Error",
   autostart_on:"Auto-start: ON", autostart_off:"Auto-start: OFF",
   memory_mb:"Memory (MB)", process_id:"Process ID", port_18790:"Port 18790",
-  tab_channels:"Channels", tab_config:"Config Editor", tab_logs:"System Logs", tab_hardware:"Hardware",
+  tab_channels:"Channels", tab_config:"Config Editor", tab_logs:"System Logs", tab_hardware:"Hardware", tab_chat:"Chat",
+  chat_title_text:"Chat with PicoClaw", chat_hint:"Chat directly via PicoClaw Agent. Replies may take a few seconds.",
+  chat_placeholder:"Type a message...", chat_send:"Send", chat_clear:"Clear",
+  chat_welcome:"Hello! I'm PicoClaw AI assistant. How can I help?", chat_thinking:"Thinking...",
+  chat_not_running:"PicoClaw is not running", chat_empty:"Message cannot be empty", chat_error:"Request failed",
   select_mode:"Mode:", mode_form:"Form", mode_json:"JSON",
   save_restart:"Save & Restart", reset_form:"Reset", format_json:"Format", sync_from_form:"Sync from Form",
   no_logs:"No picoclaw logs", refresh_logs:"Refresh Logs",
@@ -587,7 +639,11 @@ ja: {
   service_not_running:"サービス未実行", start:"起動", stop:"停止", restart:"再起動", normal:"正常", abnormal:"異常",
   autostart_on:"自動起動: ON", autostart_off:"自動起動: OFF",
   memory_mb:"メモリ (MB)", process_id:"プロセス ID", port_18790:"ポート 18790",
-  tab_channels:"チャンネル一覧", tab_config:"設定編集", tab_logs:"システムログ", tab_hardware:"ハードウェア",
+  tab_channels:"チャンネル一覧", tab_config:"設定編集", tab_logs:"システムログ", tab_hardware:"ハードウェア", tab_chat:"チャット",
+  chat_title_text:"PicoClawと対話", chat_hint:"PicoClaw Agentを通じて直接対話します。応答に数秒かかる場合があります。",
+  chat_placeholder:"メッセージを入力...", chat_send:"送信", chat_clear:"クリア",
+  chat_welcome:"こんにちは！PicoClaw AIアシスタントです。何かお手伝いできますか？", chat_thinking:"考え中...",
+  chat_not_running:"PicoClawが実行されていません", chat_empty:"メッセージを入力してください", chat_error:"リクエストに失敗しました",
   select_mode:"編集モード：", mode_form:"フォーム", mode_json:"JSON",
   save_restart:"保存＆再起動", reset_form:"リセット", format_json:"フォーマット", sync_from_form:"フォームから同期",
   no_logs:"picoclawログなし", refresh_logs:"ログ更新",
@@ -639,7 +695,11 @@ pt: {
   service_not_running:"Serviço parado", start:"Iniciar", stop:"Parar", restart:"Reiniciar", normal:"OK", abnormal:"Erro",
   autostart_on:"Início automático: ON", autostart_off:"Início automático: OFF",
   memory_mb:"Memória (MB)", process_id:"Process ID", port_18790:"Porta 18790",
-  tab_channels:"Canais", tab_config:"Editor de Config", tab_logs:"Logs do Sistema", tab_hardware:"Hardware",
+  tab_channels:"Canais", tab_config:"Editor de Config", tab_logs:"Logs do Sistema", tab_hardware:"Hardware", tab_chat:"Chat",
+  chat_title_text:"Conversar com PicoClaw", chat_hint:"Converse diretamente via PicoClaw Agent. Respostas podem demorar alguns segundos.",
+  chat_placeholder:"Digite uma mensagem...", chat_send:"Enviar", chat_clear:"Limpar",
+  chat_welcome:"Olá! Sou o assistente PicoClaw AI. Como posso ajudar?", chat_thinking:"Pensando...",
+  chat_not_running:"PicoClaw não está rodando", chat_empty:"Mensagem não pode estar vazia", chat_error:"Falha na requisição",
   select_mode:"Modo:", mode_form:"Formulário", mode_json:"JSON",
   save_restart:"Salvar & Reiniciar", reset_form:"Resetar", format_json:"Formatar", sync_from_form:"Sincronizar",
   no_logs:"Sem logs", refresh_logs:"Atualizar",
@@ -691,7 +751,11 @@ de: {
   service_not_running:"Dienst läuft nicht", start:"Start", stop:"Stop", restart:"Neustart", normal:"OK", abnormal:"Fehler",
   autostart_on:"Autostart: AN", autostart_off:"Autostart: AUS",
   memory_mb:"Speicher (MB)", process_id:"Prozess-ID", port_18790:"Port 18790",
-  tab_channels:"Kanäle", tab_config:"Konfig Editor", tab_logs:"Systemprotokolle", tab_hardware:"Hardware",
+  tab_channels:"Kanäle", tab_config:"Konfig Editor", tab_logs:"Systemprotokolle", tab_hardware:"Hardware", tab_chat:"Chat",
+  chat_title_text:"Mit PicoClaw chatten", chat_hint:"Chat direkt über PicoClaw Agent. Antworten können einige Sekunden dauern.",
+  chat_placeholder:"Nachricht eingeben...", chat_send:"Senden", chat_clear:"Leeren",
+  chat_welcome:"Hallo! Ich bin der PicoClaw AI-Assistent. Wie kann ich helfen?", chat_thinking:"Denke nach...",
+  chat_not_running:"PicoClaw läuft nicht", chat_empty:"Nachricht darf nicht leer sein", chat_error:"Anfrage fehlgeschlagen",
   select_mode:"Modus:", mode_form:"Formular", mode_json:"JSON",
   save_restart:"Speichern & Neustart", reset_form:"Zurücksetzen", format_json:"Formatieren", sync_from_form:"Vom Formular",
   no_logs:"Keine Logs", refresh_logs:"Aktualisieren",
@@ -904,6 +968,167 @@ function switchTab(name, el) {
   el.classList.add('act');
   document.getElementById('panel-'+name).classList.add('act');
 }
+
+// ========== Chat functions ==========
+var chatSendUrl = '<%=chat_send_url%>';
+var chatPollUrl = '<%=chat_poll_url%>';
+var chatHistory = [];
+var chatPollTimer = null;
+var chatCurrentTask = null;
+
+// Load history from server
+(function(){
+  try {
+    var raw = '<%=chat_history_json%>';
+    if (raw && raw !== '{}') { chatHistory = JSON.parse(raw); }
+  } catch(e) {}
+})();
+
+function renderChatHistory() {
+  var box = document.getElementById('chatMessages');
+  if (!box) return;
+  // Keep welcome message, remove rest
+  var welcome = box.querySelector('.chat-msg.system');
+  box.innerHTML = '';
+  if (welcome) box.appendChild(welcome);
+  chatHistory.forEach(function(m) {
+    var div = document.createElement('div');
+    div.className = 'chat-msg ' + m.role;
+    var content = document.createElement('div');
+    content.textContent = m.content;
+    content.style.whiteSpace = 'pre-wrap';
+    div.appendChild(content);
+    if (m.time) {
+      var t = document.createElement('div');
+      t.className = 'time';
+      var d = new Date(m.time * 1000);
+      t.textContent = d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+      div.appendChild(t);
+    }
+    box.appendChild(div);
+  });
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendChat() {
+  var input = document.getElementById('chatInput');
+  var btn = document.getElementById('chatSendBtn');
+  var msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  input.disabled = true;
+  btn.disabled = true;
+
+  // Show user message immediately
+  var box = document.getElementById('chatMessages');
+  var div = document.createElement('div');
+  div.className = 'chat-msg user';
+  var content = document.createElement('div');
+  content.textContent = msg;
+  content.style.whiteSpace = 'pre-wrap';
+  div.appendChild(content);
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+
+  // Show typing indicator
+  document.getElementById('chatTyping').classList.add('show');
+
+  var formData = new FormData();
+  formData.append('message', msg);
+  fetch(chatSendUrl, {method:'POST', body:formData, credentials:'same-origin'})
+    .then(function(r){return r.json()})
+    .then(function(data) {
+      if (data.error) {
+        if (data.error === 'picoclaw not running') {
+          addSystemMsg(I('chat_not_running'));
+        } else {
+          addSystemMsg(data.error || I('chat_error'));
+        }
+        input.disabled = false;
+        btn.disabled = false;
+        document.getElementById('chatTyping').classList.remove('show');
+        return;
+      }
+      if (data.ok && data.task_id) {
+        chatCurrentTask = data.task_id;
+        pollChat();
+      }
+    })
+    .catch(function() {
+      addSystemMsg(I('chat_error'));
+      input.disabled = false;
+      btn.disabled = false;
+      document.getElementById('chatTyping').classList.remove('show');
+    });
+}
+
+function pollChat() {
+  if (!chatCurrentTask) return;
+  var params = new URLSearchParams();
+  params.append('task_id', chatCurrentTask);
+  fetch(chatPollUrl, {method:'POST', body:params, credentials:'same-origin'})
+    .then(function(r){return r.json()})
+    .then(function(data) {
+      if (data.status === 'running') {
+        chatPollTimer = setTimeout(pollChat, 2000);
+      } else if (data.status === 'done') {
+        chatCurrentTask = null;
+        document.getElementById('chatTyping').classList.remove('show');
+        var input = document.getElementById('chatInput');
+        var btn = document.getElementById('chatSendBtn');
+        input.disabled = false;
+        btn.disabled = false;
+        if (data.reply) {
+          addAssistantMsg(data.reply);
+        }
+        input.focus();
+      } else {
+        chatCurrentTask = null;
+        document.getElementById('chatTyping').classList.remove('show');
+        document.getElementById('chatInput').disabled = false;
+        document.getElementById('chatSendBtn').disabled = false;
+      }
+    })
+    .catch(function() {
+      chatPollTimer = setTimeout(pollChat, 3000);
+    });
+}
+
+function addAssistantMsg(text) {
+  var box = document.getElementById('chatMessages');
+  var div = document.createElement('div');
+  div.className = 'chat-msg assistant';
+  var content = document.createElement('div');
+  content.textContent = text;
+  content.style.whiteSpace = 'pre-wrap';
+  div.appendChild(content);
+  var t = document.createElement('div');
+  t.className = 'time';
+  var now = new Date();
+  t.textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  div.appendChild(t);
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function addSystemMsg(text) {
+  var box = document.getElementById('chatMessages');
+  var div = document.createElement('div');
+  div.className = 'chat-msg system';
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function clearChat() {
+  if (!confirm(I('chat_clear') + '?')) return;
+  chatHistory = [];
+  var box = document.getElementById('chatMessages');
+  box.innerHTML = '<div class="chat-msg system">' + I('chat_welcome') + '</div>';
+}
+
+// Init chat history on page load
+renderChatHistory();
 
 function switchCfgMode(mode, el) {
   document.querySelectorAll('.cfg-mode-btn').forEach(function(b){b.classList.remove('act')});
