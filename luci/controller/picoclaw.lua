@@ -16,7 +16,7 @@ function parse_json_file(filepath)
     if not f then return nil end
     local content = f:read("*a")
     f:close()
-    local ok, data = pcall(jsonc.parse, jsonc, content)
+    local ok, data = pcall(jsonc.parse, content)
     if ok then return data end
     return nil
 end
@@ -106,7 +106,7 @@ function check_latest_version()
     if f then
         local body = f:read("*a")
         f:close()
-        local ok, data = pcall(jsonc.parse, jsonc, body)
+        local ok, data = pcall(jsonc.parse, body)
         if ok and data then
             if data.tag_name then
                 latest_ver = data.tag_name:gsub("^v", "")
@@ -214,7 +214,7 @@ function action_do()
         local config = http.formvalue("config") or ""
         if config ~= "" then
             -- Validate JSON before saving
-            local valid, _ = pcall(jsonc.parse, jsonc, config)
+            local valid, _ = pcall(jsonc.parse, config)
             if not valid then
                 msg = "错误：JSON 格式无效"
                 ok = false
