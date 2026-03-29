@@ -39,6 +39,9 @@
 - **Channel Management** — View connected channels (Feishu, Telegram, Discord, WeChat, etc.)
 - **Form-based Config Editor** — UI for AI model, providers, and system settings
 - **JSON Config Editor** — Direct JSON editing with validation
+- **Hardware Control** — System info, USB devices, GPIO pins (with toggle controls)
+- **Skill Management** — View, delete, and import PicoClaw skills directly from the UI
+- **Cron Jobs** — View scheduled tasks at a glance
 - **i18n** — English, 简体中文, 日本語, Português, Deutsch
 - **Online Update** — Check for new versions and update from the UI
 - **System Logs** — View PicoClaw logs in real-time

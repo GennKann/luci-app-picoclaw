@@ -74,6 +74,25 @@
 .lang-btn{padding:4px 10px;border:1px solid #e0e0e0;border-radius:4px;background:#fff;cursor:pointer;font-size:12px;color:#888;transition:all .15s}
 .lang-btn.act{background:#1976d2;color:#fff;border-color:#1976d2}
 .lang-btn:hover{border-color:#90caf9}
+.hw-card{background:#f8f9fa;border:1px solid #eee;border-radius:8px;padding:14px 16px;margin-bottom:14px}
+.hw-card h4{margin:0 0 10px 0;font-size:14px;color:#333;display:flex;align-items:center;gap:8px}
+.hw-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+.hw-row .k{color:#888}.hw-row .v{color:#333;font-weight:500}
+.hw-led-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.hw-led-item:last-child{border:none}
+.hw-led-name{font-size:13px;font-weight:500}
+.hw-led-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle}
+.hw-usb-item{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px;color:#333}
+.hw-section-head{cursor:pointer;user-select:none;padding:10px 14px;background:#f0f2f5;border-radius:6px;font-size:13px;color:#555;display:flex;align-items:center;gap:8px;margin-top:10px}
+.hw-section-head:hover{background:#e8ebee}
+.hw-section-head .arrow{margin-left:auto;transition:transform .2s;font-size:11px}
+.hw-section.closed .arrow{transform:rotate(-90deg)}
+.hw-section.closed .hw-section-body{display:none}
+.hw-gpio-table{width:100%;font-size:12px;border-collapse:collapse;margin-top:8px}
+.hw-gpio-table th{text-align:left;padding:5px 8px;background:#eef1f5;font-weight:600;color:#555;border-bottom:2px solid #ddd}
+.hw-gpio-table td{padding:3px 8px;border-bottom:1px solid #f0f0f0}
+.hw-gpio-table tr:hover{background:#f5f7fa}
+.hw-empty{color:#bbb;font-size:13px;text-align:center;padding:16px 0}
 </style>
 <%
 local flash_msg = flash_msg or ""
@@ -180,6 +199,7 @@ if flash_msg ~= "" then
     <button class="pc-tab act" onclick="switchTab('channels',this)" data-i18n="tab_channels">通道列表</button>
     <button class="pc-tab" onclick="switchTab('config',this)" data-i18n="tab_config">配置编辑</button>
     <button class="pc-tab" onclick="switchTab('logs',this)" data-i18n="tab_logs">系统日志</button>
+    <button class="pc-tab" onclick="switchTab('hardware',this)" data-i18n="tab_hardware">硬件控制</button>
   </div>
 
   <!-- Channels Panel -->
@@ -314,6 +334,133 @@ if flash_msg ~= "" then
     <div class="pc-log"><% if logs and logs ~= "" then %><%=logs%><% else %><span data-i18n="no_logs">暂无 picoclaw 日志</span><% end %></div>
     <div style="margin-top:8px"><a href="<%=action_url%>" class="pc-btn blue" data-i18n="refresh_logs">刷新日志</a></div>
   </div>
+
+  <!-- ========== Hardware Panel (Simplified) ========== -->
+  <div class="pc-panel" id="panel-hardware" style="padding:16px 24px 24px">
+
+    <!-- System Info (simple) -->
+    <div class="hw-card">
+      <h4>💻 <span data-i18n="hw_sysinfo">系统信息</span></h4>
+      <div class="hw-row"><span class="k" data-i18n="hw_hostname">主机名</span><span class="v"><%=hw_sysinfo.hostname%></span></div>
+      <div class="hw-row"><span class="k" data-i18n="hw_uptime">运行时间</span><span class="v"><%=hw_sysinfo.uptime%></span></div>
+      <div class="hw-row"><span class="k" data-i18n="hw_cpu">CPU</span><span class="v"><%=hw_sysinfo.cpu_cores%> cores</span></div>
+      <div class="hw-row"><span class="k" data-i18n="hw_mem">内存</span><span class="v"><%=hw_sysinfo.mem_available%> / <%=hw_sysinfo.mem_total%> MB</span></div>
+      <% if #hw_sysinfo.cpu_temp > 0 then %>
+      <div class="hw-row"><span class="k" data-i18n="hw_temp">CPU 温度</span><span class="v"><%=hw_sysinfo.cpu_temp[1]%>°C</span></div>
+      <% end %>
+    </div>
+
+    <!-- USB Devices (simple list) -->
+    <div class="hw-card">
+      <h4>🔌 <span data-i18n="hw_usb">USB 设备</span></h4>
+      <% if #hw_usb > 0 then %>
+      <% for _,dev in ipairs(hw_usb) do %>
+      <div class="hw-usb-item">
+        <span>🔌</span>
+        <div>
+          <span style="font-weight:500"><%=dev.product%></span>
+          <span style="color:#999;font-size:11px;margin-left:6px"><%=dev.bus_dev%></span>
+        </div>
+      </div>
+      <% end %>
+      <% else %>
+      <div class="hw-empty" data-i18n="hw_no_usb">未检测到 USB 设备</div>
+      <% end %>
+    </div>
+
+    <!-- PicoClaw Tools: Skills -->
+    <div class="hw-card">
+      <h4>🦞 <span data-i18n="hw_skills">已安装技能</span> (<%=#hw_tools.skills%>)
+        <button type="button" class="pc-btn blue" style="margin-left:auto;padding:3px 10px;font-size:12px" onclick="toggleSkillImport()" data-i18n="hw_import_skill">+ 导入技能</button>
+      </h4>
+      <!-- Import skill form (hidden by default) -->
+      <div id="skill-import-form" style="display:none;margin-bottom:12px;padding:12px;background:#fff;border:1px solid #e0e0e0;border-radius:8px">
+        <div style="margin-bottom:8px">
+          <label style="font-size:12px;color:#666;font-weight:600" data-i18n="hw_skill_name">技能名称</label>
+          <input type="text" id="import-skill-name" class="cfg-input" style="margin-top:4px;font-size:13px" placeholder="my-skill">
+        </div>
+        <div style="margin-bottom:10px">
+          <label style="font-size:12px;color:#666;font-weight:600" data-i18n="hw_skill_content">技能内容 (SKILL.md)</label>
+          <textarea id="import-skill-content" class="pc-editor" style="min-height:120px;margin-top:4px;font-size:12px" placeholder="description: &quot;技能描述&quot;&#10;---&#10;技能说明内容..."></textarea>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button type="button" class="pc-btn green" style="font-size:12px" onclick="doImportSkill()" data-i18n="hw_do_import">确认导入</button>
+          <button type="button" class="pc-btn gray" style="font-size:12px" onclick="toggleSkillImport()" data-i18n="hw_cancel">取消</button>
+        </div>
+      </div>
+      <% if #hw_tools.skills > 0 then %>
+      <% for _,sk in ipairs(hw_tools.skills) do %>
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0f0">
+        <div style="flex:1;min-width:0">
+          <span style="color:#1976d2;font-weight:600;font-size:13px"><%=sk.name%></span>
+          <% if sk.description ~= "" then %><div style="color:#888;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%=sk.description%></div><% end %>
+        </div>
+        <form method="post" action="<%=action_url%>" style="flex-shrink:0">
+          <input type="hidden" name="token" value="<%=csrf_token%>">
+          <input type="hidden" name="action" value="delete_skill">
+          <input type="hidden" name="skill_name" value="<%=sk.name%>">
+          <button type="submit" class="pc-btn gray" style="padding:2px 8px;font-size:11px" onclick="return confirm('<%=sk.name%>: 确定删除？')">✕</button>
+        </form>
+      </div>
+      <% end %>
+      <% else %>
+      <div class="hw-empty" data-i18n="hw_no_skills">暂无已安装技能</div>
+      <% end %>
+    </div>
+
+    <!-- PicoClaw Tools: Cron -->
+    <div class="hw-card">
+      <h4>⏰ <span data-i18n="hw_cron">定时任务</span> (<%=#hw_tools.cron_jobs%>)</h4>
+      <% if #hw_tools.cron_jobs > 0 then %>
+      <% for _,job in ipairs(hw_tools.cron_jobs) do %>
+      <div style="padding:4px 0;font-size:13px;color:#333;word-break:break-all;border-bottom:1px solid #f0f0f0"><%=job%></div>
+      <% end %>
+      <% else %>
+      <div class="hw-empty" data-i18n="hw_no_cron">暂无定时任务</div>
+      <% end %>
+    </div>
+
+    <!-- GPIO (collapsed by default) -->
+    <div class="hw-section closed" id="hw-gpio-section">
+      <div class="hw-section-head" onclick="document.getElementById('hw-gpio-section').classList.toggle('closed')">
+        ⚡ <span data-i18n="hw_gpio">GPIO 引脚</span>
+        <span style="color:#999;font-size:12px">(<%=#hw_gpio%> pins)</span>
+        <span class="arrow">▼</span>
+      </div>
+      <div class="hw-section-body">
+        <% if #hw_gpio > 0 then %>
+        <div style="overflow-x:auto">
+        <table class="hw-gpio-table">
+          <thead><tr><th>Pin</th><th data-i18n="hw_dir">方向</th><th data-i18n="hw_val">值</th><th>Func</th><th data-i18n="hw_action">操作</th></tr></thead>
+          <tbody>
+          <% for _,pin in ipairs(hw_gpio) do %>
+          <tr>
+            <td style="font-weight:600"><%=pin.name%></td>
+            <td><span class="badge <% if pin.direction == 'out' then %>badge-on<% else %>badge-off<% end %>"><%=pin.direction%></span></td>
+            <td style="font-weight:700;color:<% if pin.value == 'high' then %>#4caf50<% else %>#f44336<% end %>"><%=pin.value%></td>
+            <td><%=pin.function_num%></td>
+            <td>
+              <form method="post" action="<%=action_url%>" style="display:inline-flex;gap:3px">
+                <input type="hidden" name="token" value="<%=csrf_token%>">
+                <input type="hidden" name="action" value="gpio_set">
+                <input type="hidden" name="gpio" value="<%=pin.name%>">
+                <button type="submit" name="value" value="1" class="pc-btn green" style="padding:2px 8px;font-size:11px">H</button>
+                <button type="submit" name="value" value="0" class="pc-btn gray" style="padding:2px 8px;font-size:11px">L</button>
+              </form>
+            </td>
+          </tr>
+          <% end %>
+          </tbody>
+        </table>
+        </div>
+        <% else %>
+        <div class="hw-empty" data-i18n="hw_no_gpio">未检测到 GPIO</div>
+        <% end %>
+      </div>
+    </div>
+
+    <div style="margin-top:8px"><a href="<%=action_url%>" class="pc-btn blue" style="font-size:13px" data-i18n="hw_refresh">刷新硬件状态</a></div>
+  </div>
 </div>
 </div>
 
@@ -331,7 +478,7 @@ zh: {
   service_not_running:"服务未运行", start:"启动", stop:"停止", restart:"重启", normal:"正常", abnormal:"异常",
   autostart_on:"开机自启: 开", autostart_off:"开机自启: 关",
   memory_mb:"内存 (MB)", process_id:"进程 ID", port_18790:"端口 18790",
-  tab_channels:"通道列表", tab_config:"配置编辑", tab_logs:"系统日志",
+  tab_channels:"通道列表", tab_config:"配置编辑", tab_logs:"系统日志", tab_hardware:"硬件控制",
   select_mode:"选择编辑模式：", mode_form:"表单模式", mode_json:"JSON 模式",
   save_restart:"保存并重启", reset_form:"重置", format_json:"格式化", sync_from_form:"从表单同步",
   no_logs:"暂无 picoclaw 日志", refresh_logs:"刷新日志",
@@ -363,7 +510,16 @@ zh: {
   save_confirm:"确定保存配置并重启 PicoClaw？",
   weixin_guide_title:"微信个人号接入", weixin_not_connected:"尚未接入微信",
   weixin_authorized_not_enabled:"已授权，但通道未启用", weixin_go_enable:"前往启用",
-  weixin_connected:"微信已连接"
+  weixin_connected:"微信已连接",
+  hw_sysinfo:"系统信息", hw_hostname:"主机名", hw_uptime:"运行时间",
+  hw_cpu:"CPU", hw_mem:"内存", hw_temp:"CPU 温度",
+  hw_led:"LED 控制", hw_on:"开", hw_off:"关", hw_no_leds:"未检测到 LED",
+  hw_usb:"USB 设备", hw_no_usb:"未检测到 USB 设备",
+  hw_skills:"已安装技能", hw_import_skill:"+ 导入技能", hw_no_skills:"暂无已安装技能",
+  hw_skill_name:"技能名称", hw_skill_content:"技能内容 (SKILL.md)", hw_do_import:"确认导入", hw_cancel:"取消",
+  hw_cron:"定时任务", hw_no_cron:"暂无定时任务",
+  hw_gpio:"GPIO 引脚", hw_dir:"方向", hw_val:"值", hw_action:"操作", hw_no_gpio:"未检测到 GPIO",
+  hw_refresh:"刷新硬件状态"
 },
 en: {
   version_info:"Version Info", current_version:"Current Version", build_time:"Build Time", latest_ver_label:"Latest Version",
@@ -373,7 +529,7 @@ en: {
   service_not_running:"Service not running", start:"Start", stop:"Stop", restart:"Restart", normal:"OK", abnormal:"Error",
   autostart_on:"Auto-start: ON", autostart_off:"Auto-start: OFF",
   memory_mb:"Memory (MB)", process_id:"Process ID", port_18790:"Port 18790",
-  tab_channels:"Channels", tab_config:"Config Editor", tab_logs:"System Logs",
+  tab_channels:"Channels", tab_config:"Config Editor", tab_logs:"System Logs", tab_hardware:"Hardware",
   select_mode:"Mode:", mode_form:"Form", mode_json:"JSON",
   save_restart:"Save & Restart", reset_form:"Reset", format_json:"Format", sync_from_form:"Sync from Form",
   no_logs:"No picoclaw logs", refresh_logs:"Refresh Logs",
@@ -405,7 +561,16 @@ en: {
   save_confirm:"Save config and restart PicoClaw?",
   weixin_guide_title:"WeChat Setup", weixin_not_connected:"WeChat not connected",
   weixin_authorized_not_enabled:"Authorized but channel disabled", weixin_go_enable:"Enable",
-  weixin_connected:"WeChat Connected"
+  weixin_connected:"WeChat Connected",
+  hw_sysinfo:"System Info", hw_hostname:"Hostname", hw_uptime:"Uptime",
+  hw_cpu:"CPU", hw_mem:"Memory", hw_temp:"CPU Temp",
+  hw_led:"LED Control", hw_on:"ON", hw_off:"OFF", hw_no_leds:"No LEDs detected",
+  hw_usb:"USB Devices", hw_no_usb:"No USB devices detected",
+  hw_skills:"Installed Skills", hw_import_skill:"+ Import Skill", hw_no_skills:"No skills installed",
+  hw_skill_name:"Skill Name", hw_skill_content:"Skill Content (SKILL.md)", hw_do_import:"Import", hw_cancel:"Cancel",
+  hw_cron:"Cron Jobs", hw_no_cron:"No scheduled jobs",
+  hw_gpio:"GPIO Pins", hw_dir:"Dir", hw_val:"Val", hw_action:"Action", hw_no_gpio:"No GPIO detected",
+  hw_refresh:"Refresh Hardware"
 },
 ja: {
   version_info:"バージョン情報", current_version:"現在のバージョン", build_time:"ビルド時間", latest_ver_label:"最新バージョン",
@@ -415,7 +580,7 @@ ja: {
   service_not_running:"サービス未実行", start:"起動", stop:"停止", restart:"再起動", normal:"正常", abnormal:"異常",
   autostart_on:"自動起動: ON", autostart_off:"自動起動: OFF",
   memory_mb:"メモリ (MB)", process_id:"プロセス ID", port_18790:"ポート 18790",
-  tab_channels:"チャンネル一覧", tab_config:"設定編集", tab_logs:"システムログ",
+  tab_channels:"チャンネル一覧", tab_config:"設定編集", tab_logs:"システムログ", tab_hardware:"ハードウェア",
   select_mode:"編集モード：", mode_form:"フォーム", mode_json:"JSON",
   save_restart:"保存＆再起動", reset_form:"リセット", format_json:"フォーマット", sync_from_form:"フォームから同期",
   no_logs:"picoclawログなし", refresh_logs:"ログ更新",
@@ -447,7 +612,16 @@ ja: {
   save_confirm:"設定を保存してPicoClawを再起動しますか？",
   weixin_guide_title:"WeChat個人アカウント", weixin_not_connected:"WeChat未接続",
   weixin_authorized_not_enabled:"認証済み、チャンネル無効", weixin_go_enable:"有効化",
-  weixin_connected:"WeChat接続済み"
+  weixin_connected:"WeChat接続済み",
+  hw_sysinfo:"システム情報", hw_hostname:"ホスト名", hw_uptime:"稼働時間",
+  hw_cpu:"CPU", hw_mem:"メモリ", hw_temp:"CPU温度",
+  hw_led:"LED制御", hw_on:"ON", hw_off:"OFF", hw_no_leds:"LEDが検出されません",
+  hw_usb:"USBデバイス", hw_no_usb:"USBデバイスが検出されません",
+  hw_skills:"インストール済みスキル", hw_import_skill:"+ スキルインポート", hw_no_skills:"スキルなし",
+  hw_skill_name:"スキル名", hw_skill_content:"スキル内容 (SKILL.md)", hw_do_import:"インポート", hw_cancel:"キャンセル",
+  hw_cron:"定期タスク", hw_no_cron:"定期タスクなし",
+  hw_gpio:"GPIOピン", hw_dir:"方向", hw_val:"値", hw_action:"操作", hw_no_gpio:"GPIOが検出されません",
+  hw_refresh:"ハードウェア更新"
 },
 pt: {
   version_info:"Versão", current_version:"Versão Atual", build_time:"Build", latest_ver_label:"Última Versão",
@@ -457,7 +631,7 @@ pt: {
   service_not_running:"Serviço parado", start:"Iniciar", stop:"Parar", restart:"Reiniciar", normal:"OK", abnormal:"Erro",
   autostart_on:"Início automático: ON", autostart_off:"Início automático: OFF",
   memory_mb:"Memória (MB)", process_id:"Process ID", port_18790:"Porta 18790",
-  tab_channels:"Canais", tab_config:"Editor de Config", tab_logs:"Logs do Sistema",
+  tab_channels:"Canais", tab_config:"Editor de Config", tab_logs:"Logs do Sistema", tab_hardware:"Hardware",
   select_mode:"Modo:", mode_form:"Formulário", mode_json:"JSON",
   save_restart:"Salvar & Reiniciar", reset_form:"Resetar", format_json:"Formatar", sync_from_form:"Sincronizar",
   no_logs:"Sem logs", refresh_logs:"Atualizar",
@@ -489,7 +663,16 @@ pt: {
   save_confirm:"Salvar config e reiniciar?",
   weixin_guide_title:"WeChat", weixin_not_connected:"WeChat não conectado",
   weixin_authorized_not_enabled:"Autorizado mas desativado", weixin_go_enable:"Ativar",
-  weixin_connected:"WeChat Conectado"
+  weixin_connected:"WeChat Conectado",
+  hw_sysinfo:"Info do Sistema", hw_hostname:"Hostname", hw_uptime:"Uptime",
+  hw_cpu:"CPU", hw_mem:"Memória", hw_temp:"Temp CPU",
+  hw_led:"Controle LED", hw_on:"ON", hw_off:"OFF", hw_no_leds:"Nenhum LED detectado",
+  hw_usb:"Dispositivos USB", hw_no_usb:"Nenhum dispositivo USB detectado",
+  hw_skills:"Skills Instaladas", hw_import_skill:"+ Importar Skill", hw_no_skills:"Nenhuma skill instalada",
+  hw_skill_name:"Nome da Skill", hw_skill_content:"Conteúdo (SKILL.md)", hw_do_import:"Importar", hw_cancel:"Cancelar",
+  hw_cron:"Tarefas Agendadas", hw_no_cron:"Sem tarefas agendadas",
+  hw_gpio:"Pinos GPIO", hw_dir:"Dir", hw_val:"Val", hw_action:"Ação", hw_no_gpio:"Nenhum GPIO detectado",
+  hw_refresh:"Atualizar Hardware"
 },
 de: {
   version_info:"Versionsinfo", current_version:"Aktuelle Version", build_time:"Build-Zeit", latest_ver_label:"Neueste Version",
@@ -499,7 +682,7 @@ de: {
   service_not_running:"Dienst läuft nicht", start:"Start", stop:"Stop", restart:"Neustart", normal:"OK", abnormal:"Fehler",
   autostart_on:"Autostart: AN", autostart_off:"Autostart: AUS",
   memory_mb:"Speicher (MB)", process_id:"Prozess-ID", port_18790:"Port 18790",
-  tab_channels:"Kanäle", tab_config:"Konfig Editor", tab_logs:"Systemprotokolle",
+  tab_channels:"Kanäle", tab_config:"Konfig Editor", tab_logs:"Systemprotokolle", tab_hardware:"Hardware",
   select_mode:"Modus:", mode_form:"Formular", mode_json:"JSON",
   save_restart:"Speichern & Neustart", reset_form:"Zurücksetzen", format_json:"Formatieren", sync_from_form:"Vom Formular",
   no_logs:"Keine Logs", refresh_logs:"Aktualisieren",
@@ -531,7 +714,16 @@ de: {
   save_confirm:"Konfiguration speichern und neustarten?",
   weixin_guide_title:"WeChat", weixin_not_connected:"WeChat nicht verbunden",
   weixin_authorized_not_enabled:"Autorisiert, Kanal deaktiviert", weixin_go_enable:"Aktivieren",
-  weixin_connected:"WeChat Verbunden"
+  weixin_connected:"WeChat Verbunden",
+  hw_sysinfo:"Systeminfo", hw_hostname:"Hostname", hw_uptime:"Laufzeit",
+  hw_cpu:"CPU", hw_mem:"Speicher", hw_temp:"CPU-Temp",
+  hw_led:"LED-Steuerung", hw_on:"AN", hw_off:"AUS", hw_no_leds:"Keine LEDs erkannt",
+  hw_usb:"USB-Geräte", hw_no_usb:"Keine USB-Geräte erkannt",
+  hw_skills:"Installierte Skills", hw_import_skill:"+ Skill Importieren", hw_no_skills:"Keine Skills installiert",
+  hw_skill_name:"Skill-Name", hw_skill_content:"Skill-Inhalt (SKILL.md)", hw_do_import:"Importieren", hw_cancel:"Abbrechen",
+  hw_cron:"Geplante Aufgaben", hw_no_cron:"Keine geplanten Aufgaben",
+  hw_gpio:"GPIO-Pins", hw_dir:"Richtung", hw_val:"Wert", hw_action:"Aktion", hw_no_gpio:"Kein GPIO erkannt",
+  hw_refresh:"Hardware aktualisieren"
 }
 };
 
@@ -801,6 +993,26 @@ function bindToggles() {
 }
 
 // ========== Init ==========
+function toggleSkillImport() {
+  var el = document.getElementById('skill-import-form');
+  el.style.display = el.style.display === 'none' ? '' : 'none';
+}
+
+function doImportSkill() {
+  var name = document.getElementById('import-skill-name').value.trim();
+  var content = document.getElementById('import-skill-content').value.trim();
+  if (!name || !content) { alert('Please fill in skill name and content'); return; }
+  var form = document.createElement('form');
+  form.method = 'post';
+  form.action = '<%=action_url%>';
+  form.innerHTML = '<input type="hidden" name="token" value="<%=csrf_token%>">'
+    + '<input type="hidden" name="action" value="import_skill">'
+    + '<input type="hidden" name="skill_name" value="' + name + '">'
+    + '<input type="hidden" name="skill_content" value="' + content.replace(/"/g, '&quot;') + '">';
+  document.body.appendChild(form);
+  form.submit();
+}
+
 setLang(_curLang);
 </script>
 

@@ -39,6 +39,9 @@
 - **Kanalverwaltung** — Verbundene Kanäle anzeigen (Feishu, Telegram, Discord, WeChat, etc.)
 - **Formular-Konfiguration** — UI für AI-Modell, Anbieter und Systemeinstellungen
 - **JSON-Editor** — Direkte JSON-Bearbeitung mit Validierung
+- **Hardware-Steuerung** — Systeminfo, USB-Geräte, GPIO-Pins (mit H/L-Umschaltung)
+- **Skill-Verwaltung** — PicoClaw-Skills anzeigen, löschen und importieren direkt in der UI
+- **Cron-Jobs** — Geplante Aufgaben auf einen Blick
 - **Mehrsprachig** — English, 简体中文, 日本語, Português, Deutsch
 - **Online-Update** — Neue Versionen prüfen und aktualisieren
 - **Systemprotokolle** — PicoClaw-Logs in Echtzeit

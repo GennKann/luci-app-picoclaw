@@ -183,6 +183,245 @@ function check_csrf()
     return true
 end
 
+-- ============================================================
+-- Hardware: System Info
+-- ============================================================
+function get_sysinfo()
+    local info = {
+        hostname = sys.exec("cat /proc/sys/kernel/hostname 2>/dev/null"):match("^%s*(.-)%s*$") or "",
+        kernel = sys.exec("uname -r 2>/dev/null"):match("^%s*(.-)%s*$") or "",
+        arch = sys.exec("uname -m 2>/dev/null"):match("^%s*(.-)%s*$") or "",
+        uptime = "",
+        cpu_model = "",
+        cpu_cores = 0,
+        load_avg = "",
+        mem_total = 0,
+        mem_free = 0,
+        mem_available = 0,
+        cpu_temp = {},
+        disks = {}
+    }
+    -- Uptime
+    local up = sys.exec("cat /proc/uptime 2>/dev/null")
+    local secs = tonumber(up:match("^([%d.]+)")) or 0
+    local days = math.floor(secs / 86400)
+    local hours = math.floor((secs % 86400) / 3600)
+    local mins = math.floor((secs % 3600) / 60)
+    info.uptime = string.format("%dd %dh %dm", days, hours, mins)
+    -- Load average
+    info.load_avg = sys.exec("cat /proc/loadavg 2>/dev/null"):match("^([%d. ]+)")
+    -- CPU
+    local cpuinfo = sys.exec("cat /proc/cpuinfo 2>/dev/null")
+    info.cpu_model = cpuinfo:match("Hardware[%s]*:[%s]*(.-)\n") or cpuinfo:match("model name[%s]*:[%s]*(.-)\n") or ""
+    for _ in cpuinfo:gmatch("processor") do info.cpu_cores = info.cpu_cores + 1 end
+    -- Memory
+    local meminfo = sys.exec("cat /proc/meminfo 2>/dev/null")
+    local mt = meminfo:match("MemTotal:[%s]*(%d+)")
+    local mf = meminfo:match("MemFree:[%s]*(%d+)")
+    local ma = meminfo:match("MemAvailable:[%s]*(%d+)")
+    if mt then info.mem_total = math.floor(tonumber(mt) / 1024) end
+    if mf then info.mem_free = math.floor(tonumber(mf) / 1024) end
+    if ma then info.mem_available = math.floor(tonumber(ma) / 1024) end
+    -- CPU Temperature
+    local temps = sys.exec("cat /sys/class/thermal/thermal_zone*/temp 2>/dev/null")
+    local types = sys.exec("cat /sys/class/thermal/thermal_zone*/type 2>/dev/null")
+    for temp, ttype in temps:gmatch("(%d+)\n") do
+        local temp_c = math.floor(tonumber(temp) / 1000)
+        table.insert(info.cpu_temp, temp_c)
+    end
+    -- Disks
+    local df = sys.exec("df -h 2>/dev/null | grep -v '^Filesystem\\|^overlay\\|^tmpfs\\|^devtmpfs\\|^/dev\\|^none'")
+    for line in df:gmatch("[^\n]+") do
+        local parts = {}
+        for p in line:gmatch("%S+") do table.insert(parts, p) end
+        if #parts >= 6 then
+            table.insert(info.disks, {
+                filesystem = parts[1],
+                size = parts[2],
+                used = parts[3],
+                avail = parts[4],
+                use_pct = parts[5],
+                mounted = parts[6]
+            })
+        end
+    end
+    return info
+end
+
+-- ============================================================
+-- Hardware: GPIO
+-- ============================================================
+function get_gpio_info()
+    local pins = {}
+    local debug_out = sys.exec("cat /sys/kernel/debug/gpio 2>/dev/null")
+    if debug_out == "" then return pins end
+    for line in debug_out:gmatch("[^\n]+") do
+        local name, dir, val, func, drive, pull = line:match("^%s*(gpio%d+)%s*:%s*(in|out)%s*(%w+)%s*func(%d+)%s*(%d+)mA%s*(.-)%s*$")
+        if name then
+            table.insert(pins, {
+                name = name,
+                direction = dir,
+                value = val,
+                function_num = func,
+                drive = drive,
+                pull = pull
+            })
+        end
+    end
+    return pins
+end
+
+function gpio_export(num)
+    local f = io.open("/sys/class/gpio/export", "w")
+    if f then f:write(tostring(num)); f:close() end
+    sys.exec("sleep 0.1")
+end
+
+function gpio_unexport(num)
+    local f = io.open("/sys/class/gpio/unexport", "w")
+    if f then f:write(tostring(num)); f:close() end
+end
+
+function gpio_set(num, val)
+    local base = "/sys/class/gpio/gpio" .. tostring(num)
+    gpio_export(num)
+    local f = io.open(base .. "/direction", "w")
+    if f then f:write("out"); f:close() end
+    f = io.open(base .. "/value", "w")
+    if f then f:write(val == 1 and "1" or "0"); f:close() end
+end
+
+function gpio_read(num)
+    local base = "/sys/class/gpio/gpio" .. tostring(num)
+    local f = io.open(base .. "/value", "r")
+    if f then
+        local v = f:read("*l")
+        f:close()
+        return v
+    end
+    return nil
+end
+
+-- ============================================================
+-- Hardware: LED
+-- ============================================================
+function get_leds()
+    local leds = {}
+    local led_dir = io.popen("ls /sys/class/leds/ 2>/dev/null")
+    if not led_dir then return leds end
+    for name in led_dir:lines() do
+        local base = "/sys/class/leds/" .. name
+        local f = io.open(base .. "/brightness", "r")
+        local brightness = f and tonumber(f:read("*l")) or 0
+        if f then f:close() end
+        f = io.open(base .. "/max_brightness", "r")
+        local max_b = f and tonumber(f:read("*l")) or 255
+        if f then f:close() end
+        f = io.open(base .. "/trigger", "r")
+        local trigger_raw = f and f:read("*l") or "none"
+        if f then f:close() end
+        -- Extract current trigger (marked with [])
+        local trigger = trigger_raw:match("%[(.-)%]") or "none"
+        -- Extract all available triggers
+        local triggers = {}
+        for t in trigger_raw:gmatch("(%w+)") do
+            table.insert(triggers, t)
+        end
+        table.insert(leds, {
+            name = name,
+            brightness = brightness,
+            max_brightness = max_b,
+            trigger = trigger,
+            triggers = triggers
+        })
+    end
+    led_dir:close()
+    return leds
+end
+
+function led_set(name, brightness, trigger)
+    local base = "/sys/class/leds/" .. name
+    if trigger then
+        local f = io.open(base .. "/trigger", "w")
+        if f then f:write(trigger); f:close() end
+    end
+    if brightness then
+        local f = io.open(base .. "/brightness", "w")
+        if f then f:write(tostring(math.max(0, math.min(255, tonumber(brightness) or 0)))); f:close() end
+    end
+end
+
+-- ============================================================
+-- Hardware: USB
+-- ============================================================
+function get_usb_devices()
+    local devices = {}
+    local lsusb = sys.exec("lsusb 2>/dev/null")
+    if lsusb == "" then
+        -- Fallback: read from sysfs
+        local product = sys.exec("for d in /sys/bus/usb/devices/*/; do name=$(basename $d); if [ -f $d/product ]; then prod=$(cat $d/product 2>/dev/null); vid=$(cat $d/idVendor 2>/dev/null); pid=$(cat $d/idProduct 2>/dev/null); echo \"$name|$prod|$vid|$pid\"; fi; done")
+        for line in product:gmatch("[^\n]+") do
+            local parts = {}
+            for p in line:gmatch("[^|]+") do table.insert(parts, p) end
+            if #parts >= 4 then
+                table.insert(devices, {
+                    bus_dev = parts[1],
+                    product = parts[2],
+                    vid = parts[3],
+                    pid = parts[4]
+                })
+            end
+        end
+    else
+        for line in lsusb:gmatch("[^\n]+") do
+            local bus, dev, rest = line:match("Bus (%d+) Device (%d+): (.+)")
+            if bus then
+                table.insert(devices, {
+                    bus_dev = "Bus " .. bus .. " Dev " .. dev,
+                    product = rest
+                })
+            end
+        end
+    end
+    return devices
+end
+
+-- ============================================================
+-- Hardware: PicoClaw Tools (cron, skills)
+-- ============================================================
+function get_picoclaw_tools()
+    local tools = {
+        cron_jobs = {},
+        skills = {}
+    }
+    -- Cron jobs
+    local cron_out = sys.exec("picoclaw cron list 2>/dev/null | sed 's/\\x1b\\[[0-9;]*m//g' | grep -v 'PicoClaw\\|^$\\|████'")
+    if cron_out and cron_out ~= "" and not cron_out:find("No scheduled") then
+        for line in cron_out:gmatch("[^\n]+") do
+            line = line:match("^%s*(.-)%s*$")
+            if line and line ~= "" then
+                table.insert(tools.cron_jobs, line)
+            end
+        end
+    end
+    -- Skills
+    local skill_dir = io.popen("ls /root/.picoclaw/workspace/skills/ 2>/dev/null")
+    if skill_dir then
+        for name in skill_dir:lines() do
+            local desc = ""
+            local f = io.open("/root/.picoclaw/workspace/skills/" .. name .. "/SKILL.md", "r")
+            if f then
+                local content = f:read("*a")
+                f:close()
+                desc = content:match("description:%s*\"(.-)\"") or content:match("description:%s*(.-)\n") or ""
+            end
+            table.insert(tools.skills, { name = name, description = desc })
+        end
+        skill_dir:close()
+    end
+    return tools
+end
+
 function action_do()
     if not check_csrf() then return end
 
@@ -237,6 +476,77 @@ function action_do()
     elseif action == "update" then
         do_update()
         msg = "更新完成，服务已重启！"
+    -- Hardware actions
+    elseif action == "led_set" then
+        local led_name = http.formvalue("led") or ""
+        local brightness = http.formvalue("brightness") or ""
+        local trigger = http.formvalue("trigger") or ""
+        if led_name ~= "" then
+            led_set(led_name, tonumber(brightness) or 0, trigger ~= "" and trigger or nil)
+            msg = "LED 已更新: " .. led_name
+        else
+            msg = "错误：未指定 LED"; ok = false
+        end
+    elseif action == "gpio_set" then
+        local gpio_num = http.formvalue("gpio") or ""
+        local gpio_val = http.formvalue("value") or "0"
+        if gpio_num ~= "" then
+            gpio_set(tonumber(gpio_num) or 0, tonumber(gpio_val) or 0)
+            msg = "GPIO " .. gpio_num .. " = " .. gpio_val
+        else
+            msg = "错误：未指定 GPIO"; ok = false
+        end
+    elseif action == "usb_power_toggle" then
+        local f = io.open("/sys/class/gpio/usb_power/value", "r")
+        if f then
+            local cur = f:read("*l")
+            f:close()
+            local new_val = (cur == "1") and "0" or "1"
+            local fw = io.open("/sys/class/gpio/usb_power/value", "w")
+            if fw then fw:write(new_val); fw:close() end
+            msg = "USB 电源已" .. (new_val == "1" and "开启" or "关闭")
+        else
+            msg = "错误：USB 电源 GPIO 不存在"; ok = false
+        end
+    elseif action == "delete_skill" then
+        local skill_name = http.formvalue("skill_name") or ""
+        if skill_name ~= "" then
+            -- Sanitize: only allow alphanumeric, underscore, hyphen
+            if skill_name:match("^[%w_%-]+$") then
+                local skill_path = "/root/.picoclaw/workspace/skills/" .. skill_name
+                os.remove(skill_path .. "/SKILL.md")  -- remove file only, not directory (in case user has extra files)
+                local _, _, exit_code = sys.exec("rm -rf '" .. skill_path .. "' 2>/dev/null; echo $?")
+                -- Verify deleted
+                local check = io.open(skill_path .. "/SKILL.md", "r")
+                if check then check:close() msg = "错误：删除失败"; ok = false
+                else msg = "技能已删除: " .. skill_name end
+            else
+                msg = "错误：技能名称无效"; ok = false
+            end
+        else
+            msg = "错误：未指定技能"; ok = false
+        end
+    elseif action == "import_skill" then
+        local skill_name = http.formvalue("skill_name") or ""
+        local skill_content = http.formvalue("skill_content") or ""
+        if skill_name ~= "" and skill_content ~= "" then
+            if skill_name:match("^[%w_%-]+$") then
+                local skill_dir = "/root/.picoclaw/workspace/skills/" .. skill_name
+                sys.exec("mkdir -p '" .. skill_dir .. "'")
+                local f = io.open(skill_dir .. "/SKILL.md", "w")
+                if f then
+                    f:write(skill_content)
+                    f:close()
+                    msg = "技能已导入: " .. skill_name
+                else
+                    msg = "错误：无法写入文件"; ok = false
+                end
+            else
+                msg = "错误：技能名称仅允许字母、数字、下划线和连字符"; ok = false
+            end
+        else
+            msg = "错误：请填写技能名称和内容"; ok = false
+        end
     end
 
     local url = dispatcher.build_url("admin", "services", "picoclaw")
@@ -313,6 +623,13 @@ function action_main()
     local asf = io.open("/etc/rc.d/S99picoclaw", "r")
     if asf then asf:close() autostart = true end
 
+    -- Hardware data
+    local hw_sysinfo = get_sysinfo()
+    local hw_gpio = get_gpio_info()
+    local hw_leds = get_leds()
+    local hw_usb = get_usb_devices()
+    local hw_tools = get_picoclaw_tools()
+
     luci.template.render("picoclaw/main", {
         running = status.running,
         pid = pid_str,
@@ -335,6 +652,11 @@ function action_main()
         flash_ok = flash_ok,
         action_url = dispatcher.build_url("admin", "services", "picoclaw", "action"),
         csrf_token = dispatcher.context.authtoken,
-        autostart = autostart
+        autostart = autostart,
+        hw_sysinfo = hw_sysinfo,
+        hw_gpio = hw_gpio,
+        hw_leds = hw_leds,
+        hw_usb = hw_usb,
+        hw_tools = hw_tools
     })
 end

@@ -39,6 +39,9 @@
 - **Gerenciamento de Canais** — Visualizar canais conectados (Feishu, Telegram, Discord, WeChat, etc.)
 - **Editor de Configuração** — UI para modelo AI, provedores e configurações do sistema
 - **Editor JSON** — Edição direta JSON com validação
+- **Controle de Hardware** — Informações do sistema, dispositivos USB, pinos GPIO (com alternância H/L)
+- **Gerenciamento de Skills** — Visualizar, excluir e importar skills do PicoClaw diretamente pela UI
+- **Tarefas Agendadas** — Visualizar jobs Cron de forma rápida
 - **Multi-idioma** — English, 简体中文, 日本語, Português, Deutsch
 - **Atualização Online** — Verificar novas versões e atualizar
 - **Logs do Sistema** — Visualizar logs do PicoClaw em tempo real
