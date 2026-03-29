@@ -171,7 +171,7 @@ end
 -- Validate CSRF token for POST actions
 function check_csrf()
     local token = http.formvalue("token")
-    if not token or token ~= dispatcher.csrf_token() then
+    if not token or token ~= dispatcher.context.authtoken then
         http.status(403, "Forbidden")
         http.write("Invalid CSRF token")
         return false
@@ -330,7 +330,7 @@ function action_main()
         flash_msg = html_escape(flash_msg),
         flash_ok = flash_ok,
         action_url = dispatcher.build_url("admin", "services", "picoclaw", "action"),
-        csrf_token = dispatcher.csrf_token(),
+        csrf_token = dispatcher.context.authtoken,
         autostart = autostart
     })
 end
