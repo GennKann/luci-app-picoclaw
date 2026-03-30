@@ -291,7 +291,11 @@ if flash_msg ~= "" then
             </div>
             <div class="cfg-row">
               <div class="cfg-label" data-i18n="lbl_model">模型名称<small>model_name</small></div>
-              <div class="cfg-field"><input type="text" class="cfg-input cfg-input-sm" data-path="agents.defaults.model_name" placeholder="glm-4-air"></div>
+              <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="agents.defaults.model_name">
+                <option value="glm-4.5-air">glm-4.5-air（智谱 · 默认）</option>
+                <option value="glm-4.7-flash">glm-4.7-flash（智谱 · 快思考）</option>
+                <option value="glm-5-turbo">glm-5-turbo（智谱 · 旗舰）</option>
+              </select></div>
             </div>
             <div class="cfg-row">
               <div class="cfg-label" data-i18n="lbl_max_tokens">Token 上限<small>max_tokens</small></div>
