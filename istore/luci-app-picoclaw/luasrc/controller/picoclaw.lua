@@ -8,6 +8,9 @@ local dispatcher = require("luci.dispatcher")
 function index()
     entry({"admin", "services", "picoclaw"}, call("action_main"), _("PicoClaw"), 60)
     entry({"admin", "services", "picoclaw", "action"}, call("action_do"), nil)
+    -- Chat API endpoints (no menu entry, used by XHR)
+    entry({"admin", "services", "picoclaw", "chat_send"}, call("action_chat_send"), nil)
+    entry({"admin", "services", "picoclaw", "chat_poll"}, call("action_chat_poll"), nil)
 end
 
 -- Parse JSON using luci.jsonc instead of manual regex
@@ -439,6 +442,172 @@ function get_picoclaw_tools()
     return tools
 end
 
+-- ============================================================
+-- Chat: Send message via picoclaw agent --message
+-- ============================================================
+local CHAT_DIR = "/tmp/picoclaw-chat"
+local CHAT_HISTORY_FILE = CHAT_DIR .. "/history.json"
+
+-- Ensure chat directory exists
+local function ensure_chat_dir()
+    sys.exec("mkdir -p '" .. CHAT_DIR .. "'")
+end
+
+-- Read chat history from file
+local function read_chat_history()
+    ensure_chat_dir()
+    local f = io.open(CHAT_HISTORY_FILE, "r")
+    if not f then return {} end
+    local content = f:read("*a")
+    f:close()
+    if content == "" then return {} end
+    local ok, data = pcall(jsonc.parse, content)
+    if ok and type(data) == "table" then return data end
+    return {}
+end
+
+-- Write chat history to file
+local function write_chat_history(history)
+    ensure_chat_dir()
+    local f = io.open(CHAT_HISTORY_FILE, "w")
+    if f then
+        f:write(require("luci.jsonc").stringify(history))
+        f:close()
+    end
+end
+
+-- Sanitize user input (prevent command injection)
+local function sanitize_input(s)
+    if not s then return "" end
+    s = tostring(s)
+    -- Remove shell metacharacters that could be dangerous
+    s = s:gsub("[`$]", "")
+    -- Limit length
+    if #s > 2000 then s = s:sub(1, 2000) end
+    return s
+end
+
+function action_chat_send()
+    http.prepare_content("application/json")
+    local msg = http.formvalue("message") or ""
+    if msg == "" then
+        http.write_json({error = "empty message"})
+        return
+    end
+
+    -- Check picoclaw is running
+    local st = get_status()
+    if not st.running then
+        http.write_json({error = "picoclaw not running"})
+        return
+    end
+
+    msg = sanitize_input(msg)
+
+    -- Read existing history
+    local history = read_chat_history()
+
+    -- Add user message to history
+    table.insert(history, {role = "user", content = msg, time = os.time()})
+    write_chat_history(history)
+
+    -- Create a unique task file
+    local task_id = tostring(os.time()) .. tostring(math.random(1000, 9999))
+    local result_file = CHAT_DIR .. "/result_" .. task_id
+    local status_file = CHAT_DIR .. "/status_" .. task_id
+
+    -- Write "running" status
+    local sf = io.open(status_file, "w")
+    if sf then sf:write("running"); sf:close() end
+
+    -- Launch picoclaw agent in background (must run from /root to find config)
+    local escaped_msg = msg:gsub("'", "'\\''")
+    local cmd = "HOME=/root picoclaw agent --message '" .. escaped_msg .. "' > '" .. result_file .. "' 2>&1 &"
+    os.execute(cmd)
+
+    http.write_json({ok = true, task_id = task_id})
+end
+
+function action_chat_poll()
+    http.prepare_content("application/json")
+    local task_id = http.formvalue("task_id") or ""
+    if task_id == "" then
+        http.write_json({error = "no task_id"})
+        return
+    end
+
+    -- Sanitize task_id (only digits)
+    task_id = task_id:gsub("[^%d]", "")
+    if task_id == "" then
+        http.write_json({error = "invalid task_id"})
+        return
+    end
+
+    local status_file = CHAT_DIR .. "/status_" .. task_id
+    local result_file = CHAT_DIR .. "/result_" .. task_id
+
+    -- Check status
+    local sf = io.open(status_file, "r")
+    if not sf then
+        http.write_json({status = "not_found"})
+        return
+    end
+    local status = sf:read("*l") or ""
+    sf:close()
+
+    if status == "running" then
+        -- Check if the process is still alive
+        local ps_out = sys.exec("ps | grep 'picoclaw agent' | grep -v grep")
+        if ps_out == "" then
+            -- Process finished but status file wasn't updated
+            local rf = io.open(result_file, "r")
+            local reply = ""
+            if rf then
+                reply = rf:read("*a")
+                rf:close()
+            end
+            -- Update status
+            local wf = io.open(status_file, "w")
+            if wf then wf:write("done"); wf:close() end
+
+            -- Add assistant reply to history
+            if reply ~= "" then
+                local history = read_chat_history()
+                -- Strip ANSI codes using sed (Lua gsub can't handle all escape sequences)
+                reply = sys.exec("echo '" .. reply:gsub("'", "'\\''") .. "' | sed 's/\\x1b\\[[0-9;]*m//g' 2>/dev/null"):match("^%s*(.-)%s*$") or ""
+                -- Also strip carriage returns and the banner
+                reply = reply:gsub("\r", "")
+                -- Remove empty lines and the banner lines
+                local clean_lines = {}
+                for line in reply:gmatch("[^\n]+") do
+                    -- Skip banner lines (contain only block characters)
+                    if not line:match("^[%s█╗╔═║╚╝╠╣╦╩╬]*$") then
+                        table.insert(clean_lines, line)
+                    end
+                end
+                reply = table.concat(clean_lines, "\n"):match("^%s*(.-)%s*$") or ""
+                table.insert(history, {role = "assistant", content = reply, time = os.time()})
+                write_chat_history(history)
+            end
+
+            http.write_json({status = "done", reply = reply})
+        else
+            http.write_json({status = "running"})
+        end
+    else
+        -- Done or error
+        local rf = io.open(result_file, "r")
+        local reply = ""
+        if rf then
+            reply = rf:read("*a")
+            rf:close()
+        end
+        reply = reply:gsub("\x1b%[[0-9;]*m", "")
+        reply = reply:match("^%s*(.-)%s*$") or ""
+        http.write_json({status = status, reply = reply})
+    end
+end
+
 function action_do()
     if not check_csrf() then return end
 
@@ -679,6 +848,17 @@ function action_main()
     local hw_usb = get_usb_devices()
     local hw_tools = get_picoclaw_tools()
 
+    -- Chat history
+    local chat_history = read_chat_history()
+    -- Escape for JS
+    local chat_history_json = "{}"
+    if #chat_history > 0 then
+        local ok, encoded = pcall(jsonc.stringify, chat_history)
+        if ok and encoded then
+            chat_history_json = js_escape(encoded)
+        end
+    end
+
     luci.template.render("picoclaw/main", {
         running = status.running,
         pid = pid_str,
@@ -706,6 +886,9 @@ function action_main()
         hw_gpio = hw_gpio,
         hw_leds = hw_leds,
         hw_usb = hw_usb,
-        hw_tools = hw_tools
+        hw_tools = hw_tools,
+        chat_history_json = chat_history_json,
+        chat_send_url = dispatcher.build_url("admin", "services", "picoclaw", "chat_send"),
+        chat_poll_url = dispatcher.build_url("admin", "services", "picoclaw", "chat_poll")
     })
 end
