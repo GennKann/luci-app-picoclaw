@@ -616,18 +616,13 @@ function action_do()
     local ok = true
 
     if action == "start" then
-        sys.exec("picoclaw gateway >/dev/null 2>&1 &")
-        sys.exec("sleep 2")
+        sys.exec("/etc/init.d/picoclaw start")
         msg = "服务正在启动..."
     elseif action == "stop" then
-        sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
-        sys.exec("sleep 1")
+        sys.exec("/etc/init.d/picoclaw stop; killall picoclaw 2>/dev/null")
         msg = "服务已停止。"
     elseif action == "restart" then
-        sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
-        sys.exec("sleep 1")
-        sys.exec("picoclaw gateway >/dev/null 2>&1 &")
-        sys.exec("sleep 2")
+        sys.exec("/etc/init.d/picoclaw stop; killall picoclaw 2>/dev/null; sleep 1; /etc/init.d/picoclaw start")
         msg = "服务已重启。"
     elseif action == "autostart_on" then
         sys.exec("/etc/init.d/picoclaw enable 2>/dev/null")
@@ -648,7 +643,7 @@ function action_do()
                 if f then
                     f:write(config)
                     f:close()
-                    sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null; sleep 1; picoclaw gateway >/dev/null 2>&1 &")
+                    sys.exec("/etc/init.d/picoclaw stop; killall picoclaw 2>/dev/null; sleep 1; /etc/init.d/picoclaw start")
                     msg = "配置已保存，服务已重启！"
                 else
                     msg = "错误：无法写入配置文件"
