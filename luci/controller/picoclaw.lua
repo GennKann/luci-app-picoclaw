@@ -4,6 +4,7 @@ local jsonc = require("luci.jsonc")
 local sys = require("luci.sys")
 local http = require("luci.http")
 local dispatcher = require("luci.dispatcher")
+local nixio = require("nixio")
 
 function index()
     entry({"admin", "services", "picoclaw"}, call("action_main"), _("PicoClaw"), 60)
@@ -22,6 +23,102 @@ function parse_json_file(filepath)
     local ok, data = pcall(jsonc.parse, content)
     if ok then return data end
     return nil
+end
+
+-- Check if PicoClaw binary is installed
+function is_picoclaw_installed()
+    return nixio.fs.access("/usr/bin/picoclaw")
+end
+
+-- Get system architecture mapping for PicoClaw download
+function get_picoclaw_arch()
+    local m = sys.exec("uname -m"):match("^%s*(.-)%s*$") or ""
+    local arch_map = {
+        ["x86_64"] = "Linux_x86_64",
+        ["x86"] = "Linux_x86_64",
+        ["aarch64"] = "Linux_arm64",
+        ["armv7l"] = "Linux_armv7",
+        ["armv7"] = "Linux_armv7",
+        ["mipsel"] = "Linux_mipsle",
+        ["mips"] = "Linux_mipsle",
+        ["riscv64"] = "Linux_riscv64",
+        ["loong64"] = "Linux_loong64"
+    }
+    return arch_map[m] or nil, m
+end
+
+-- Get latest PicoClaw version from GitHub API
+function get_latest_picoclaw_version()
+    local latest_ver = ""
+    local f = io.popen("curl -sL --max-time 5 'https://api.github.com/repos/sipeed/picoclaw/releases/latest' 2>/dev/null")
+    if f then
+        local body = f:read("*a")
+        f:close()
+        local ok, data = pcall(jsonc.parse, body)
+        if ok and data and data.tag_name then
+            latest_ver = data.tag_name:gsub("^v", "")
+        end
+    end
+    return latest_ver
+end
+
+-- Install PicoClaw binary from GitHub
+function do_install_picoclaw(arch)
+    local version = get_latest_picoclaw_version()
+    if version == "" then version = "0.2.4" end
+    local url = "https://github.com/sipeed/picoclaw/releases/download/v" .. version .. "/picoclaw_" .. arch .. ".tar.gz"
+    sys.exec("mkdir -p /tmp/picoclaw-install")
+    sys.exec("curl -L -o /tmp/picoclaw-install/picoclaw.tar.gz '" .. url .. "' --max-time 120 2>&1")
+    -- Verify download
+    local dl_size = sys.exec("wc -c < /tmp/picoclaw-install/picoclaw.tar.gz 2>/dev/null"):match("^%s*(%d+)")
+    if not dl_size or tonumber(dl_size) < 100000 then
+        sys.exec("rm -rf /tmp/picoclaw-install")
+        return false, "download_failed"
+    end
+    sys.exec("cd /tmp/picoclaw-install && tar xzf picoclaw.tar.gz 2>&1")
+    sys.exec("cp /tmp/picoclaw-install/picoclaw /usr/bin/picoclaw 2>/dev/null")
+    -- Verify binary
+    if not is_picoclaw_installed() then
+        sys.exec("rm -rf /tmp/picoclaw-install")
+        return false, "extract_failed"
+    end
+    sys.exec("chmod +x /usr/bin/picoclaw")
+    -- Install init.d script if not exists
+    if not nixio.fs.access("/etc/init.d/picoclaw") then
+        sys.exec("mkdir -p /etc/init.d")
+        local init_content = [[#!/bin/sh /etc/rc.common
+START=99
+STOP=10
+USE_PROCD=1
+start_service() {
+    procd_open_instance picoclaw
+    procd_set_param command /usr/bin/picoclaw gateway
+    procd_set_param env HOME=/root
+    procd_set_param respawn 3600 5 5
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+    procd_set_param user root
+    procd_close_instance
+}
+stop_service() {
+    killall picoclaw 2>/dev/null
+}
+service_triggers() {
+    procd_add_reload_trigger "picoclaw"
+}
+]]
+        local inf = io.open("/etc/init.d/picoclaw", "w")
+        if inf then
+            inf:write(init_content)
+            inf:close()
+            sys.exec("chmod +x /etc/init.d/picoclaw")
+            sys.exec("/etc/init.d/picoclaw enable")
+        end
+    end
+    -- Create config directory if not exists
+    sys.exec("mkdir -p /root/.picoclaw/workspace/skills")
+    sys.exec("rm -rf /tmp/picoclaw-install")
+    return true, version
 end
 
 function get_status()
@@ -624,6 +721,27 @@ function action_do()
     elseif action == "restart" then
         sys.exec("/etc/init.d/picoclaw stop; killall picoclaw 2>/dev/null; sleep 1; /etc/init.d/picoclaw start")
         msg = "服务已重启。"
+    elseif action == "install_picoclaw" then
+        local arch, raw_arch = get_picoclaw_arch()
+        if not arch then
+            msg = "错误：不支持的架构 (" .. (raw_arch or "unknown") .. ")"
+            ok = false
+        else
+            local success, result = do_install_picoclaw(arch)
+            if success then
+                msg = "PicoClaw v" .. tostring(result) .. " 安装成功！正在启动服务..."
+                sys.exec("/etc/init.d/picoclaw start")
+            elseif result == "download_failed" then
+                msg = "错误：下载失败，请检查网络连接（可能无法访问 GitHub）"
+                ok = false
+            elseif result == "extract_failed" then
+                msg = "错误：解压失败，文件可能已损坏"
+                ok = false
+            else
+                msg = "错误：安装失败"
+                ok = false
+            end
+        end
     elseif action == "autostart_on" then
         sys.exec("/etc/init.d/picoclaw enable 2>/dev/null")
         msg = "已启用开机自动启动。"
@@ -774,6 +892,11 @@ function action_main()
     local config_content, config_err = get_config()
     local logs = get_logs()
 
+    -- Check if PicoClaw binary is installed
+    local picoclaw_installed = is_picoclaw_installed()
+    local picoclaw_arch, picoclaw_raw_arch = get_picoclaw_arch()
+    local picoclaw_arch_supported = (picoclaw_arch ~= nil)
+
     local cur_ver, build_time, git_commit = get_version_info()
     local latest_ver, latest_url, check_err = check_latest_version()
 
@@ -884,6 +1007,10 @@ function action_main()
         hw_tools = hw_tools,
         chat_history_json = chat_history_json,
         chat_send_url = dispatcher.build_url("admin", "services", "picoclaw", "chat_send"),
-        chat_poll_url = dispatcher.build_url("admin", "services", "picoclaw", "chat_poll")
+        chat_poll_url = dispatcher.build_url("admin", "services", "picoclaw", "chat_poll"),
+        picoclaw_installed = picoclaw_installed,
+        picoclaw_arch = html_escape(picoclaw_arch or ""),
+        picoclaw_raw_arch = html_escape(picoclaw_raw_arch or ""),
+        picoclaw_arch_supported = picoclaw_arch_supported
     })
 end

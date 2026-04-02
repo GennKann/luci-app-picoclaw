@@ -70,12 +70,105 @@
 
 | 要求 | 说明 |
 |---|---|
-| **OpenWrt** | 24.10 / 25.xx（需安装 LuCI） |
-| **PicoClaw** | 已安装并运行 [sipeed/picoclaw](https://github.com/sipeed/picoclaw) |
+| **OpenWrt / iStoreOS** | 24.10 / 25.xx（需安装 LuCI） |
+| **PicoClaw** | **必须先安装！** 本界面不包含 PicoClaw 主程序 |
+| **架构** | all（纯 Lua，不限架构，x86-64 / aarch64 / armv7 等均可） |
+
+> ⚠️ **重要提醒**：`luci-app-picoclaw` 只是 PicoClaw 的**网页管理界面**，**不是** PicoClaw 本身。如果你还没安装 PicoClaw 主程序，请先完成下方「第一步」的安装，否则管理界面无法正常工作。
 
 ## 🚀 安装
 
-### 方式一：手动安装
+### 第一步：安装 PicoClaw 主程序（必做！）
+
+PicoClaw 主程序支持多种架构（x86-64、aarch64、armv7、mipsle、riscv64 等），前往 [Releases](https://github.com/sipeed/picoclaw/releases) 下载对应版本。
+
+#### 方式 A：命令行手动安装
+
+**iStoreOS (x86-64) 示例：**
+
+```bash
+# 下载 PicoClaw（以 v0.2.4 为例，根据实际版本替换）
+cd /tmp
+wget https://github.com/sipeed/picoclaw/releases/download/v0.2.4/picoclaw_Linux_x86_64.tar.gz
+tar xzf picoclaw_Linux_x86_64.tar.gz
+cp picoclaw /usr/bin/picoclaw
+chmod +x /usr/bin/picoclaw
+
+# 安装 init.d 服务脚本（可选，用于开机自启和 procd 管理）
+cp scripts/picoclaw.init /etc/init.d/picoclaw
+chmod +x /etc/init.d/picoclaw
+/etc/init.d/picoclaw enable
+```
+
+> 💡 **其他架构**：arm64 设备下载 `picoclaw_Linux_arm64.tar.gz`，mipsle 设备下载 `picoclaw_Linux_mipsle.tar.gz`，以此类推。完整列表请查看 [PicoClaw Releases](https://github.com/sipeed/picoclaw/releases)。
+
+**验证 PicoClaw 已安装：**
+
+```bash
+picoclaw --version
+```
+
+#### 方式 B：一键安装脚本（推荐新手使用）
+
+本项目提供了一个 Python 脚本，可以**自动检测架构、下载 PicoClaw、部署 LuCI 界面、配置服务**，一条命令搞定所有事。
+
+**在你的电脑上运行（需要 Python 3 和 paramiko）：**
+
+```bash
+# 1. 克隆本仓库
+git clone https://github.com/GennKann/luci-app-picoclaw.git
+cd luci-app-picoclaw
+
+# 2. 安装依赖
+pip install paramiko
+
+# 3. 运行一键安装
+python install.py
+```
+
+脚本会自动完成：
+- ✅ 检测路由器架构（x86-64 / arm64 / armv7）
+- ✅ 下载并安装 PicoClaw 主程序
+- ✅ 创建 init.d 开机自启服务
+- ✅ 部署 LuCI 管理界面
+- ✅ 初始化 PicoClaw 配置文件
+- ✅ 启动 PicoClaw 服务
+
+#### 方式 C：LuCI 页面内一键安装
+
+如果你已经安装了 `luci-app-picoclaw`（通过 iStore 商店或 IPK），但还没装 PicoClaw 主程序，LuCI 页面顶部会自动显示**橙色安装横幅**，点击即可直接从网页上安装 PicoClaw（自动检测架构并下载）。
+
+> 💡 如果你想先装管理界面再装主程序，可以使用这个方式——先装 `luci-app-picoclaw`，然后从页面上点一键安装。
+
+### 第二步：安装 LuCI 管理界面（luci-app-picoclaw）
+
+> 如果你已经通过上方「一键安装脚本」安装，此步骤**已自动完成**，可以跳过。
+
+#### 方式一：iStore 商店安装（推荐）
+
+在路由器的 iStore 商店中搜索 `picoclaw` 即可直接安装。
+
+#### 方式二：手动下载 IPK 安装
+
+从 [Releases](https://github.com/GennKann/luci-app-picoclaw/releases) 下载 IPK 包（`_all` 表示全架构通用，不限 CPU 架构）：
+
+```bash
+# 下载 IPK（以下载最新版 v1.0.5 为例）
+cd /tmp
+wget https://github.com/GennKann/luci-app-picoclaw/releases/download/v1.0.5/luci-app-picoclaw_1.0.5-1_all.ipk
+
+# 安装依赖
+opkg update
+opkg install luci-lib-jsonc curl
+
+# 安装 IPK
+opkg install luci-app-picoclaw_1.0.5-1_all.ipk
+
+# 清理 LuCI 缓存
+rm -rf /tmp/luci-*
+```
+
+#### 方式三：手动复制文件安装
 
 ```bash
 # 控制器
@@ -84,11 +177,8 @@ cp luci/controller/picoclaw.lua /usr/lib/lua/luci/controller/picoclaw.lua
 # 模板
 cp luci/view/picoclaw/main.htm /usr/lib/lua/luci/view/picoclaw/main.htm
 
-# Init 脚本（可选，用于服务控制）
-cp scripts/picoclaw.init /etc/init.d/picoclaw
-chmod +x /etc/init.d/picoclaw
-
 # 预设技能（可选）
+mkdir -p /usr/lib/lua/luci/picoclaw-skills/
 cp -r skills/openwrt-diagnostics /usr/lib/lua/luci/picoclaw-skills/
 cp -r skills/openwrt-backup /usr/lib/lua/luci/picoclaw-skills/
 cp -r skills/openwrt-app-installer /usr/lib/lua/luci/picoclaw-skills/
@@ -97,11 +187,18 @@ cp -r skills/openwrt-app-installer /usr/lib/lua/luci/picoclaw-skills/
 rm -rf /tmp/luci-*
 ```
 
-然后访问：`http://<路由器IP>/cgi-bin/luci/admin/services/picoclaw`
+安装完成后访问：`http://<路由器IP>/cgi-bin/luci/admin/services/picoclaw`
 
-### 方式二：iStore 商店（即将上线）
+## ❓ 常见问题
 
-已提交至 [iStore 应用商店](https://github.com/istoreos/openwrt-app-actions)，审核通过后可直接在路由器的 iStore 中安装。
+### 安装了 luci-app-picoclaw 但打不开 / 报错？
+这说明你的路由器上还没有安装 **PicoClaw 主程序**。请先完成「第一步」安装 PicoClaw，然后再刷新页面。
+
+### iStore 商店里搜不到 picoclaw？
+请确保你的 iStore 商店软件源已更新（`opkg update`），或者尝试直接从 GitHub 下载 IPK 安装。
+
+### 页面顶部有橙色安装横幅是怎么回事？
+这说明已安装 `luci-app-picoclaw` 但尚未安装 PicoClaw 主程序，点击横幅即可一键安装。
 
 ## 📁 项目结构
 

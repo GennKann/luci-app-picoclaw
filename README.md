@@ -70,12 +70,105 @@ Three ready-to-use AI skills are bundled — install with one click from the man
 
 | Requirement | Details |
 |---|---|
-| **OpenWrt** | 24.10 / 25.xx with LuCI |
-| **PicoClaw** | [sipeed/picoclaw](https://github.com/sipeed/picoclaw) installed and running |
+| **OpenWrt / iStoreOS** | 24.10 / 25.xx with LuCI |
+| **PicoClaw** | **Must be installed first!** This interface does not include the PicoClaw binary |
+| **Architecture** | all (pure Lua, works on x86-64 / aarch64 / armv7 / etc.) |
+
+> ⚠️ **Important**: `luci-app-picoclaw` is only the **web management interface** for PicoClaw — it is NOT PicoClaw itself. If you haven't installed the PicoClaw binary yet, please complete "Step 1" below first, otherwise the management page will not work properly.
 
 ## 🚀 Installation
 
-### Option 1: Manual Install
+### Step 1: Install PicoClaw (Required!)
+
+PicoClaw supports multiple architectures (x86-64, aarch64, armv7, mipsle, riscv64, etc.). Download from [Releases](https://github.com/sipeed/picoclaw/releases).
+
+#### Option A: Manual CLI Installation
+
+**iStoreOS (x86-64) example:**
+
+```bash
+# Download PicoClaw (replace version as needed)
+cd /tmp
+wget https://github.com/sipeed/picoclaw/releases/download/v0.2.4/picoclaw_Linux_x86_64.tar.gz
+tar xzf picoclaw_Linux_x86_64.tar.gz
+cp picoclaw /usr/bin/picoclaw
+chmod +x /usr/bin/picoclaw
+
+# Install init.d service script (optional, for procd management and auto-start)
+cp scripts/picoclaw.init /etc/init.d/picoclaw
+chmod +x /etc/init.d/picoclaw
+/etc/init.d/picoclaw enable
+```
+
+> 💡 **Other architectures**: arm64 devices use `picoclaw_Linux_arm64.tar.gz`, mipsle devices use `picoclaw_Linux_mipsle.tar.gz`, etc. See [PicoClaw Releases](https://github.com/sipeed/picoclaw/releases) for the full list.
+
+**Verify PicoClaw is installed:**
+
+```bash
+picoclaw --version
+```
+
+#### Option B: One-Click Install Script (Recommended for beginners)
+
+This project includes a Python script that **automatically detects your architecture, downloads PicoClaw, deploys the LuCI interface, and configures the service** — all in one go.
+
+**Run on your computer (requires Python 3 and paramiko):**
+
+```bash
+# 1. Clone this repository
+git clone https://github.com/GennKann/luci-app-picoclaw.git
+cd luci-app-picoclaw
+
+# 2. Install dependency
+pip install paramiko
+
+# 3. Run the one-click installer
+python install.py
+```
+
+The script automatically:
+- ✅ Detects router architecture (x86-64 / arm64 / armv7)
+- ✅ Downloads and installs PicoClaw binary
+- ✅ Creates init.d auto-start service
+- ✅ Deploys LuCI management interface
+- ✅ Initializes PicoClaw config
+- ✅ Starts PicoClaw service
+
+#### Option C: In-Page One-Click Install
+
+If you've already installed `luci-app-picoclaw` (via iStore or IPK) but haven't installed the PicoClaw binary yet, an **orange install banner** will appear at the top of the LuCI page. Click it to install PicoClaw directly from the web UI (automatically detects architecture and downloads the correct binary).
+
+> 💡 Use this option if you want to install the management interface first, then install PicoClaw from the page itself.
+
+### Step 2: Install LuCI Interface (luci-app-picoclaw)
+
+> If you already used the "One-Click Install Script" above, this step is **already done** — you can skip it.
+
+#### Option 1: iStore App Store (Recommended)
+
+Search for `picoclaw` in the iStore app on your router and install directly.
+
+#### Option 2: Download IPK
+
+Download the IPK from [Releases](https://github.com/GennKann/luci-app-picoclaw/releases) (`_all` means architecture-independent):
+
+```bash
+# Download IPK (v1.0.5 example)
+cd /tmp
+wget https://github.com/GennKann/luci-app-picoclaw/releases/download/v1.0.5/luci-app-picoclaw_1.0.5-1_all.ipk
+
+# Install dependencies
+opkg update
+opkg install luci-lib-jsonc curl
+
+# Install IPK
+opkg install luci-app-picoclaw_1.0.5-1_all.ipk
+
+# Clear LuCI cache
+rm -rf /tmp/luci-*
+```
+
+#### Option 3: Manual File Copy
 
 ```bash
 # Controller
@@ -84,11 +177,8 @@ cp luci/controller/picoclaw.lua /usr/lib/lua/luci/controller/picoclaw.lua
 # Template
 cp luci/view/picoclaw/main.htm /usr/lib/lua/luci/view/picoclaw/main.htm
 
-# Init script (optional, for service control)
-cp scripts/picoclaw.init /etc/init.d/picoclaw
-chmod +x /etc/init.d/picoclaw
-
 # Preset skills (optional)
+mkdir -p /usr/lib/lua/luci/picoclaw-skills/
 cp -r skills/openwrt-diagnostics /usr/lib/lua/luci/picoclaw-skills/
 cp -r skills/openwrt-backup /usr/lib/lua/luci/picoclaw-skills/
 cp -r skills/openwrt-app-installer /usr/lib/lua/luci/picoclaw-skills/
@@ -99,9 +189,16 @@ rm -rf /tmp/luci-*
 
 Access: `http://<ROUTER_IP>/cgi-bin/luci/admin/services/picoclaw`
 
-### Option 2: iStore (Coming Soon)
+## ❓ FAQ
 
-This package is submitted to the [iStore App Store](https://github.com/istoreos/openwrt-app-actions). Once merged, you can install it directly from the iStore app on your router.
+### Installed luci-app-picoclaw but the page doesn't load / shows errors?
+This means **PicoClaw binary** is not installed on your router. Please complete "Step 1" to install PicoClaw first, then refresh the page.
+
+### Can't find picoclaw in the iStore app?
+Make sure your iStore package sources are up to date (`opkg update`), or download the IPK directly from GitHub Releases.
+
+### What is the orange install banner at the top of the page?
+This means `luci-app-picoclaw` is installed but PicoClaw binary is not yet installed. Click the banner to install PicoClaw with one click.
 
 ## 📁 Project Structure
 

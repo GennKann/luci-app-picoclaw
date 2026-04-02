@@ -139,6 +139,41 @@ if flash_msg ~= "" then
   </div>
 </div>
 
+<!-- PicoClaw Not Installed Banner -->
+<% if not picoclaw_installed then %>
+<div class="pc-card" style="border-color:#ff9800;border-width:2px">
+  <div style="display:flex;align-items:flex-start;gap:16px">
+    <div style="font-size:48px;flex-shrink:0">&#128373;</div>
+    <div style="flex:1">
+      <h3 style="margin:0 0 8px 0;color:#e65100;font-size:18px" data-i18n="picoclaw_not_installed">PicoClaw 未安装</h3>
+      <p style="margin:0 0 14px 0;color:#555;font-size:14px;line-height:1.6" data-i18n="picoclaw_not_installed_desc">
+        检测到系统中未安装 PicoClaw 主程序。本界面仅是管理面板，需要先安装 PicoClaw AI 网关才能使用。
+      </p>
+      <% if picoclaw_arch_supported then %>
+      <div style="background:#f5f7fa;border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px">
+        <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:#888">系统架构</span><span style="font-weight:600;color:#333"><%=picoclaw_raw_arch%></span></div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0"><span style="color:#888">下载版本</span><span style="font-weight:600;color:#333">picoclaw_<%=picoclaw_arch%>.tar.gz</span></div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <form method="post" action="<%=action_url%>" style="display:inline">
+          <input type="hidden" name="token" value="<%=csrf_token%>">
+          <input type="hidden" name="action" value="install_picoclaw">
+          <button type="submit" class="pc-btn green" style="padding:10px 28px;font-size:15px" onclick="this.disabled=true;this.innerHTML='&#8987; 安装中...';this.style.opacity='0.7'" data-i18n="install_picoclaw">&#9889; 一键安装 PicoClaw</button>
+        </form>
+        <span style="font-size:12px;color:#999" data-i18n="install_tip">将从 GitHub 自动下载并安装（需要网络连接）</span>
+      </div>
+      <% else %>
+      <div style="background:#ffebee;border-radius:8px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#c62828">
+        &#9888; <span data-i18n="arch_not_supported">当前架构（<%=picoclaw_raw_arch%>）暂不支持一键安装。请前往</span>
+        <a href="https://github.com/sipeed/picoclaw/releases" target="_blank" style="color:#1976d2">GitHub Releases</a>
+        <span data-i18n="arch_not_supported_end">手动下载对应版本安装。</span>
+      </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+<% end %>
+
 <!-- Version Card -->
 <div class="pc-card">
   <h3 data-i18n="version_info">版本信息</h3>
