@@ -274,17 +274,136 @@ function js_escape(s)
     return s
 end
 
+-- Find the correct download filename from GitHub release assets
+-- Dynamically matches architecture, so file name changes won't break updates
+function find_release_asset_url(version)
+    local arch, uname_m = get_picoclaw_arch()
+    if not arch then
+        return nil, "unsupported_arch:" .. (uname_m or "unknown")
+    end
+
+    -- Build keyword list for matching (order: most specific to least)
+    local keywords = { arch }
+    -- Also add uname -m based fallbacks
+    if uname_m == "aarch64" then
+        keywords = { arch, "Linux_arm64", "arm64", "aarch64" }
+    elseif uname_m == "x86_64" then
+        keywords = { arch, "Linux_x86_64", "x86_64", "amd64" }
+    elseif uname_m == "armv7l" or uname_m == "armv7" then
+        keywords = { arch, "Linux_armv7", "armv7" }
+    elseif uname_m == "mipsel" or uname_m == "mips" then
+        keywords = { arch, "Linux_mipsle", "mipsle" }
+    elseif uname_m == "riscv64" then
+        keywords = { arch, "Linux_riscv64", "riscv64" }
+    elseif uname_m == "loong64" then
+        keywords = { arch, "Linux_loong64", "loong64" }
+    end
+
+    local tag = "latest"
+    if version and version ~= "" then tag = "v" .. version end
+    local api_url = "https://api.github.com/repos/sipeed/picoclaw/releases/" .. tag
+    local f = io.popen("curl -sL --max-time 10 '" .. api_url .. "' 2>/dev/null")
+    if not f then return nil, "api_request_failed" end
+    local body = f:read("*a")
+    f:close()
+
+    local ok, data = pcall(jsonc.parse, body)
+    if not ok or not data or not data.assets then
+        return nil, "parse_failed"
+    end
+
+    -- Prefer tar.gz, then zip, then any other archive
+    local candidates = {}  -- score -> {name, url, score}
+    for _, asset in ipairs(data.assets) do
+        local name = asset.name or ""
+        -- Must be a picoclaw file
+        if name:match("^picoclaw_") and not name:match("checksum") then
+            local matched_keyword = nil
+            local score = 0
+            for i, kw in ipairs(keywords) do
+                if name:find(kw, 1, true) then
+                    matched_keyword = kw
+                    score = #keywords - i + 1  -- higher = better match
+                    break
+                end
+            end
+            if matched_keyword then
+                -- Prefer tar.gz over other formats
+                if name:match("%.tar%.gz$") then score = score + 100 end
+                if name:match("%.zip$") then score = score + 50 end
+                if not candidates[score] or #candidates[score].name < #name then
+                    candidates[score] = { name = name, url = asset.browser_download_url, score = score }
+                end
+            end
+        end
+    end
+
+    -- Pick highest score
+    local best = nil
+    for _, c in pairs(candidates) do
+        if not best or c.score > best.score then best = c end
+    end
+
+    if best then
+        return best.url, nil
+    end
+    return nil, "no_matching_asset"
+end
+
+-- Update PicoClaw binary via GitHub Release (auto-detects architecture)
 function do_update()
-    local arch = "linux_arm64"
-    local m = sys.exec("uname -m")
-    if m:find("x86") then arch = "linux_amd64" end
-    local dl_url = "https://github.com/sipeed/picoclaw/releases/latest/download/picoclaw_" .. arch
+    -- Find correct download URL by querying GitHub API
+    local dl_url, err = find_release_asset_url()
+    if not dl_url then
+        sys.exec("logger -t picoclaw 'Update failed: cannot find release asset (" .. (err or "unknown") .. ")'")
+        return
+    end
+
     sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
     sys.exec("sleep 1")
-    sys.exec("curl -L -o /tmp/picoclaw_new '" .. dl_url .. "' --max-time 120 2>&1")
-    sys.exec("chmod +x /tmp/picoclaw_new")
+    sys.exec("mkdir -p /tmp/picoclaw-update")
+    sys.exec("curl -L -o /tmp/picoclaw-update/picoclaw.tar.gz '" .. dl_url .. "' --max-time 180 2>&1")
+    -- Verify download size
+    local dl_size = sys.exec("wc -c < /tmp/picoclaw-update/picoclaw.tar.gz 2>/dev/null"):match("^%s*(%d+)")
+    if not dl_size or tonumber(dl_size) < 5000000 then
+        sys.exec("logger -t picoclaw 'Update failed: download too small (" .. (dl_size or "0") .. " bytes)'")
+        sys.exec("rm -rf /tmp/picoclaw-update")
+        return
+    end
+
+    -- Extract (handle both .tar.gz and .zip)
+    local ext = dl_url:match("%.([^.]+)$")
+    local extract_ok = false
+    if ext == "zip" then
+        sys.exec("cd /tmp/picoclaw-update && unzip -o picoclaw.tar.gz 2>&1")  -- file named tar.gz but is zip
+        extract_ok = nixio.fs.access("/tmp/picoclaw-update/picoclaw")
+    else
+        sys.exec("cd /tmp/picoclaw-update && tar xzf picoclaw.tar.gz 2>&1")
+        extract_ok = nixio.fs.access("/tmp/picoclaw-update/picoclaw")
+    end
+    -- If not at top level, check subdirectories
+    if not extract_ok then
+        local f = io.popen("find /tmp/picoclaw-update -name 'picoclaw' -type f 2>/dev/null")
+        if f then
+            local found = f:read("*a"):match("([^\n]+)")
+            f:close()
+            if found then
+                sys.exec("cp '" .. found .. "' /tmp/picoclaw-update/picoclaw")
+                extract_ok = true
+            end
+        end
+    end
+    if not extract_ok then
+        sys.exec("logger -t picoclaw 'Update failed: extraction failed'")
+        sys.exec("rm -rf /tmp/picoclaw-update")
+        return
+    end
+
     sys.exec("cp /usr/bin/picoclaw /usr/bin/picoclaw.bak 2>/dev/null")
-    sys.exec("mv /tmp/picoclaw_new /usr/bin/picoclaw")
+    sys.exec("cp /tmp/picoclaw-update/picoclaw /usr/bin/picoclaw")
+    sys.exec("chmod +x /usr/bin/picoclaw")
+    sys.exec("rm -rf /tmp/picoclaw-update")
+    sys.exec("logger -t picoclaw 'Update complete, restarting...'")
     sys.exec("picoclaw gateway >/dev/null 2>&1 &")
     sys.exec("sleep 3")
 end
