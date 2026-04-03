@@ -13,7 +13,7 @@
 set -e
 
 PKG_NAME="luci-app-picoclaw"
-PKG_VERSION="1.0.0"
+PKG_VERSION="1.0.5"
 PKG_DESC="LuCI management interface for PicoClaw AI assistant"
 PKG_MAINTAINER="GennKann"
 PKG_ARCH="all"
