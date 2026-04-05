@@ -150,8 +150,9 @@ function get_status()
     if nf then
         local c = nf:read("*a")
         nf:close()
-        -- 4966 is hex for port 18790
-        if c:find(":4966") then port_active = true end
+        -- 4966 is hex for 18790 (maixcam), 4967 for 18791 (gateway)
+        -- PicoClaw 0.2.5: gateway on 18791, maixcam on 18790
+        if c:find(":4966") or c:find(":4967") then port_active = true end
     end
     return {running=running, pid=pid, memory_kb=memory_kb, port_active=port_active}
 end
