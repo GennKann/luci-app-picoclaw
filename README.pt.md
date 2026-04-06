@@ -10,9 +10,10 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/OpenWrt-24.10%20%7C%2025.xx-blue?logo=openwrt" alt="OpenWrt">
+  <img src="https://img.shields.io/badge/OpenWrt-21.02%20%7C%2022.03%20%7C%2023.05%20%7C%2024.10%20%7C%2025.xx-blue?logo=openwrt" alt="OpenWrt">
   <img src="https://img.shields.io/badge/LuCI-Web%20Interface-green?logo=lua" alt="LuCI">
   <img src="https://img.shields.io/badge/i18n-5%20Languages-purple" alt="i18n">
+  <img src="https://img.shields.io/badge/Version-1.0.8-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -26,7 +27,7 @@
 
 ---
 
-## 📸 Capturas de Tela
+## Capturas de Tela
 
 | Painel | Editor de Configuração |
 |:---:|:---:|
@@ -36,17 +37,18 @@
 |:---:|:---:|
 | ![Hardware](Screenshots/screenshot_hardware.png) | ![Mobile](Screenshots/screenshot_mobile.png) |
 
-## ✨ Funcionalidades
+## Funcionalidades
 
 ### Gerenciamento de Serviço
 - **Painel** — Status do serviço em tempo real, PID, uso de memória e monitoramento de porta
-- **Controle de Serviço** — Iniciar / Parar / Reiniciar o PicoClaw
+- **Controle de Serviço** — Iniciar / Parar (com kill-9 forçado) / Reiniciar o PicoClaw
 - **Alternar Auto-início** — Ativar/desativar inicialização automática
-- **Logs do Sistema** — Visualizar logs do PicoClaw em tempo real
-- **Atualização Online** — Verificar novas versões e atualizar
+- **Logs do Sistema** — Visualizar e atualizar logs do PicoClaw em tempo real
+- **Atualização Online** — Verificar novas versões e atualizar pela UI
 
 ### Configuração
 - **Gerenciamento de Canais** — Visualizar canais conectados (Feishu, Telegram, Discord, WeChat, etc.)
+- **Detecção de Status WeChat** — Detecta automaticamente a sessão da conta pessoal WeChat após scan de QR Code
 - **Editor de Configuração** — UI para modelo AI, provedores e configurações do sistema
 - **Editor JSON** — Edição direta JSON com validação
 
@@ -55,55 +57,99 @@
 - **Gerenciamento de Skills** — Visualizar, excluir e importar skills do PicoClaw diretamente pela UI
 - **Tarefas Agendadas** — Visualizar jobs Cron de forma rápida
 
-### 🆕 Skills Preset Integradas
+### Skills Preset Integradas
+
 Três skills AI prontas para uso são incluídas — instale com um clique na página de gerenciamento:
 
 | Skill | Descrição |
 |:---|:---|
-| 🔍 **Diagnóstico do Sistema** | Verificação automática de rede/DNS/gateway, análise de logs, solução de problemas |
-| 💾 **Backup de Configuração** | Fluxo de backup interativo com verificação de ambiente e menu de opções |
-| 📦 **Instalador de Apps** | Busca inteligente de apps via opkg/is-opkg com correspondência fuzzy de descrição |
+| **Diagnóstico do Sistema** | Verificação automática de rede/DNS/gateway, análise de logs, solução de problemas |
+| **Backup de Configuração** | Fluxo de backup interativo com verificação de ambiente e menu de opções |
+| **Instalador de Apps** | Busca inteligente de apps via opkg/is-opkg com correspondência fuzzy de descrição |
 
 > Estas skills são prompts de conhecimento puro (SKILL.md) — elas melhoram as respostas AI do PicoClaw sem modificar o binário do PicoClaw.
 
-## 📋 Requisitos
+## Requisitos
 
 | Requisito | Detalhes |
 |---|---|
-| **OpenWrt** | 24.10 / 25.xx com LuCI |
+| **OpenWrt / iStoreOS** | 21.02+ / 22.03 / 23.05 / 24.10 / 25.xx / iStoreOS (com LuCI) |
 | **PicoClaw** | [sipeed/picoclaw](https://github.com/sipeed/picoclaw) instalado e em execução |
+| **Arquitetura** | all (Lua pura: x86-64 / aarch64 / armv7 / mipsle / riscv64, etc.) |
 
-## 🚀 Instalação
+> ⚠️ **Importante**: `luci-app-picoclaw` é apenas a **interface web** para PicoClaw — não é o PicoClaw em si. Se você ainda não instalou o binário PicoClaw, complete o "Passo 1" abaixo primeiro.
 
-### Opção 1: Instalação Manual
+## Instalação
+
+### Passo 1: Instalar PicoClaw (Obrigatório!)
+
+Baixe de [PicoClaw Releases](https://github.com/sipeed/picoclaw/releases) compatível com sua arquitetura:
+
+```bash
+# Exemplo para x86-64 (substitua a versão conforme necessário)
+cd /tmp
+wget https://github.com/sipeed/picoclaw/releases/download/v0.2.5/picoclaw_Linux_x86_64.tar.gz
+tar xzf picoclaw_Linux_x86_64.tar.gz
+cp picoclaw /usr/bin/picoclaw && chmod +x /usr/bin/picoclaw
+
+# Verificar instalação
+picoclaw --version
+```
+
+### Passo 2: Instalar Interface LuCI (luci-app-picoclaw)
+
+#### Opção 1: iStore App Store (Recomendado)
+
+Pesquise `picoclaw` no app iStore do seu roteador → instale diretamente.
+> Disponível desde v1.0.8 (PR mesclado na fonte oficial iStore).
+
+#### Opção 2: Baixar IPK
+
+Baixe de [Releases](https://github.com/GennKann/luci-app-picoclaw/releases/latest):
+
+```bash
+cd /tmp
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.0.8-1_all.ipk
+opkg install luci-app-picoclaw_1.0.8-1_all.ipk
+rm -rf /tmp/luci-*   # Limpar cache LuCI
+```
+
+#### Opão 3: Cópia Manual de Arquivos
 
 ```bash
 # Controller
 cp luci/controller/picoclaw.lua /usr/lib/lua/luci/controller/picoclaw.lua
-
 # Template
 cp luci/view/picoclaw/main.htm /usr/lib/lua/luci/view/picoclaw/main.htm
-
-# Script Init (opcional, para controle de serviço)
-cp scripts/picoclaw.init /etc/init.d/picoclaw
-chmod +x /etc/init.d/picoclaw
-
-# Skills Preset (opcional)
-cp -r skills/openwrt-diagnostics /usr/lib/lua/luci/picoclaw-skills/
-cp -r skills/openwrt-backup /usr/lib/lua/luci/picoclaw-skills/
-cp -r skills/openwrt-app-installer /usr/lib/lua/luci/picoclaw-skills/
-
-# Limpar cache LuCI
+# Script Init
+cp scripts/picoclaw.init /etc/init.d/picoclaw && chmod +x /etc/init.d/picoclaw
+# Limpar cache
 rm -rf /tmp/luci-*
 ```
 
+Após a instalação, recomenda-se clicar "Reiniciar" uma vez na página LuCI para garantir que o novo init.d script entre em vigor:
+> LuCI → Serviços → PicoClaw → Clique **Reiniciar**
+
 Acesse: `http://<IP_DO_ROTEADOR>/cgi-bin/luci/admin/services/picoclaw`
 
-### Opção 2: iStore (Em Breve)
+## FAQ
 
-Este pacote foi submetido ao [iStore App Store](https://github.com/istoreos/openwrt-app-actions). Após aprovação, poderá ser instalado diretamente pelo iStore no seu roteador.
+### Instalei luci-app-picoclaw mas a página não carrega?
+O **binário PicoClaw** não está instalado. Complete o "Passo 1" acima e recarregue a página.
 
-## 📁 Estrutura do Projeto
+### O botão Parar não realmente para o gateway?
+Problema conhecido em versões <= 1.07 onde o prodc reativava o processo automaticamente. **Corrigido em v1.0.8** — A função parar agora usa estratégia de 3 etapas (parada suave -> verificação pidof + kill-9 força bruta -> espera limpeza). Atualize para v1.0.8.
+
+### Erro "Invalid CSRF token" ao atualizar logs?
+Problema conhecido em versoes <= 1.07. **Corrigido em v1.0.8** — Todos os envios de formulário agora carregam tokens CSRF corretamente.
+
+### Não encontro picoclaw no iStore?
+Execute `opkg update` no terminal do roteador ou baixe o IPK diretamente do GitHub Releases.
+
+### O que é o banner laranja de instalação no topo?
+Significa que luci-app-picoclaw está instalado mas o binário PicoClaw não. Clique no banner para instalar com um clique (detecta arquitetura automaticamente).
+
+## Estrutura do Projeto
 
 ```
 luci-app-picoclaw/
@@ -112,36 +158,36 @@ luci-app-picoclaw/
 │   │   └── picoclaw.lua          # Controlador LuCI (lógica do backend)
 │   └── view/
 │       └── picoclaw/
-│           └── main.htm           # Template LuCI (HTML/CSS/JS, renderizado no servidor)
+│           └── main.htm           # Template LuCI (HTML/CSS/JS)
 ├── skills/
 │   ├── openwrt-diagnostics/
-│   │   └── SKILL.md              # Skill AI de diagnóstico do sistema
 │   ├── openwrt-backup/
-│   │   └── SKILL.md              # Skill AI de backup de configuração
 │   └── openwrt-app-installer/
-│       └── SKILL.md              # Skill AI de instalador de apps
 ├── scripts/
-│   ├── picoclaw.init              # Script de serviço OpenWrt init.d
-│   └── build-apk-25xx.sh          # Script de build para dispositivos Sipeed 25xx
+│   └── picoclaw.init              # Script de serviço OpenWrt init.d
 ├── install.py                     # Assistente de instalação interativo
-├── Screenshots/                   # Capturas de tela do README
-└── README*.md                     # Documentação multilíngue
+├── Screenshots/
+└── README*.md                     # Documentacao multilingue
 ```
 
-## 🛠️ Stack de Tecnologias
+## Stack de Tecnologias
 
 | Componente | Tecnologia |
 |---|---|
 | Backend | Lua (LuCI) com luci.jsonc |
 | Frontend | HTML + CSS + JavaScript (renderizado no servidor) |
-| Gerenciador de Serviço | OpenWrt procd (init.d) |
-| Segurança | Proteção CSRF token em todos os formulários |
+| Gerenciador de Servico | OpenWrt procd (init.d), com kill-9 de seguranca |
+| Seguranca | Protecao CSRF token em todos os formularios |
 
-## 📄 Licença
+## Historico de Alteracoes
 
-[Licença MIT](LICENSE)
+Veja [CHANGELOG.md](CHANGELOG.md).
 
-## 🙏 Créditos
+## Licenca
+
+[Licenca MIT](LICENSE)
+
+## Creditos
 
 - [PicoClaw](https://github.com/sipeed/picoclaw) by Sipeed
 - [OpenWrt](https://openwrt.org/) e [LuCI](https://github.com/openwrt/luci)
