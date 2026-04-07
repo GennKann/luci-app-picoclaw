@@ -129,7 +129,13 @@ if flash_msg ~= "" then
 
 <div class="pc">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-  <h2 style="margin:0;font-size:20px;font-weight:700;color:#333">PicoClaw AI</h2>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div style="font-size:28px">&#129302;</div>
+    <div>
+      <h2 style="margin:0;font-size:20px;font-weight:700;color:#333">PicoClaw AI</h2>
+      <div style="font-size:11px;color:#999" id="picoclaw-subtitle">OpenWrt Router AI Agent Framework v<%=cur_ver%></div>
+    </div>
+  </div>
   <div class="lang-bar">
     <button class="lang-btn act" onclick="setLang('zh')">中文</button>
     <button class="lang-btn" onclick="setLang('en')">EN</button>
@@ -176,7 +182,7 @@ if flash_msg ~= "" then
 
 <!-- Version Card -->
 <div class="pc-card">
-  <h3 data-i18n="version_info">版本信息</h3>
+  <h3 data-i18n="version_info">&#128240; 版本与更新</h3>
   <% if has_update then %>
   <div class="update-banner available">
     <div class="update-icon">&#128679;</div>
@@ -221,36 +227,67 @@ if flash_msg ~= "" then
 
 <!-- Model Guide Card -->
 <div class="pc-card" style="border-color:#e3f2fd;background:#f8fbff">
-  <h3 style="margin:0 0 10px 0;font-size:15px;color:#1565c0">&#128221; 模型使用指南</h3>
+  <h3 style="margin:0 0 10px 0;font-size:15px;color:#1565c0">&#128221; AI 模型配置指南</h3>
   <div style="font-size:13px;color:#444;line-height:1.7">
-    <div style="margin-bottom:8px"><b>切换步骤：</b>配置编辑 → AI 提供商 + 模型名称 → 保存</div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
-      <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;background:#e8f5e9;color:#2e7d32;border:1px solid#c8e6c9">&#11088; kimi-k2.5 = 256K上下文 (推荐长对话)</span>
-      <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;background:#fff3e0;color:#e65100;border:1px solid#ffe0b2">glm-4.5-air = 默认模型</span>
-      <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;background:#e3f2fd;color:#1565c0;border:1px solid#bbdefb">切换后自动设置 Token 上限 + 显示上下文窗口大小</span>
+    <div style="background:#e3f2fd;border-radius:8px;padding:12px 14px;margin-bottom:10px">
+      <div style="font-weight:600;color:#1565c0;margin-bottom:6px">&#128203; 切换模型（两步）</div>
+      <div style="padding-left:14px">
+        <div style="margin-bottom:4px"><b>1.</b> 在 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">config.json → model_list</code> 中添加模型条目（含 api_base、api_keys）</div>
+        <div><b>2.</b> 设置 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">agents.defaults.model_name</code> 为目标模型的 <b>model_name</b>，保存并重启</div>
+      </div>
     </div>
-    <details style="margin-top:4px">
-      <summary style="cursor:pointer;font-size:12px;color:#666;padding:4px 0">&#x25B6; 查看所有支持的模型及上下文窗口大小</summary>
-      <table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:12px">
-        <tr style="background:#f0f4f8"><th style="text-align:left;padding:5px 8px;border:1px solid #ddd">模型</th><th style="text-align:center;padding:5px 8px;border:1px solid #ddd">提供商</th><th style="text-align:right;padding:5px 8px;border:1px solid #ddd">上下文</th><th style="text-align:right;padding:5px 8px;border:1px solid #ddd">推荐Token</th></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee"><b>kimi-k2.5</b> &#11088;</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">Moonshot</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee;color:#2e7d32;font-weight:600">256K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee">claude-sonnet-4.6</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">Anthropic</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee;color:#2e7d32">200K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee">qwen-plus</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">通义千问</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">131K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee">glm-4.7 / glm-4.5-air</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">智谱</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee">deepseek-v3 / gpt-5.4</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">DeepSeek / OpenAI</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384 / 8192</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee">openrouter-auto</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">131K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee">deepseek-chat</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">DeepSeek</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">64K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td></tr>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+      <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;background:#e8f5e9;color:#2e7d32;border:1px solid#c8e6c9;font-weight:600">&#11088; kimi-k2.5 = 256K (推荐长对话)</span>
+      <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;background:#fff3e0;color:#e65100;border:1px solid#ffe0b2;font-weight:600">glm-4.5-air = 默认模型</span>
+      <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;background:#f3e5f5;color:#7b1fa2;border:1px solid#e1bee7;font-weight:600">openrouter-auto = 自动路由</span>
+      <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;background:#e0f7fa;color:#00838f;border:1px solid#b2ebf2">&#127873; 多个免费模型可用 (OR)</span>
+    </div>
+    <details open style="margin-top:4px">
+      <summary style="cursor:pointer;font-size:12px;color:#1565c0;font-weight:600;padding:4px 0">&#x25BC; 已知支持的模型及参数</summary>
+      <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:12px">
+        <tr style="background:#e8eaf6"><th style="text-align:left;padding:5px 8px;border:1px solid #c5cae9">model_name</th><th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9">提供商 / 协议</th><th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9">上下文窗口</th><th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9">推荐 Token</th><th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9">备注</th></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600;color:#2e7d32">kimi-k2.5 &#11088;</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">Moonshot (openai)</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee;color:#2e7d32;font-weight:600">256K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#2e7d32">超长对话首选</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">claude-sonnet-4.6</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">Anthropic</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee;color:#2e7d32">200K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">glm-4.7</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">智谱 Zhipu</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
+        <tr style="background:#fff8e1"><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">glm-4.5-air</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">智谱 Zhipu</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#e65100;font-weight:600">默认</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">deepseek-v3</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">DeepSeek</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">gpt-5.4</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenAI</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">qwen-plus</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">通义千问</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">131K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">openrouter-auto</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">131K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">自动选择最优</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">deepseek-chat</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">DeepSeek</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">64K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
+        <tr style="background:#f1f8e9"><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">qwen3.6-free</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter (free)</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#388e3c">&#127873; 免费</td></tr>
+        <tr style="background:#f1f8e9"><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">nemotron-free</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter (free)</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#388e3c">&#127873; 免费</td></tr>
+        <tr style="background:#f1f8e9"><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">gpt-oss-120b-free</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter (free)</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#388e3c">&#127873; 免费</td></tr>
       </table>
     </details>
-    <div style="margin-top:8px;font-size:11.5px;color:#888">
-      &#9888; 切换模型前需先在 config.json 的 model_list 中配置对应模型的 API Key。部分内置模型无需额外配置。
-    </div>
+    <details style="margin-top:8px">
+      <summary style="cursor:pointer;font-size:12px;color:#666;padding:4px 0;font-weight:600">&#x25B6; model_list 配置示例</summary>
+      <pre style="background:#263238;color:#aed581;padding:10px 12px;border-radius:6px;font-size:11.5px;line-height:1.6;overflow-x:auto;margin-top:6px;white-space:pre"><span style="color:#80cbc4">// config.json → model_list 数组</span>
+<span style="color:#ffcc80">"model_list"</span>: [
+  {
+    <span style="color:#ffcc80">"model_name"</span>: <span style="color:#a5d6a7">"glm-4.5-air"</span>,   <span style="color">#546e7d">// ← agents.defaults.model_name 填这个</span>
+    <span style="color:#ffcc80">"model"</span>: <span style="color:#a5d6a7">"zhipu/glm-4.5-air"</span>,
+    <span style="color:#ffcc80">"api_base"</span>: <span style="color:#a5d6a7">"https://open.bigmodel.cn/api/paas/v4"</span>,
+    <span style="color:#ffcc80">"api_keys"</span>: [<span style="color:#a5d6a7">"你的API Key"</span>],
+    <span style="color:#ffcc80">"enabled"</span>: true
+  },
+  {
+    <span style="color:#ffcc80">"model_name"</span>: <span style="color:#a5d6a7">"kimi-k2.5"</span>,
+    <span style="color:#ffcc80">"model"</span>: <span style="color:#a5d6a7">"openai"</span>,
+    <span style="color:#ffcc80">"api_base"</span>: <span style="color:#a5d6a7">"https://api.moonshot.ai/v1"</span>,
+    <span style="color:#ffcc80">"enabled"</span>: true
+  }
+]</pre>
+      <div style="margin-top:6px;font-size:11.5px;color:#666;background:#fff8e1;padding:8px 10px;border-radius:4px;border-left:3px solid#ffc107">
+        &#9888; <b>注意：</b>API Key 可写在 model_list 的 api_keys 字段中，也可通过路由器终端用 <code>picoclaw config security</code> 配置到 .security.yml（更安全，不明文存储）。
+      </div>
+    </details>
   </div>
 </div>
 
 <!-- Status Card -->
 <div class="pc-card">
-  <h3 data-i18n="service_status">服务状态</h3>
+  <h3 data-i18n="service_status">&#9889; 服务状态</h3>
   <div class="pc-status <% if running then %>run<% else %>stop<% end %>">
     <div class="dot <% if running then %>on<% else %>off<% end %>"></div>
     <div>
@@ -345,8 +382,8 @@ if flash_msg ~= "" then
               <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="agents.defaults.provider" id="provider-select">
                 <option value="">-- 选择或手动输入 --</option>
                 <option value="zhipu">Zhipu / 智谱</option>
+                <option value="openrouter">OpenRouter (自动路由/免费模型)</option>
                 <option value="qwen">Qwen / 通义千问 (百炼)</option>
-                <option value="openrouter">OpenRouter</option>
                 <option value="openai">OpenAI</option>
                 <option value="chatgpt">ChatGPT / OpenAI GPT</option>
                 <option value="claude">Claude / Anthropic</option>
@@ -355,12 +392,27 @@ if flash_msg ~= "" then
                 <option value="anthropic">Anthropic</option>
                 <option value="ollama">Ollama (本地)</option>
                 <option value="azure">Azure OpenAI</option>
-              </select></div>
+              </select><span style="font-size:11px;color:#999;margin-left:8px">&#8505; 新版 PicoClaw 主要通过 model_list 管理模型，此处作为默认 provider 回退</span></div>
             </div>
             <div class="cfg-row">
               <div class="cfg-label" data-i18n="lbl_model">模型名称<small>model_name</small></div>
-              <div class="cfg-field"><input type="text" class="cfg-input cfg-input-sm" data-path="agents.defaults.model_name" id="model-name-input" placeholder="例如: glm-4.5-air, qwen3.5-27b, kimi-k2.5...">
+              <div class="cfg-field"><input type="text" class="cfg-input cfg-input-sm" data-path="agents.defaults.model_name" id="model-name-input" placeholder="例如: glm-4.5-air, kimi-k2.5, openrouter-auto..." list="model-name-list">
                 <span id="model-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
+                <datalist id="model-name-list">
+                  <option value="glm-4.5-air">GLM-4.5-Air (智谱, 默认)</option>
+                  <option value="glm-4.7">GLM-4.7 (智谱)</option>
+                  <option value="kimi-k2.5">Kimi K2.5 (Moonshot, 256K) ★</option>
+                  <option value="deepseek-v3">DeepSeek V3</option>
+                  <option value="deepseek-chat">DeepSeek Chat</option>
+                  <option value="gpt-5.4">GPT-5.4 (OpenAI)</option>
+                  <option value="claude-sonnet-4.6">Claude Sonnet 4.6</option>
+                  <option value="qwen-plus">Qwen Plus (通义千问)</option>
+                  <option value="openrouter-auto">OpenRouter Auto (自动路由)</option>
+                  <option value="openrouter-gpt-5.4">OpenRouter GPT-5.4</option>
+                  <option value="qwen3.6-free">Qwen3.6-Free (OR免费)</option>
+                  <option value="nemotron-free">Nemotron (OR免费)</option>
+                  <option value="gpt-oss-120b-free">GPT-OSS-120B (OR免费)</option>
+                </datalist>
               </div>
             </div>
             <div class="cfg-row">
@@ -371,7 +423,7 @@ if flash_msg ~= "" then
               <div class="cfg-label" data-i18n="lbl_max_tokens">Token 上限<small>max_tokens</small></div>
               <div class="cfg-field">
                 <input type="number" class="cfg-input cfg-input-xs" id="max-tokens-input" data-path="agents.defaults.max_tokens" min="100" max="256000">
-                <span id="model-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
+                <span id="token-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
               </div>
             </div>
             <div class="cfg-row">
@@ -1333,16 +1385,20 @@ function doImportSkill() {
 
 // ========== 模型元数据：推荐 max_tokens & 上下文窗口 ==========
 var MODEL_INFO = {
-  'glm-4.5-air':           { max_tokens: 8192,   ctx_window: 128000,  label: 'GLM-4.5-Air (轻量)' },
-  'openrouter-auto':       { max_tokens: 16384,  ctx_window: 131072,  label: 'OpenRouter Auto' },
+  'glm-4.5-air':           { max_tokens: 8192,   ctx_window: 128000,  label: 'GLM-4.5-Air (智谱, 默认)', is_default: true },
+  'glm-4.7':               { max_tokens: 8192,   ctx_window: 128000,  label: 'GLM-4.7 (智谱)' },
+  'openrouter-auto':       { max_tokens: 16384,  ctx_window: 131072,  label: 'OpenRouter Auto (自动路由)' },
   'openrouter-gpt-5.4':    { max_tokens: 16384,  ctx_window: 128000,  label: 'GPT-5.4 via OpenRouter' },
-  'glm-4.7':               { max_tokens: 8192,   ctx_window: 128000,  label: 'GLM-4.7' },
-  'deepseek-chat':         { max_tokens: 8192,   ctx_window: 64000,   label: 'DeepSeek Chat' },
-  'deepseek-v3':           { max_tokens: 8192,   ctx_window: 128000,  label: 'DeepSeek V3' },
-  'qwen-plus':             { max_tokens: 8192,   ctx_window: 131072,  label: 'Qwen Plus (通义千问)' },
-  'kimi-k2.5':             { max_tokens: 16384,  ctx_window: 262144,  label: 'Kimi K2.5 · Moonshot ★256K' },
-  'claude-sonnet-4.6':     { max_tokens: 8192,   ctx_window: 200000,  label: 'Claude Sonnet 4.6' },
-  'gpt-5.4':               { max_tokens: 16384,  ctx_window: 128000,  label: 'GPT-5.4 (OpenAI)' }
+  'deepseek-v3':           { max_tokens: 16384,  ctx_window: 128000,  label: 'DeepSeek V3' },
+  'deepseek-chat':         { max_tokens: 8192,   ctx_window: 64000,   label: 'DeepSeek Chat (64K)' },
+  'gpt-5.4':               { max_tokens: 16384,  ctx_window: 128000,  label: 'GPT-5.4 (OpenAI)' },
+  'qwen-plus':             { max_tokens: 8192,   ctx_window: 131072,  label: 'Qwen Plus (通义千问, 131K)' },
+  'kimi-k2.5':             { max_tokens: 16384,  ctx_window: 262144,  label: 'Kimi K2.5 · Moonshot ★256K', star: true },
+  'claude-sonnet-4.6':     { max_tokens: 8192,   ctx_window: 200000,  label: 'Claude Sonnet 4.6 (200K)' },
+  // OpenRouter 免费模型
+  'qwen3.6-free':          { max_tokens: 8192,   ctx_window: 128000,  label: 'Qwen3.6-Free (OR免费)', free: true },
+  'nemotron-free':         { max_tokens: 8192,   ctx_window: 128000,  label: 'Nemotron (OR免费)', free: true },
+  'gpt-oss-120b-free':     { max_tokens: 8192,   ctx_window: 128000,  label: 'GPT-OSS-120B (OR免费)', free: true }
 };
 
 function fmtCtx(n) {
@@ -1352,7 +1408,8 @@ function fmtCtx(n) {
 
 function updateModelHint() {
   var tokenInput = document.getElementById('max-tokens-input');
-  var hintEl = document.getElementById('model-ctx-hint');
+  var hintEl = document.getElementById('token-ctx-hint');
+  var modelHintEl = document.getElementById('model-ctx-hint');
   if (!tokenInput || !hintEl) return;
 
   // Check both select and input for model name
@@ -1365,14 +1422,23 @@ function updateModelHint() {
       tokenInput.value = info.max_tokens;
     }
     tokenInput.setAttribute('max', info.ctx_window);
-    hintEl.textContent = '上下文: ' + fmtCtx(info.ctx_window) + ' tokens | 推荐: ' + info.max_tokens;
-    hintEl.style.color = info.ctx_window >= 200000 ? '#2e7d32' : '#666';
+    var tags = [];
+    if (info.star) tags.push('\u2605');
+    if (info.free) tags.push('\uD83C\uDF93\u514D\u8D39');
+    if (info.is_default) tags.push('\u{1F4CB} 默认');
+    var tagStr = tags.length > 0 ? ' ' + tags.join(' ') : '';
+    var ctxLabel = info.ctx_window >= 200000 ? '\u5927\u4E0A\u4E0B\u6587' : '';
+    hintEl.textContent = '\u4E0A\u4E0B\u6587: ' + fmtCtx(info.ctx_window) + ' | \u63A8\u8350: ' + info.max_tokens + tagStr;
+    hintEl.style.color = info.ctx_window >= 200000 ? '#2e7d32' : (info.free ? '#388e3c' : '#666');
+    if (modelHintEl) { modelHintEl.textContent = ctxLabel; }
   } else if (model !== '') {
     // Unknown custom model - no specific recommendation
-    hintEl.textContent = '自定义模型: 建议根据提供商文档设置 Token 上限';
+    hintEl.textContent = '\u81EA\u5B9A\u4E49\u6A21\u578B: \u5EFA\u8BAE\u6839\u636E\u63D0\u4F9B\u5546\u6587\u6863\u8BBE\u7F6E Token \u4E0A\u9650';
     hintEl.style.color = '#e65100';
+    if (modelHintEl) { modelHintEl.textContent = ''; }
   } else {
     hintEl.textContent = '';
+    if (modelHintEl) { modelHintEl.textContent = ''; }
   }
 }
 
