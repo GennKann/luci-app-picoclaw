@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/OpenWrt-21.02%20%7C%2022.03%20%7C%2023.05%20%7C%2024.10%20%7C%2025.xx-blue?logo=openwrt" alt="OpenWrt">
   <img src="https://img.shields.io/badge/LuCI-Web%20Interface-green?logo=lua" alt="LuCI">
   <img src="https://img.shields.io/badge/i18n-5%20Languages-purple" alt="i18n">
-  <img src="https://img.shields.io/badge/Version-1.0.8-brightgreen" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.0.9-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -108,8 +108,8 @@ iStoreアプリで `picoclaw` を検索 → 直接インストール。
 
 ```bash
 cd /tmp
-wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.0.8-1_all.ipk
-opkg install luci-app-picoclaw_1.0.8-1_all.ipk
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.0.9-1_all.ipk
+opkg install luci-app-picoclaw_1.0.9-1_all.ipk
 rm -rf /tmp/luci-*   # LuCIキャッシュクリア
 ```
 

@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/OpenWrt-24.10%20%7C%2025.xx%20%7C%20iStoreOS-blue?logo=openwrt" alt="OpenWrt">
   <img src="https://img.shields.io/badge/LuCI-Web%20Interface-green?logo=lua" alt="LuCI">
   <img src="https://img.shields.io/badge/i18n-5%20Languages-purple" alt="i18n">
-  <img src="https://img.shields.io/badge/Version-1.0.8-brightgreen" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.0.9-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -100,7 +100,7 @@ picoclaw --version
 #### Option 1: iStore App Store (Recommended)
 
 Search `picoclaw` in the **iStore** app on your router → install directly.
-> Available since v1.0.8 (PR merged into iStore official source)
+> Available since v1.0.9 (PR merged into iStore official source)
 
 #### Option 2: Download IPK
 
@@ -108,8 +108,8 @@ Download from [Releases](https://github.com/GennKann/luci-app-picoclaw/releases/
 
 ```bash
 cd /tmp
-wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.0.8-1_all.ipk
-opkg install luci-app-picoclaw_1.0.8-1_all.ipk
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.0.9-1_all.ipk
+opkg install luci-app-picoclaw_1.0.9-1_all.ipk
 rm -rf /tmp/luci-*   # Clear LuCI cache
 ```
 
