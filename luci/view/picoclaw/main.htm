@@ -371,7 +371,7 @@ if flash_msg ~= "" then
               <div class="cfg-label" data-i18n="lbl_max_tokens">Token 上限<small>max_tokens</small></div>
               <div class="cfg-field">
                 <input type="number" class="cfg-input cfg-input-xs" id="max-tokens-input" data-path="agents.defaults.max_tokens" min="100" max="256000">
-                <span id="model-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
+                <span id="token-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
               </div>
             </div>
             <div class="cfg-row">
@@ -1352,7 +1352,8 @@ function fmtCtx(n) {
 
 function updateModelHint() {
   var tokenInput = document.getElementById('max-tokens-input');
-  var hintEl = document.getElementById('model-ctx-hint');
+  var hintEl = document.getElementById('token-ctx-hint');
+  var modelHintEl = document.getElementById('model-ctx-hint');
   if (!tokenInput || !hintEl) return;
 
   // Check both select and input for model name
@@ -1367,12 +1368,15 @@ function updateModelHint() {
     tokenInput.setAttribute('max', info.ctx_window);
     hintEl.textContent = '上下文: ' + fmtCtx(info.ctx_window) + ' tokens | 推荐: ' + info.max_tokens;
     hintEl.style.color = info.ctx_window >= 200000 ? '#2e7d32' : '#666';
+    if (modelHintEl) { modelHintEl.textContent = info.ctx_window >= 200000 ? '大模型' : ''; }
   } else if (model !== '') {
     // Unknown custom model - no specific recommendation
-    hintEl.textContent = '自定义模型: 建议根据提供商文档设置 Token 上限';
+    hintEl.textContent = '自定义模型: 建议根据提供商文档设置';
     hintEl.style.color = '#e65100';
+    if (modelHintEl) { modelHintEl.textContent = ''; }
   } else {
     hintEl.textContent = '';
+    if (modelHintEl) { modelHintEl.textContent = ''; }
   }
 }
 
