@@ -1111,33 +1111,12 @@ function action_main()
             weixin = config.weixin
         end
         if weixin and type(weixin) == "table" then
-            -- Priority 1: enabled == true means channel is active
+            -- WeChat status: only enabled=true means fully connected
+            -- base_url/cdn_base_url are default values set by PicoClaw on init,
+            -- they do NOT indicate QR authorization was completed
             if weixin.enabled == true then
                 weixin_status = "connected"
                 weixin_configured = true
-            end
-            -- Priority 2: has base_url means QR auth was done
-            if (weixin.base_url and weixin.base_url ~= "") or
-               (weixin.cdn_base_url and weixin.cdn_base_url ~= "") then
-                weixin_configured = true
-                if weixin_status == "none" then
-                    weixin_status = "configured"
-                end
-            end
-        end
-        -- Priority 3: look for weixin session files as proof of auth
-        if weixin_status == "none" and not weixin_configured then
-            local has_session = nixio.fs.access("/root/.picoclaw/workspace/sessions") or false
-            if has_session then
-                local f = io.popen("ls /root/.picoclaw/workspace/sessions/ 2>/dev/null | grep -i weixin")
-                if f then
-                    local result = f:read("*a")
-                    f:close()
-                    if result and result:match("%S") then
-                        weixin_status = "configured"
-                        weixin_configured = true
-                    end
-                end
             end
         end
     end
