@@ -25,7 +25,16 @@ start_service() {
 }
 
 stop_service() {
+    # First try graceful shutdown via procd
     killall picoclaw 2>/dev/null
+    sleep 1
+    # Force kill if still alive (procd may respawn)
+    if [ -n "$(pidof picoclaw)" ]; then
+        kill -9 $(pidof picoclaw) 2>/dev/null
+        sleep 1
+    fi
+    # Final cleanup: ensure no zombie processes
+    sleep 1
 }
 
 service_triggers() {

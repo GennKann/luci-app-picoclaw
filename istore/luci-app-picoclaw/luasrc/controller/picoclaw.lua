@@ -101,7 +101,16 @@ start_service() {
     procd_close_instance
 }
 stop_service() {
+    # First try graceful shutdown via procd
     killall picoclaw 2>/dev/null
+    sleep 1
+    # Force kill if still alive (procd may respawn)
+    if [ -n "$(pidof picoclaw)" ]; then
+        kill -9 $(pidof picoclaw) 2>/dev/null
+        sleep 1
+    fi
+    # Final cleanup: ensure no zombie processes
+    sleep 1
 }
 service_triggers() {
     procd_add_reload_trigger "picoclaw"
@@ -145,16 +154,45 @@ function get_status()
             if vm then memory_kb = tonumber(vm) or 0 end
         end
     end
-    local nf = io.open("/proc/net/tcp6", "r")
-    if not nf then nf = io.open("/proc/net/tcp", "r") end
-    if nf then
-        local c = nf:read("*a")
-        nf:close()
-        -- 4966 is hex for 18790 (maixcam), 4967 for 18791 (gateway)
-        -- PicoClaw 0.2.5: gateway on 18791, maixcam on 18790
-        if c:find(":4966") or c:find(":4967") then port_active = true end
+    local actual_port = nil
+    local port_active = false
+    -- Try to read the actual gateway port from config.json
+    local cfg = parse_json_file("/root/.picoclaw/config.json")
+    if cfg then
+        if cfg.gateway and cfg.gateway.port then
+            actual_port = tonumber(cfg.gateway.port)
+        elseif cfg.channels and cfg.channels.maixcam and cfg.channels.maixcam.port then
+            actual_port = tonumber(cfg.channels.maixcam.port)
+        end
     end
-    return {running=running, pid=pid, memory_kb=memory_kb, port_active=port_active}
+    -- Default fallback ports to check
+    local ports_to_check = {}
+    if actual_port then
+        table.insert(ports_to_check, actual_port)
+    end
+    -- Always check common default ports as fallback
+    for _, dp in ipairs({18790, 18791}) do
+        local already = false
+        for _, p in ipairs(ports_to_check) do if p == dp then already = true; break end end
+        if not already then table.insert(ports_to_check, dp) end
+    end
+    -- Check /proc/net/tcp and tcp6 for listening ports
+    for _, pname in ipairs({"/proc/net/tcp", "/proc/net/tcp6"}) do
+        local nf = io.open(pname, "r")
+        if nf then
+            local c = nf:read("*a")
+            nf:close()
+            for _, pt in ipairs(ports_to_check) do
+                local hex_port = string.format("%04X", pt)
+                if c:find(":" .. hex_port .. " ") then
+                    port_active = true
+                    break
+                end
+            end
+            if port_active then break end
+        end
+    end
+    return {running=running, pid=pid, memory_kb=memory_kb, port_active=port_active, gateway_port=actual_port}
 end
 
 function get_config()
@@ -895,6 +933,9 @@ function action_do()
     elseif action == "update" then
         do_update()
         msg = "更新完成，服务已重启！"
+    elseif action == "refresh_logs" then
+        -- Just redirect to main page to refresh logs (GET with CSRF already validated)
+        msg = ""
     -- Hardware actions
     elseif action == "led_set" then
         local led_name = http.formvalue("led") or ""
@@ -1054,19 +1095,48 @@ function action_main()
     end
 
     -- Parse weixin status using proper JSON parser
+    -- Check multiple indicators: enabled flag, base_url, session files
     local weixin_status = "none"
     local weixin_configured = false
     local config = parse_json_file("/root/.picoclaw/config.json")
     if config then
-        local weixin = config.weixin
+        -- WeChat config is under config.channels.weixin (not config.weixin)
+        local channels = config.channels
+        local weixin = nil
+        if type(channels) == "table" then
+            weixin = channels.weixin
+        end
+        -- Also check top-level for backward compatibility
+        if not weixin or type(weixin) ~= "table" then
+            weixin = config.weixin
+        end
         if weixin and type(weixin) == "table" then
+            -- Priority 1: enabled == true means channel is active
             if weixin.enabled == true then
                 weixin_status = "connected"
+                weixin_configured = true
             end
-            if weixin.base_url and weixin.base_url ~= "" then
+            -- Priority 2: has base_url means QR auth was done
+            if (weixin.base_url and weixin.base_url ~= "") or
+               (weixin.cdn_base_url and weixin.cdn_base_url ~= "") then
                 weixin_configured = true
                 if weixin_status == "none" then
                     weixin_status = "configured"
+                end
+            end
+        end
+        -- Priority 3: look for weixin session files as proof of auth
+        if weixin_status == "none" and not weixin_configured then
+            local has_session = nixio.fs.access("/root/.picoclaw/workspace/sessions") or false
+            if has_session then
+                local f = io.popen("ls /root/.picoclaw/workspace/sessions/ 2>/dev/null | grep -i weixin")
+                if f then
+                    local result = f:read("*a")
+                    f:close()
+                    if result and result:match("%S") then
+                        weixin_status = "configured"
+                        weixin_configured = true
+                    end
                 end
             end
         end
@@ -1102,6 +1172,7 @@ function action_main()
         pid = pid_str,
         memory_mb = memory_mb,
         port_active = status.port_active or false,
+        gateway_port = html_escape(tostring(status.gateway_port or "")),
         cur_ver = html_escape(cur_ver),
         latest_ver = html_escape(latest_ver),
         build_time = html_escape(build_time),

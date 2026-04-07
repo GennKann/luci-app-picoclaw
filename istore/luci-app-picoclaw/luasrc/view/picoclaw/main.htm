@@ -219,6 +219,35 @@ if flash_msg ~= "" then
   <% end %>
 </div>
 
+<!-- Model Guide Card -->
+<div class="pc-card" style="border-color:#e3f2fd;background:#f8fbff">
+  <h3 style="margin:0 0 10px 0;font-size:15px;color:#1565c0">&#128221; 模型使用指南</h3>
+  <div style="font-size:13px;color:#444;line-height:1.7">
+    <div style="margin-bottom:8px"><b>切换步骤：</b>配置编辑 → AI 提供商 + 模型名称 → 保存</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+      <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;background:#e8f5e9;color:#2e7d32;border:1px solid#c8e6c9">&#11088; kimi-k2.5 = 256K上下文 (推荐长对话)</span>
+      <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;background:#fff3e0;color:#e65100;border:1px solid#ffe0b2">glm-4.5-air = 默认模型</span>
+      <span style="display:inline-block;padding:2px 10px;border-radius:12px;font-size:11.5px;background:#e3f2fd;color:#1565c0;border:1px solid#bbdefb">切换后自动设置 Token 上限 + 显示上下文窗口大小</span>
+    </div>
+    <details style="margin-top:4px">
+      <summary style="cursor:pointer;font-size:12px;color:#666;padding:4px 0">&#x25B6; 查看所有支持的模型及上下文窗口大小</summary>
+      <table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:12px">
+        <tr style="background:#f0f4f8"><th style="text-align:left;padding:5px 8px;border:1px solid #ddd">模型</th><th style="text-align:center;padding:5px 8px;border:1px solid #ddd">提供商</th><th style="text-align:right;padding:5px 8px;border:1px solid #ddd">上下文</th><th style="text-align:right;padding:5px 8px;border:1px solid #ddd">推荐Token</th></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee"><b>kimi-k2.5</b> &#11088;</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">Moonshot</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee;color:#2e7d32;font-weight:600">256K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee">claude-sonnet-4.6</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">Anthropic</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee;color:#2e7d32">200K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee">qwen-plus</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">通义千问</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">131K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee">glm-4.7 / glm-4.5-air</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">智谱</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee">deepseek-v3 / gpt-5.4</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">DeepSeek / OpenAI</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384 / 8192</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee">openrouter-auto</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">131K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td></tr>
+        <tr><td style="padding:4px 8px;border:1px solid #eee">deepseek-chat</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">DeepSeek</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">64K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td></tr>
+      </table>
+    </details>
+    <div style="margin-top:8px;font-size:11.5px;color:#888">
+      &#9888; 切换模型前需先在 config.json 的 model_list 中配置对应模型的 API Key。部分内置模型无需额外配置。
+    </div>
+  </div>
+</div>
+
 <!-- Status Card -->
 <div class="pc-card">
   <h3 data-i18n="service_status">服务状态</h3>
@@ -227,7 +256,7 @@ if flash_msg ~= "" then
     <div>
       <strong style="font-size:16px"><% if running then %><span data-i18n="running">运行中</span><% else %><span data-i18n="stopped">已停止</span><% end %></strong>
       <div style="font-size:12px;color:#666;margin-top:2px">
-        <% if running then %>PID: <%=pid%> | Gateway: <% if port_active then %><span data-i18n="normal">正常</span><% else %><span data-i18n="abnormal">异常</span><% end %><% else %><span data-i18n="service_not_running">服务未运行</span><% end %>
+        <% if running then %>PID: <%=pid%> | Gateway: <% if port_active then %><span data-i18n="normal">正常</span><% if gateway_port and gateway_port ~= "" then %> (<%=gateway_port%>)<% end %><% else %><span data-i18n="abnormal">异常</span><% end %><% else %><span data-i18n="service_not_running">服务未运行</span><% end %>
       </div>
     </div>
     <div style="margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
@@ -245,7 +274,7 @@ if flash_msg ~= "" then
   <div class="pc-grid">
     <div class="pc-metric"><div class="val"><%=memory_mb%></div><div class="lbl" data-i18n="memory_mb">内存 (MB)</div></div>
     <div class="pc-metric"><div class="val"><%=pid%></div><div class="lbl" data-i18n="process_id">进程 ID</div></div>
-    <div class="pc-metric"><div class="val"><% if port_active then %><span data-i18n="normal">正常</span><% else %><span data-i18n="abnormal">异常</span><% end %></div><div class="lbl" data-i18n="gateway_port">Gateway 端口</div></div>
+    <div class="pc-metric"><div class="val"><% if port_active then %><% if gateway_port and gateway_port ~= "" then %><%=gateway_port%><% else %><span data-i18n="normal">正常</span><% end %><% else %><span data-i18n="abnormal">异常</span><% end %></div><div class="lbl" data-i18n="gateway_port">Gateway 端口</div></div>
   </div>
 </div>
 
@@ -313,35 +342,37 @@ if flash_msg ~= "" then
           <div class="cfg-section-body">
             <div class="cfg-row">
               <div class="cfg-label" data-i18n="lbl_provider">AI 提供商<small>provider</small></div>
-              <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="agents.defaults.provider">
+              <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="agents.defaults.provider" id="provider-select">
+                <option value="">-- 选择或手动输入 --</option>
                 <option value="zhipu">Zhipu / 智谱</option>
+                <option value="qwen">Qwen / 通义千问 (百炼)</option>
                 <option value="openrouter">OpenRouter</option>
                 <option value="openai">OpenAI</option>
                 <option value="chatgpt">ChatGPT / OpenAI GPT</option>
                 <option value="claude">Claude / Anthropic</option>
                 <option value="deepseek">DeepSeek</option>
+                <option value="moonshot">Moonshot / Kimi</option>
                 <option value="anthropic">Anthropic</option>
-                <option value="ollama">Ollama</option>
+                <option value="ollama">Ollama (本地)</option>
                 <option value="azure">Azure OpenAI</option>
               </select></div>
             </div>
             <div class="cfg-row">
               <div class="cfg-label" data-i18n="lbl_model">模型名称<small>model_name</small></div>
-              <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="agents.defaults.model_name">
-                <option value="glm-4.5-air">glm-4.5-air（智谱 · 默认）</option>
-                <option value="openrouter-auto">openrouter-auto（OpenRouter · Qwen 3.6 Free）</option>
-                <option value="openrouter-gpt-5.4">openrouter-gpt-5.4（OpenRouter · GPT-5.4）</option>
-                <option value="glm-4.7">glm-4.7（智谱 · 内置）</option>
-                <option value="deepseek-chat">deepseek-chat（DeepSeek · 内置）</option>
-                <option value="deepseek-v3">deepseek-v3（DeepSeek · 内置）</option>
-                <option value="qwen-plus">qwen-plus（通义千问 · 内置）</option>
-                <option value="claude-sonnet-4.6">claude-sonnet-4.6（Claude · 内置）</option>
-                <option value="gpt-5.4">gpt-5.4（OpenAI · 内置）</option>
-              </select></div>
+              <div class="cfg-field"><input type="text" class="cfg-input cfg-input-sm" data-path="agents.defaults.model_name" id="model-name-input" placeholder="例如: glm-4.5-air, qwen3.5-27b, kimi-k2.5...">
+                <span id="model-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
+              </div>
+            </div>
+            <div class="cfg-row">
+              <div class="cfg-label">API Key<small>api_key</small></div>
+              <div class="cfg-field"><input type="password" class="cfg-input" data-path="agents.defaults.api_key" id="model-api-key" placeholder="输入 API Key（保存后将显示为已填写）" style="max-width:400px"></div>
             </div>
             <div class="cfg-row">
               <div class="cfg-label" data-i18n="lbl_max_tokens">Token 上限<small>max_tokens</small></div>
-              <div class="cfg-field"><input type="number" class="cfg-input cfg-input-xs" data-path="agents.defaults.max_tokens" min="100" max="200000"></div>
+              <div class="cfg-field">
+                <input type="number" class="cfg-input cfg-input-xs" id="max-tokens-input" data-path="agents.defaults.max_tokens" min="100" max="256000">
+                <span id="model-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
+              </div>
             </div>
             <div class="cfg-row">
               <div class="cfg-label" data-i18n="lbl_tool_iters">迭代次数<small>max_tool_iterations</small></div>
@@ -422,7 +453,13 @@ if flash_msg ~= "" then
   <!-- Logs Panel -->
   <div class="pc-panel" id="panel-logs" style="padding:16px 24px 24px">
     <div class="pc-log"><% if logs and logs ~= "" then %><%=logs%><% else %><span data-i18n="no_logs">暂无 picoclaw 日志</span><% end %></div>
-    <div style="margin-top:8px"><a href="<%=action_url%>" class="pc-btn blue" data-i18n="refresh_logs">刷新日志</a></div>
+    <div style="margin-top:8px">
+      <form method="post" action="<%=action_url%>" style="display:inline">
+        <input type="hidden" name="token" value="<%=csrf_token%>">
+        <input type="hidden" name="action" value="refresh_logs">
+        <button type="submit" class="pc-btn blue" data-i18n="refresh_logs">刷新日志</button>
+      </form>
+    </div>
   </div>
 
   <!-- ========== Hardware Panel (Simplified) ========== -->
@@ -1294,6 +1331,61 @@ function doImportSkill() {
   form.submit();
 }
 
+// ========== 模型元数据：推荐 max_tokens & 上下文窗口 ==========
+var MODEL_INFO = {
+  'glm-4.5-air':           { max_tokens: 8192,   ctx_window: 128000,  label: 'GLM-4.5-Air (轻量)' },
+  'openrouter-auto':       { max_tokens: 16384,  ctx_window: 131072,  label: 'OpenRouter Auto' },
+  'openrouter-gpt-5.4':    { max_tokens: 16384,  ctx_window: 128000,  label: 'GPT-5.4 via OpenRouter' },
+  'glm-4.7':               { max_tokens: 8192,   ctx_window: 128000,  label: 'GLM-4.7' },
+  'deepseek-chat':         { max_tokens: 8192,   ctx_window: 64000,   label: 'DeepSeek Chat' },
+  'deepseek-v3':           { max_tokens: 8192,   ctx_window: 128000,  label: 'DeepSeek V3' },
+  'qwen-plus':             { max_tokens: 8192,   ctx_window: 131072,  label: 'Qwen Plus (通义千问)' },
+  'kimi-k2.5':             { max_tokens: 16384,  ctx_window: 262144,  label: 'Kimi K2.5 · Moonshot ★256K' },
+  'claude-sonnet-4.6':     { max_tokens: 8192,   ctx_window: 200000,  label: 'Claude Sonnet 4.6' },
+  'gpt-5.4':               { max_tokens: 16384,  ctx_window: 128000,  label: 'GPT-5.4 (OpenAI)' }
+};
+
+function fmtCtx(n) {
+  if (n >= 102400) return Math.round(n/1024) + 'K';
+  return n.toLocaleString();
+}
+
+function updateModelHint() {
+  var tokenInput = document.getElementById('max-tokens-input');
+  var hintEl = document.getElementById('model-ctx-hint');
+  if (!tokenInput || !hintEl) return;
+
+  // Check both select and input for model name
+  var modelInput = document.getElementById('model-name-input') || document.querySelector('[data-path="agents.defaults.model_name"]');
+  var model = modelInput ? (modelInput.value || '').trim() : '';
+  var info = MODEL_INFO[model];
+  if (info) {
+    var currentVal = parseInt(tokenInput.value);
+    if (!currentVal || currentVal === 32768) {
+      tokenInput.value = info.max_tokens;
+    }
+    tokenInput.setAttribute('max', info.ctx_window);
+    hintEl.textContent = '上下文: ' + fmtCtx(info.ctx_window) + ' tokens | 推荐: ' + info.max_tokens;
+    hintEl.style.color = info.ctx_window >= 200000 ? '#2e7d32' : '#666';
+  } else if (model !== '') {
+    // Unknown custom model - no specific recommendation
+    hintEl.textContent = '自定义模型: 建议根据提供商文档设置 Token 上限';
+    hintEl.style.color = '#e65100';
+  } else {
+    hintEl.textContent = '';
+  }
+}
+
+// Also trigger on input event for text fields
+(function() {
+  var modelEl = document.querySelector('[data-path="agents.defaults.model_name"]');
+  if (modelEl) {
+    modelEl.addEventListener('change', updateModelHint);
+    modelEl.addEventListener('input', function() { clearTimeout(modelEl._timer); modelEl._timer = setTimeout(updateModelHint, 500); });
+  }
+  setTimeout(updateModelHint, 100);
+})();
+
 setLang(_curLang);
 </script>
 
@@ -1329,7 +1421,7 @@ setLang(_curLang);
       <div style="font-size:14px;font-weight:600;color:#e65100" data-i18n="weixin_authorized_not_enabled">已授权，但通道未启用</div>
       <div style="font-size:12px;color:#ef6c00;margin-top:3px">微信扫码授权已完成，请到「配置编辑 → 通道管理」中开启微信通道</div>
     </div>
-    <button class="pc-btn green" onclick="switchTab('config',document.querySelectorAll('.pc-tab')[1])" data-i18n="weixin_go_enable">前往启用</button>
+    <button class="pc-btn green" onclick="switchTab('config',document.querySelectorAll('.pc-tab')[2]); setTimeout(function(){ document.getElementById('channels-form-body').scrollIntoView({behavior:'smooth'}); },100)" data-i18n="weixin_go_enable">前往启用</button>
   </div>
 </div>
 <% elseif weixin_status == "connected" then %>
