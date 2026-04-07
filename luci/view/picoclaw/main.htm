@@ -227,58 +227,35 @@ if flash_msg ~= "" then
 
 <!-- Model Guide Card -->
 <div class="pc-card" style="border-color:#e3f2fd;background:#f8fbff">
-  <h3 style="margin:0 0 10px 0;font-size:15px;color:#1565c0">&#128221; AI 模型配置指南</h3>
+  <h3 style="margin:0 0 10px 0;font-size:15px;color:#1565c0" data-i18n="model_guide_title">&#128221; AI 模型配置指南</h3>
   <div style="font-size:13px;color:#444;line-height:1.7">
     <div style="background:#e3f2fd;border-radius:8px;padding:12px 14px;margin-bottom:10px">
-      <div style="font-weight:600;color:#1565c0;margin-bottom:6px">&#128203; 切换模型（两步）</div>
+      <div style="font-weight:600;color:#1565c0;margin-bottom:6px" data-i18n="model_guide_steps_title">&#128203; 切换模型（两步）</div>
       <div style="padding-left:14px">
-        <div style="margin-bottom:4px"><b>1.</b> 在 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">config.json → model_list</code> 中添加模型条目（含 api_base、api_keys）</div>
-        <div><b>2.</b> 设置 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">agents.defaults.model_name</code> 为目标模型的 <b>model_name</b>，保存并重启</div>
+        <div style="margin-bottom:4px" data-i18n="model_guide_step1"><b>1.</b> 在 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">config.json → model_list</code> 中添加模型条目（含 api_base、api_keys）</div>
+        <div data-i18n="model_guide_step2"><b>2.</b> 设置 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">agents.defaults.model_name</code> 为目标模型的 <b>model_name</b>，保存并重启</div>
       </div>
     </div>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
-      <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;background:#e8f5e9;color:#2e7d32;border:1px solid#c8e6c9;font-weight:600">&#11088; kimi-k2.5 = 256K (推荐长对话)</span>
-      <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;background:#fff3e0;color:#e65100;border:1px solid#ffe0b2;font-weight:600">glm-4.5-air = 默认模型</span>
-      <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;background:#f3e5f5;color:#7b1fa2;border:1px solid#e1bee7;font-weight:600">openrouter-auto = 自动路由</span>
-      <span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;background:#e0f7fa;color:#00838f;border:1px solid#b2ebf2">&#127873; 多个免费模型可用 (OR)</span>
-    </div>
+    <div id="model-tags-container" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <details open style="margin-top:4px">
-      <summary style="cursor:pointer;font-size:12px;color:#1565c0;font-weight:600;padding:4px 0">&#x25BC; 已知支持的模型及参数</summary>
+      <summary style="cursor:pointer;font-size:12px;color:#1565c0;font-weight:600;padding:4px 0" data-i18n="model_guide_table_title">&#x25BC; 已知支持的模型及参数</summary>
       <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:12px">
-        <tr style="background:#e8eaf6"><th style="text-align:left;padding:5px 8px;border:1px solid #c5cae9">model_name</th><th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9">提供商 / 协议</th><th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9">上下文窗口</th><th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9">推荐 Token</th><th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9">备注</th></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600;color:#2e7d32">kimi-k2.5 &#11088;</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">Moonshot (openai)</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee;color:#2e7d32;font-weight:600">256K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#2e7d32">超长对话首选</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">claude-sonnet-4.6</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">Anthropic</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee;color:#2e7d32">200K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">glm-4.7</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">智谱 Zhipu</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
-        <tr style="background:#fff8e1"><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">glm-4.5-air</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">智谱 Zhipu</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#e65100;font-weight:600">默认</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">deepseek-v3</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">DeepSeek</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">gpt-5.4</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenAI</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">qwen-plus</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">通义千问</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">131K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">openrouter-auto</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">131K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">16384</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">自动选择最优</td></tr>
-        <tr><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">deepseek-chat</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">DeepSeek</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">64K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee"></td></tr>
-        <tr style="background:#f1f8e9"><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">qwen3.6-free</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter (free)</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#388e3c">&#127873; 免费</td></tr>
-        <tr style="background:#f1f8e9"><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">nemotron-free</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter (free)</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#388e3c">&#127873; 免费</td></tr>
-        <tr style="background:#f1f8e9"><td style="padding:4px 8px;border:1px solid #eee;font-weight:600">gpt-oss-120b-free</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee">OpenRouter (free)</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">128K</td><td style="padding:4px 8px;text-align:right;border:1px solid #eee">8192</td><td style="padding:4px 8px;text-align:center;border:1px solid #eee;color:#388e3c">&#127873; 免费</td></tr>
+        <thead>
+        <tr style="background:#e8eaf6">
+          <th style="text-align:left;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_name">model_name</th>
+          <th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_provider">提供商 / 协议</th>
+          <th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_context">上下文窗口</th>
+          <th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_tokens">推荐 Token</th>
+          <th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_note">备注</th>
+        </tr>
+        </thead>
+        <tbody id="model-guide-table-body"></tbody>
       </table>
     </details>
     <details style="margin-top:8px">
-      <summary style="cursor:pointer;font-size:12px;color:#666;padding:4px 0;font-weight:600">&#x25B6; model_list 配置示例</summary>
-      <pre style="background:#263238;color:#aed581;padding:10px 12px;border-radius:6px;font-size:11.5px;line-height:1.6;overflow-x:auto;margin-top:6px;white-space:pre"><span style="color:#80cbc4">// config.json → model_list 数组</span>
-<span style="color:#ffcc80">"model_list"</span>: [
-  {
-    <span style="color:#ffcc80">"model_name"</span>: <span style="color:#a5d6a7">"glm-4.5-air"</span>,   <span style="color">#546e7d">// ← agents.defaults.model_name 填这个</span>
-    <span style="color:#ffcc80">"model"</span>: <span style="color:#a5d6a7">"zhipu/glm-4.5-air"</span>,
-    <span style="color:#ffcc80">"api_base"</span>: <span style="color:#a5d6a7">"https://open.bigmodel.cn/api/paas/v4"</span>,
-    <span style="color:#ffcc80">"api_keys"</span>: [<span style="color:#a5d6a7">"你的API Key"</span>],
-    <span style="color:#ffcc80">"enabled"</span>: true
-  },
-  {
-    <span style="color:#ffcc80">"model_name"</span>: <span style="color:#a5d6a7">"kimi-k2.5"</span>,
-    <span style="color:#ffcc80">"model"</span>: <span style="color:#a5d6a7">"openai"</span>,
-    <span style="color:#ffcc80">"api_base"</span>: <span style="color:#a5d6a7">"https://api.moonshot.ai/v1"</span>,
-    <span style="color:#ffcc80">"enabled"</span>: true
-  }
-]</pre>
-      <div style="margin-top:6px;font-size:11.5px;color:#666;background:#fff8e1;padding:8px 10px;border-radius:4px;border-left:3px solid#ffc107">
+      <summary style="cursor:pointer;font-size:12px;color:#666;padding:4px 0;font-weight:600" data-i18n="model_guide_example_title">&#x25B6; model_list 配置示例</summary>
+      <div id="model-example-code" style="background:#263238;color:#aed581;padding:10px 12px;border-radius:6px;font-size:11.5px;line-height:1.6;overflow-x:auto;margin-top:6px"></div>
+      <div style="margin-top:6px;font-size:11.5px;color:#666;background:#fff8e1;padding:8px 10px;border-radius:4px;border-left:3px solid#ffc107" data-i18n="model_guide_security_tip">
         &#9888; <b>注意：</b>API Key 可写在 model_list 的 api_keys 字段中，也可通过路由器终端用 <code>picoclaw config security</code> 配置到 .security.yml（更安全，不明文存储）。
       </div>
     </details>
@@ -708,7 +685,26 @@ zh: {
   hw_skill_name:"技能名称", hw_skill_content:"技能内容 (SKILL.md)", hw_do_import:"确认导入", hw_cancel:"取消",
   hw_cron:"定时任务", hw_no_cron:"暂无定时任务",
   hw_gpio:"GPIO 引脚", hw_dir:"方向", hw_val:"值", hw_action:"操作", hw_no_gpio:"未检测到 GPIO",
-  hw_refresh:"刷新硬件状态"
+  hw_refresh:"刷新硬件状态",
+  // Model Guide (i18n)
+  model_guide_title:"AI 模型配置指南",
+  model_guide_steps_title:"切换模型（两步）",
+  model_guide_step1:"1. 在 config.json → model_list 中添加模型条目（含 api_base、api_keys）",
+  model_guide_step2:"2. 设置 agents.defaults.model_name 为目标模型的 model_name，保存并重启",
+  mg_tag_kimi:"kimi-k2.5 = 256K (推荐长对话)",
+  mg_tag_default:"glm-4.5-air = 默认模型",
+  mg_tag_orauto:"openrouter-auto = 自动路由",
+  mg_tag_free:"多个免费模型可用 (OR)",
+  model_guide_table_title:"已知支持的模型及参数",
+  model_guide_example_title:"model_list 配置示例",
+  model_guide_security_tip:"⚠️ 注意：API Key 可写在 model_list 的 api_keys 字段中，也可通过路由器终端用 picoclaw config security 配置到 .security.yml（更安全，不明文存储）。",
+  model_guide_example_code:"", // use default
+  mg_th_name:"model_name", mg_th_provider:"提供商 / 协议", mg_th_context:"上下文窗口", mg_th_tokens:"推荐 Token", mg_th_note:"备注",
+  mg_note_longchat:"超长对话首选", mg_note_default:"默认", mg_note_autoroute:"自动选择最优", mg_note_free:"免费",
+  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"智谱 Zhipu",
+  mg_prov_glm-4.5-air:"智谱 Zhipu", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
+  mg_prov_qwen-plus:"通义千问", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
+  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
 },
 en: {
   version_info:"Version Info", current_version:"Current Version", build_time:"Build Time", latest_ver_label:"Latest Version",
@@ -764,7 +760,26 @@ en: {
   hw_skill_name:"Skill Name", hw_skill_content:"Skill Content (SKILL.md)", hw_do_import:"Import", hw_cancel:"Cancel",
   hw_cron:"Cron Jobs", hw_no_cron:"No scheduled jobs",
   hw_gpio:"GPIO Pins", hw_dir:"Dir", hw_val:"Val", hw_action:"Action", hw_no_gpio:"No GPIO detected",
-  hw_refresh:"Refresh Hardware"
+  hw_refresh:"Refresh Hardware",
+  // Model Guide (i18n)
+  model_guide_title:"AI Model Configuration Guide",
+  model_guide_steps_title:"Switch Model (2 steps)",
+  model_guide_step1:"1. Add a model entry in config.json → model_list (with api_base, api_keys)",
+  model_guide_step2:"2. Set agents.defaults.model_name to the target model's model_name, save & restart",
+  mg_tag_kimi:"kimi-k2.5 = 256K (recommended for long chats)",
+  mg_tag_default:"glm-4.5-air = default model",
+  mg_tag_orauto:"openrouter-auto = auto-route",
+  mg_tag_free:"Multiple free models available (OR)",
+  model_guide_table_title:"Known supported models & parameters",
+  model_guide_example_title:"model_list configuration example",
+  model_guide_security_tip:"⚠️ Note: API Key can be set in model_list's api_keys field, or via router terminal with picoclaw config security to .security.yml (more secure, not stored in plaintext).",
+  model_guide_example_code:"",
+  mg_th_name:"model_name", mg_th_provider:"Provider / Protocol", mg_th_context:"Context Window", mg_th_tokens:"Recommended Tokens", mg_th_note:"Notes",
+  mg_note_longchat:"Best for long conversations", mg_note_default:"default", mg_note_autoroute:"Auto-select best", mg_note_free:"Free",
+  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"Zhipu AI",
+  mg_prov_glm-4.5-air:"Zhipu AI", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
+  mg_prov_qwen-plus:"Qwen / Tongyi", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
+  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
 },
 ja: {
   version_info:"バージョン情報", current_version:"現在のバージョン", build_time:"ビルド時間", latest_ver_label:"最新バージョン",
@@ -820,7 +835,26 @@ ja: {
   hw_skill_name:"スキル名", hw_skill_content:"スキル内容 (SKILL.md)", hw_do_import:"インポート", hw_cancel:"キャンセル",
   hw_cron:"定期タスク", hw_no_cron:"定期タスクなし",
   hw_gpio:"GPIOピン", hw_dir:"方向", hw_val:"値", hw_action:"操作", hw_no_gpio:"GPIOが検出されません",
-  hw_refresh:"ハードウェア更新"
+  hw_refresh:"ハードウェア更新",
+  // Model Guide (i18n)
+  model_guide_title:"AI モデル設定ガイド",
+  model_guide_steps_title:"モデル切り替え（2ステップ）",
+  model_guide_step1:"1. config.json → model_list にモデルエントリを追加（api_base, api_keys を含む）",
+  model_guide_step2:"2. agents.defaults.model_name を対象モデルの model_name に設定し、保存して再起動",
+  mg_tag_kimi:"kimi-k2.5 = 256K (長い会話に推奨)",
+  mg_tag_default:"glm-4.5-air = デフォルトモデル",
+  mg_tag_orauto:"openrouter-auto = 自動ルーティング",
+  mg_tag_free:"複数の無料モデル利用可能 (OR)",
+  model_guide_table_title:"既知の対応モデルとパラメータ",
+  model_guide_example_title:"model_list 設定例",
+  model_guide_security_tip:"⚠️ 注意：APIキーは model_list の api_keys フィールドに書くか、ルーター端末で picoclaw config security コマンドで .security.yml に設定できます（より安全、平文保存されません）。",
+  model_guide_example_code:"",
+  mg_th_name:"model_name", mg_th_provider:"プロバイダ / プロトコル", mg_th_context:"コンテキストウィンドウ", mg_th_tokens:"推奨トークン", mg_th_note:"備考",
+  mg_note_longchat:"長い会話に最適", mg_note_default:"デフォルト", mg_note_autoroute:"自動選択", mg_note_free:"無料",
+  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"Zhipu AI",
+  mg_prov_glm-4.5-air:"Zhipu AI", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
+  mg_prov_qwen-plus:"Qwen / Tongyi", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
+  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
 },
 pt: {
   version_info:"Versão", current_version:"Versão Atual", build_time:"Build", latest_ver_label:"Última Versão",
@@ -876,7 +910,26 @@ pt: {
   hw_skill_name:"Nome da Skill", hw_skill_content:"Conteúdo (SKILL.md)", hw_do_import:"Importar", hw_cancel:"Cancelar",
   hw_cron:"Tarefas Agendadas", hw_no_cron:"Sem tarefas agendadas",
   hw_gpio:"Pinos GPIO", hw_dir:"Dir", hw_val:"Val", hw_action:"Ação", hw_no_gpio:"Nenhum GPIO detectado",
-  hw_refresh:"Atualizar Hardware"
+  hw_refresh:"Atualizar Hardware",
+  // Model Guide (i18n)
+  model_guide_title:"Guia de Configuração de Modelo IA",
+  model_guide_steps_title:"Trocar de Modelo (2 passos)",
+  model_guide_step1:"1. Adicionar entrada em config.json → model_list (com api_base, api_keys)",
+  model_guide_step2:"2. Definir agents.defaults.model_name como o model_name do modelo alvo, salvar e reiniciar",
+  mg_tag_kimi:"kimi-k2.5 = 256K (recomendado para conversas longas)",
+  mg_tag_default:"glm-4.5-air = modelo padrão",
+  mg_tag_orauto:"openrouter-auto = rota automática",
+  mg_tag_free:"Múltiplos modelos grátis disponíveis (OR)",
+  model_guide_table_title:"Modelos conhecidos e parâmetros",
+  model_guide_example_title:"Exemplo de configuração model_list",
+  model_guide_security_tip:"⚠️ Nota: API Key pode ser definida no campo api_keys do model_list, ou via terminal do router com picoclaw config security para .security.yml (mais seguro, não armazenado em texto plano).",
+  model_guide_example_code:"",
+  mg_th_name:"model_name", mg_th_provider:"Provedor / Protocolo", mg_th_context:"Janela de Contexto", mg_th_tokens:"Tokens Recomendados", mg_th_note:"Notas",
+  mg_note_longchat:"Ideal para conversas longas", mg_note_default:"padrão", mg_note_autoroute:"Seleção automática", mg_note_free:"Grátis",
+  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"Zhipu AI",
+  mg_prov_glm-4.5-air:"Zhipu AI", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
+  mg_prov_qwen-plus:"Qwen / Tongyi", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
+  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
 },
 de: {
   version_info:"Versionsinfo", current_version:"Aktuelle Version", build_time:"Build-Zeit", latest_ver_label:"Neueste Version",
@@ -932,7 +985,26 @@ de: {
   hw_skill_name:"Skill-Name", hw_skill_content:"Skill-Inhalt (SKILL.md)", hw_do_import:"Importieren", hw_cancel:"Abbrechen",
   hw_cron:"Geplante Aufgaben", hw_no_cron:"Keine geplanten Aufgaben",
   hw_gpio:"GPIO-Pins", hw_dir:"Richtung", hw_val:"Wert", hw_action:"Aktion", hw_no_gpio:"Kein GPIO erkannt",
-  hw_refresh:"Hardware aktualisieren"
+  hw_refresh:"Hardware aktualisieren",
+  // Model Guide (i18n)
+  model_guide_title:"KI-Modell Konfigurationsanleitung",
+  model_guide_steps_title:"Modell wechseln (2 Schritte)",
+  model_guide_step1:"1. Eintrag in config.json → model_list hinzufügen (mit api_base, api_keys)",
+  model_guide_step2:"2. agents.defaults.model_name auf den model_name des Zielmodells setzen, speichern & neu starten",
+  mg_tag_kimi:"kimi-k2.5 = 256K (empfohlen für lange Gespräche)",
+  mg_tag_default:"glm-4.5-air = Standardmodell",
+  mg_tag_orauto:"openrouter-auto = Auto-Routing",
+  mg_tag_free:"Mehrere kostenlose Modelle verfügbar (OR)",
+  model_guide_table_title:"Bekannte unterstützte Modelle & Parameter",
+  model_guide_example_title:"model_list Konfigurationsbeispiel",
+  model_guide_security_tip:"⚠️ Hinweis: API-Schlüssel kann im api_keys-Feld von model_list gesetzt werden, oder über das Router-Terminal mit picoclaw config security in .security.yml (sicherer, nicht im Klartext gespeichert).",
+  model_guide_example_code:"",
+  mg_th_name:"model_name", mg_th_provider:"Anbieter / Protokoll", mg_th_context:"Kontextfenster", mg_th_tokens:"Empfohlene Tokens", mg_th_note:"Hinweis",
+  mg_note_longchat:"Bestens für lange Gespräche", mg_note_default:"Standard", mg_note_autoroute:"Automatische Auswahl", mg_note_free:"Kostenlos",
+  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"Zhipu AI",
+  mg_prov_glm-4.5-air:"Zhipu AI", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
+  mg_prov_qwen-plus:"Qwen / Tongyi", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
+  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
 }
 };
 
@@ -1451,6 +1523,100 @@ function updateModelHint() {
   }
   setTimeout(updateModelHint, 100);
 })();
+
+// ========== Model Guide Table (i18n-aware) ==========
+var MODEL_GUIDE_DATA = [
+  { name:'kimi-k2.5',    provider:'Moonshot (openai)', ctx:262144, tokens:16384, note_key:'mg_note_longchat',   star:true },
+  { name:'claude-sonnet-4.6', provider:'Anthropic',      ctx:200000, tokens:8192,  note_key:'' },
+  { name:'glm-4.7',       provider:'Zhipu',              ctx:128000, tokens:8192,  note_key:'' },
+  { name:'glm-4.5-air',   provider:'Zhipu',              ctx:128000, tokens:8192,  note_key:'mg_note_default', is_default:true },
+  { name:'deepseek-v3',   provider:'DeepSeek',           ctx:128000, tokens:16384, note_key:'' },
+  { name:'gpt-5.4',       provider:'OpenAI',             ctx:128000, tokens:16384, note_key:'' },
+  { name:'qwen-plus',     provider:'Qwen / Tongyi',      ctx:131072, tokens:8192,  note_key:'' },
+  { name:'openrouter-auto',provider:'OpenRouter',         ctx:131072, tokens:16384, note_key:'mg_note_autoroute' },
+  { name:'deepseek-chat', provider:'DeepSeek',            ctx:64000,  tokens:8192,  note_key:'' },
+  { name:'qwen3.6-free',  provider:'OpenRouter (free)',  ctx:128000, tokens:8192,  note_key:'mg_note_free', free:true },
+  { name:'nemotron-free', provider:'OpenRouter (free)',  ctx:128000, tokens:8192,  note_key:'mg_note_free', free:true },
+  { name:'gpt-oss-120b-free',provider:'OpenRouter (free)',ctx:128000,tokens:8192,  note_key:'mg_note_free', free:true }
+];
+
+var MODEL_TAG_DATA = [
+  { text_key:'mg_tag_kimi',    style:'background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9', icon:'&#11088;' },
+  { text_key:'mg_tag_default', style:'background:#fff3e0;color:#e65100;border:1px solid #ffe0b2', icon:'' },
+  { text_key:'mg_tag_orauto',  style:'background:#f3e5f5;color:#7b1fa2;border:1px solid #e1bee7', icon:'' },
+  { text_key:'mg_tag_free',    style:'background:#e0f7fa;color:#00838f;border:1px solid #b2ebf2', icon:'&#127873;' }
+];
+
+function renderModelGuide() {
+  // Render tags
+  var tagContainer = document.getElementById('model-tags-container');
+  if (tagContainer) {
+    var html = '';
+    MODEL_TAG_DATA.forEach(function(tag) {
+      var label = I(tag.text_key);
+      html += '<span style="display:inline-block;padding:3px 10px;border-radius:12px;font-size:11.5px;'+tag.style+';font-weight:600">'+tag.icon+' '+label+'</span>';
+    });
+    tagContainer.innerHTML = html;
+  }
+
+  // Render table
+  var tbody = document.getElementById('model-guide-table-body');
+  if (!tbody) return;
+  html = '';
+  MODEL_GUIDE_DATA.forEach(function(m) {
+    var bg = m.free ? 'background:#f1f8e9' : (m.is_default ? 'background:#fff8e1' : '');
+    var nameStyle = 'font-weight:600;' + (m.star ? 'color:#2e7d32' : '');
+    var noteHtml = '';
+    if (m.note_key) {
+      var n = I(m.note_key);
+      if (m.star && n) noteHtml = '<span style="color:#2e7d32">'+n+'</span>';
+      else if (m.is_default && n) noteHtml = '<span style="color:#e65100;font-weight:600">'+n+'</span>';
+      else if (m.free && n) noteHtml = '<span style="color:#388e3c">&#127873; '+n+'</span>';
+      else if (n) noteHtml = n;
+    }
+    html += '<tr style="'+bg+'">';
+    html += '<td style="padding:4px 8px;border:1px solid #eee;'+nameStyle+'">' + m.name + (m.star ? ' &#11088;' : '') + '</td>';
+    html += '<td style="padding:4px 8px;text-align:center;border:1px solid #eee">' + I('mg_prov_' + m.name, m.provider) + '</td>';
+    html += '<td style="padding:4px 8px;text-align:right;border:1px solid #eee;' + (m.ctx >= 200000 ? 'color:#2e7d32;font-weight:600' : '') + '">' + fmtCtx(m.ctx) + '</td>';
+    html += '<td style="padding:4px 8px;text-align:right;border:1px solid #eee">' + m.tokens + '</td>';
+    html += '<td style="padding:4px 8px;text-align:center;border:1px solid #eee">' + noteHtml + '</td>';
+    html += '</tr>';
+  });
+  tbody.innerHTML = html;
+
+  // Render code example
+  var codeEl = document.getElementById('model-example-code');
+  if (codeEl) {
+    var ex = I('model_guide_example_code');
+    if (ex && ex !== 'model_guide_example_code') {
+      codeEl.innerHTML = ex;
+    } else {
+      codeEl.innerHTML = '<span style="color:#80cbc4">// config.json → model_list array</span>\n'
+        + '<span style="color:#ffcc80">"model_list"</span>: [\n'
+        + '  {\n'
+        + '    <span style="color:#ffcc80">"model_name"</span>: <span style="color:#a5d6a7">"glm-4.5-air"</span>,   <span style="color:#546e7d">// ← set this in agents.defaults.model_name</span>\n'
+        + '    <span style="color:#ffcc80">"model"</span>: <span style="color:#a5d6a7">"zhipu/glm-4.5-air"</span>,\n'
+        + '    <span style="color:#ffcc80">"api_base"</span>: <span style="color:#a5d6a7">"https://open.bigmodel.cn/api/paas/v4"</span>,\n'
+        + '    <span style="color:#ffcc80">"api_keys"</span>: [<span style="color:#a5d6a7">"your API key"</span>],\n'
+        + '    <span style="color:#ffcc80">"enabled"</span>: true\n'
+        + '  },\n'
+        + '  {\n'
+        + '    <span style="color:#ffcc80">"model_name"</span>: <span style="color:#a5d6a7">"kimi-k2.5"</span>,\n'
+        + '    <span style="color:#ffcc80">"model"</span>: <span style="color:#a5d6a7">"openai"</span>,\n'
+        + '    <span style="color:#ffcc80">"api_base"</span>: <span style="color:#a5d6a7">"https://api.moonshot.ai/v1"</span>,\n'
+        + '    <span style="color:#ffcc80">"enabled"</span>: true\n'
+        + '  }\n'
+        + ']';
+    }
+  }
+}
+
+// Override setLang to also re-render model guide after translation
+var _origSetLang = setLang;
+setLang = function(lang) {
+  _origSetLang(lang);
+  renderModelGuide();
+};
 
 setLang(_curLang);
 </script>
