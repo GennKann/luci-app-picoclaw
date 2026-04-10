@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.3] - 2026-04-10
+
+### Added
+- **搜索引擎配置区域** — 在配置编辑标签页中可直接配置搜索引擎（GLM Search、百度搜索、DuckDuckGo、Brave、Tavily、Perplexity、SearXNG）
+- **GFW 提示** — 为国内用户标注哪些搜索引擎被 GFW 屏蔽
+- **5语言 i18n 翻译** — 搜索引擎相关标签的完整多语言支持（中文、英文、日文、葡萄牙文、德文）
+
+### Changed
+- README 5语言版本新增「模型配置方法」和「搜索引擎配置」章节
+- 版本号徽章更新至 v1.1.3
+- IPK 下载链接更新至 v1.1.3
+
+---
+
+## [1.1.2] - 2026-04-10
+
+### Fixed
+- **IPK 打包格式规范化** — control 文件严格对齐 istore-repo 参考格式
+- **control.tar.gz** 添加 `.` 目录条目、postinst（OpenWrt 标准 160 bytes）、prerm（117 bytes）
+- **data.tar.gz** 添加 `.` 目录条目和中间目录（./usr/, ./usr/lib/ 等）
+- **Description 双空格** — 冒号后双空格（OpenWrt 规范）
+- **Installed-Size** — 改为 data.tar.gz 实际字节数（非硬编码）
+- **Source/Depends 字段** — Source 改为 `feeds/packages/luci/applications/luci-app-picoclaw`，Depends 添加 `libc`
+
+### Added
+- 新打包脚本 `build_v112_targz.py`，含完整验证（MD5 对比、格式校验）
+
+---
+
+## [1.1.0] - 2026-04-10
+
+### Fixed
+- **标签切换 Bug** — i18n 字典键名含 `-`（如 `mg_prov_glm-4.5-air`）导致 JS 语法错误，所有标签无法切换。修复：给含特殊字符的键名加引号
+- **默认模型选择器** — 页面加载后默认模型不匹配配置文件值。修复：批量添加行时抑制 refreshDefaultModelSelect 调用
+- **SecureString 字符数组** — `glm-4.5-air` 的 api_keys 是字符数组 `["[","N","O","T","_","H","E","R","E","]"]`，原代码只取 `key[0]`。修复：检测并 join 拼接
+
+### Changed
+- i18n 键名引号包裹（5语言版本）
+- 模型列表渲染逻辑优化
+
+---
+
 ## [1.0.9] - 2026-04-07
 
 ### Fixed
@@ -131,6 +173,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.1.3]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.3
+[1.1.2]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.2
+[1.1.0]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.0
 [1.0.9]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.0.9
 [1.0.8]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.0.8
 [1.0.7]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.0.7

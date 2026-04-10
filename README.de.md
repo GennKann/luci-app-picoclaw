@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/OpenWrt-21.02%20%7C%2022.03%20%7C%2023.05%20%7C%2024.10%20%7C%2025.xx-blue?logo=openwrt" alt="OpenWrt">
   <img src="https://img.shields.io/badge/LuCI-Web%20Interface-green?logo=lua" alt="LuCI">
   <img src="https://img.shields.io/badge/i18n-5%20Languages-purple" alt="i18n">
-  <img src="https://img.shields.io/badge/Version-1.0.9-brightgreen" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.1.3-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -50,6 +50,7 @@
 - **Kanalverwaltung** — Verbundene Kanäle anzeigen (Feishu, Telegram, Discord, WeChat, etc.)
 - **WeChat-Status-Erkennung** — Automatische Erkennung der WeChat-Personalaccount-Sitzung nach QR-Code-Scan
 - **Formular-Konfiguration** — UI für AI-Modell, Anbieter und Systemeinstellungen
+- **Suchmaschinen-Konfiguration** — Websuchanbieter einrichten (GLM Search, Baidu, DuckDuckGo, Brave, Tavily, Perplexity, SearXNG) mit GFW-Hinweisen für China-Nutzer
 - **JSON-Editor** — Direkte JSON-Bearbeitung mit Validierung
 
 ### Hardware & Erweiterungen
@@ -108,8 +109,8 @@ Laden Sie von [Releases](https://github.com/GennKann/luci-app-picoclaw/releases/
 
 ```bash
 cd /tmp
-wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.0.9-1_all.ipk
-opkg install luci-app-picoclaw_1.0.9-1_all.ipk
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.1.3-1_all.ipk
+opkg install luci-app-picoclaw_1.1.3-1_all.ipk
 rm -rf /tmp/luci-*   # LuCI-Cache leeren
 ```
 
@@ -131,6 +132,69 @@ Nach der Installation wird empfohlen, einmal "Neustart" in der LuCI-Seite zu kli
 
 Zugriff: `http:<ROUTER-IP>/cgi-bin/luci/admin/services/picoclaw`
 
+## 🤖 Modell-Konfiguration
+
+PicoClaw unterstützt mehrere AI-Anbieter. Sie können Modelle über die LuCI-Weboberfläche (Konfigurations-Editor-Tab) oder durch direkte Bearbeitung der JSON-Konfiguration einrichten.
+
+### Über LuCI Web UI (Empfohlen)
+
+1. Navigieren Sie zu **LuCI → Dienste → PicoClaw → Konfigurations-Editor**
+2. Klicken Sie im Abschnitt **Modellliste** auf **Modell hinzufügen**
+3. Füllen Sie die Felder aus:
+   - **Modellname** — Eindeutiger Bezeichner (z.B. `my-glm4`, `my-deepseek`)
+   - **Anbieter** — Aus Dropdown auswählen (Zhipu, OpenRouter, DeepSeek, Qwen, OpenAI, Anthropic, etc.)
+   - **Modell** — Modellidentifikator mit Protokollpräfix (z.B. `zhipu://glm-4.5-air`, `deepseek://deepseek-chat`)
+   - **API-Basis** — Anbieter-API-Endpunkt (wird automatisch basierend auf Anbieterauswahl ausgefüllt)
+   - **API-Key** — Ihr API-Schlüssel (sicher gespeichert)
+   - **Aktiviert** — Ein/Aus-Schalter
+4. Wählen Sie das **Standardmodell** aus dem Dropdown
+5. Klicken Sie auf **Speichern** zum Anwenden
+
+### Unterstützte Anbieter
+
+| Anbieter | Modellpräfix | API-Basis | Hinweise |
+|---|---|---|---|
+| Zhipu (智谱) | `zhipu://` | `https://open.bigmodel.cn/api/paas/v4` | In China verfügbar, empfohlen |
+| DeepSeek | `deepseek://` | `https://api.deepseek.com` | In China verfügbar |
+| Qwen (通义) | `dashscope://` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | In China verfügbar |
+| OpenAI | `openai://` | `https://api.openai.com/v1` | Proxy in China erforderlich |
+| Anthropic | `anthropic://` | `https://api.anthropic.com` | Proxy in China erforderlich |
+| OpenRouter | `openrouter://` | `https://openrouter.ai/api/v1` | Aggregator, Proxy in China erforderlich |
+
+### Über JSON-Konfiguration (Fortgeschritten)
+
+Bearbeiten Sie `/root/.picoclaw/config.json`:
+
+```json
+{
+  "model_list": [
+    {
+      "model_name": "glm-4.5-air",
+      "model": "zhipu://glm-4.5-air",
+      "api_base": "https://open.bigmodel.cn/api/paas/v4",
+      "api_keys": [["[","N","O","T","_","H","E","R","E","]"]],
+      "enabled": true
+    }
+  ]
+}
+```
+
+> ⚠️ API-Schlüssel in `config.json` werden als SecureString-Zeichenarray gespeichert (`[NOT_HERE]`-Platzhalter). Die tatsächlichen Schlüssel werden in `/root/.picoclaw/.security.yml` gespeichert. Bei der Bearbeitung über LuCI wird das sichere Format automatisch beibehalten.
+
+## 🔍 Suchmaschinen-Konfiguration
+
+PicoClaw kann Websuche verwenden, um aktuelle Informationen bereitzustellen. Konfigurieren Sie Suchmaschinen im **Konfigurations-Editor**-Tab.
+
+| Suchmaschine | In China verfügbar | Hinweise |
+|---|---|---|
+| **GLM Search** (智谱搜索) | ✅ | Empfohlen für China-Nutzer |
+| **Baidu Search** | ✅ | Alternative für China-Nutzer |
+| **DuckDuckGo** | ❌ | Durch GFW blockiert |
+| **Brave Search** | ❌ | Durch GFW blockiert |
+| **Tavily** | ❌ | API-Key erforderlich, durch GFW blockiert |
+| **Perplexity** | ❌ | Durch GFW blockiert |
+| **SearXNG** | ⚠️ | Selbstgehostet, abhängig vom Instanz-Standort |
+
 ## FAQ
 
 ### luci-app-picoclaw installiert, aber Seite lädt nicht?
@@ -147,6 +211,15 @@ Führen Sie `opkg update` im Router-Terminal aus oder laden Sie das IPK direkt v
 
 ### Was ist der orangefarbene Installationsbanner oben?
 luci-app-picoclaw ist installiert, aber PicoClaw-Binary fehlt. Klicken Sie den Banner zur One-Click-Installation (automatische Architektur-Erkennung).
+
+### PicoClaw sagt "Keine Berechtigung für Internetzugriff" bei Wetter-/Nachrichtenfragen?
+Die Suchmaschine ist falsch konfiguriert. DuckDuckGo, Brave und Google sind in China durch die GFW blockiert. Wechseln Sie im Konfigurations-Editor-Tab zu **GLM Search** oder **Baidu Search** und starten Sie PicoClaw neu.
+
+### Wie füge ich ein benutzerdefiniertes AI-Modell hinzu?
+Gehen Sie zum Konfigurations-Editor-Tab → Modellliste-Abschnitt → klicken Sie "Modell hinzufügen". Füllen Sie Anbieter, Modellname und API-Key aus und klicken Sie Speichern.
+
+### API-Keys erscheinen als `[NOT_HERE]` in config.json?
+Das ist normal — PicoClaw verwendet ein sicheres Speichersystem. Tatsächliche Schlüssel befinden sich in `.security.yml`. Ersetzen Sie `[NOT_HERE]` NICHT manuell in config.json; verwenden Sie die LuCI-UI zur Verwaltung.
 
 ## Projektstruktur
 

@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/OpenWrt-21.02%20%7C%2022.03%20%7C%2023.05%20%7C%2024.10%20%7C%2025.xx%20%7C%20iStoreOS-blue?logo=openwrt" alt="OpenWrt">
   <img src="https://img.shields.io/badge/LuCI-Web%20Interface-green?logo=lua" alt="LuCI">
   <img src="https://img.shields.io/badge/i18n-5%20Languages-purple" alt="i18n">
-  <img src="https://img.shields.io/badge/Version-1.0.9-brightgreen" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.1.3-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -50,6 +50,7 @@
 - **通道管理** — 查看已连接的通道（飞书、Telegram、Discord、微信等）
 - **微信状态检测** — 扫码接入后自动识别微信个人号会话状态
 - **表单化配置编辑** — 直观的 UI 配置 AI 模型、供应商和系统设置
+- **搜索引擎配置** — 配置网络搜索服务商（智谱搜索、百度、DuckDuckGo、Brave、Tavily、Perplexity、SearXNG），含 GFW 提示
 - **JSON 配置编辑** — 直接编辑 JSON，支持验证
 
 ### 硬件与扩展
@@ -108,8 +109,8 @@ picoclaw --version
 
 ```bash
 cd /tmp
-wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.0.9-1_all.ipk
-opkg install luci-app-picoclaw_1.0.9-1_all.ipk
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.1.3-1_all.ipk
+opkg install luci-app-picoclaw_1.1.3-1_all.ipk
 rm -rf /tmp/luci-*   # 清理 LuCI 缓存
 ```
 
@@ -131,6 +132,79 @@ rm -rf /tmp/luci-*
 
 访问地址：`http://<路由器IP>/cgi-bin/luci/admin/services/picoclaw`
 
+## 🤖 模型配置方法
+
+PicoClaw 支持多家 AI 供应商。你可以通过 LuCI 网页界面（配置编辑标签页）或直接编辑 JSON 配置来设置模型。
+
+### 通过 LuCI 网页界面（推荐）
+
+1. 进入 **LuCI → 服务 → PicoClaw → 配置编辑**
+2. 在 **模型列表** 区域，点击 **添加模型**
+3. 填写以下字段：
+   - **模型名称** — 唯一标识符（如 `my-glm4`、`my-deepseek`）
+   - **供应商** — 从下拉列表选择（智谱、OpenRouter、DeepSeek、通义、OpenAI、Anthropic 等）
+   - **模型** — 带协议前缀的模型标识（如 `zhipu://glm-4.5-air`、`deepseek://deepseek-chat`）
+   - **API 地址** — 供应商 API 端点（根据供应商自动填充）
+   - **API Key** — 你的 API 密钥（安全存储）
+   - **启用** — 开关切换
+4. 从下拉菜单设置 **默认模型**
+5. 点击 **保存** 生效
+
+### 支持的供应商
+
+| 供应商 | 模型前缀 | API 地址 | 备注 |
+|---|---|---|---|
+| 智谱 (Zhipu) | `zhipu://` | `https://open.bigmodel.cn/api/paas/v4` | 国内可用，推荐 |
+| DeepSeek | `deepseek://` | `https://api.deepseek.com` | 国内可用 |
+| 通义千问 (Qwen) | `dashscope://` | `https://dashscope.aliyuncs.com/compatible-mode/v1` | 国内可用 |
+| OpenAI | `openai://` | `https://api.openai.com/v1` | 国内需代理 |
+| Anthropic | `anthropic://` | `https://api.anthropic.com` | 国内需代理 |
+| OpenRouter | `openrouter://` | `https://openrouter.ai/api/v1` | 聚合平台，国内需代理 |
+
+### 通过 JSON 配置（高级）
+
+编辑 `/root/.picoclaw/config.json`：
+
+```json
+{
+  "model_list": [
+    {
+      "model_name": "glm-4.5-air",
+      "model": "zhipu://glm-4.5-air",
+      "api_base": "https://open.bigmodel.cn/api/paas/v4",
+      "api_keys": [["[","N","O","T","_","H","E","R","E","]"]],
+      "enabled": true
+    }
+  ]
+}
+```
+
+> ⚠️ `config.json` 中的 API Key 以 SecureString 字符数组格式存储（`[NOT_HERE]` 占位符），真实密钥存储在 `/root/.picoclaw/.security.yml` 中。通过 LuCI 编辑时会自动保留安全格式。
+
+### API Key 安全机制
+
+PicoClaw 采用双文件安全存储体系：
+- `config.json` — 包含 `[NOT_HERE]` 占位符
+- `.security.yml` — 存储真实 API Key，含 provider/model 元数据
+
+**请勿手动修改 config.json 中的 API Key。** 始终通过 LuCI 界面管理，或直接编辑 `.security.yml`。
+
+## 🔍 搜索引擎配置
+
+PicoClaw 可使用网络搜索获取实时信息。在 **配置编辑** 标签页中配置搜索引擎。
+
+| 引擎 | 国内可用 | 备注 |
+|---|---|---|
+| **智谱搜索** (GLM Search) | ✅ | 国内用户推荐 |
+| **百度搜索** | ✅ | 国内备选 |
+| **DuckDuckGo** | ❌ | 被 GFW 屏蔽 |
+| **Brave Search** | ❌ | 被 GFW 屏蔽 |
+| **Tavily** | ❌ | 需 API Key，被 GFW 屏蔽 |
+| **Perplexity** | ❌ | 被 GFW 屏蔽 |
+| **SearXNG** | ⚠️ | 自建实例，取决于部署位置 |
+
+> 💡 **国内用户提示**：启用 `glm_search` 或 `baidu_search`，禁用 DuckDuckGo/Brave，避免因 GFW 导致搜索超时。
+
 ## 常见问题
 
 ### 安装了 luci-app-picoclaw 但打不开 / 报错？
@@ -147,6 +221,15 @@ rm -rf /tmp/luci-*
 
 ### 页面顶部有橙色安装横幅是怎么回事？
 说明已安装 `luci-app-picoclaw` 但尚未安装 PicoClaw 主程序，点击横幅即可一键安装（自动检测架构）。
+
+### PicoClaw 问天气/新闻时说"没有权限访问网络"？
+搜索引擎配置有误。DuckDuckGo、Brave、Google 在国内被 GFW 屏蔽。在「配置编辑」标签页中将搜索引擎切换为**智谱搜索**或**百度搜索**，然后重启 PicoClaw。
+
+### 如何添加自定义 AI 模型？
+进入「配置编辑」标签页 → 模型列表区域 → 点击「添加模型」，填写供应商、模型名称、API Key，点击保存即可。新模型会出现在默认模型下拉列表中。
+
+### config.json 中 API Key 显示为 `[NOT_HERE]`？
+这是正常的 —— PicoClaw 使用安全存储系统，真实密钥在 `.security.yml` 中。请勿手动替换 `config.json` 中的 `[NOT_HERE]`，应通过 LuCI 界面管理密钥。
 
 ## 项目结构
 

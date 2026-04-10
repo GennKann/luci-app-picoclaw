@@ -346,7 +346,7 @@ if flash_msg ~= "" then
         <input type="hidden" name="action" value="save_form_config">
         <input type="hidden" name="config" id="form-config-json" value="">
 
-        <!-- AI Model Section -->
+        <!-- AI Model Section (v2 - full model_list editor) -->
         <div class="cfg-section">
           <div class="cfg-section-head" onclick="toggleSection(this)">
             <span class="icon">&#129302;</span>
@@ -354,65 +354,68 @@ if flash_msg ~= "" then
             <span class="arrow">&#9660;</span>
           </div>
           <div class="cfg-section-body">
+            <!-- Default model selector -->
             <div class="cfg-row">
-              <div class="cfg-label" data-i18n="lbl_provider">AI 提供商<small>provider</small></div>
-              <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="agents.defaults.provider" id="provider-select">
-                <option value="">-- 选择或手动输入 --</option>
-                <option value="zhipu">Zhipu / 智谱</option>
-                <option value="openrouter">OpenRouter (自动路由/免费模型)</option>
-                <option value="qwen">Qwen / 通义千问 (百炼)</option>
-                <option value="openai">OpenAI</option>
-                <option value="chatgpt">ChatGPT / OpenAI GPT</option>
-                <option value="claude">Claude / Anthropic</option>
-                <option value="deepseek">DeepSeek</option>
-                <option value="moonshot">Moonshot / Kimi</option>
-                <option value="anthropic">Anthropic</option>
-                <option value="ollama">Ollama (本地)</option>
-                <option value="azure">Azure OpenAI</option>
-              </select><span style="font-size:11px;color:#999;margin-left:8px">&#8505; 新版 PicoClaw 主要通过 model_list 管理模型，此处作为默认 provider 回退</span></div>
-            </div>
-            <div class="cfg-row">
-              <div class="cfg-label" data-i18n="lbl_model">模型名称<small>model_name</small></div>
-              <div class="cfg-field"><input type="text" class="cfg-input cfg-input-sm" data-path="agents.defaults.model_name" id="model-name-input" placeholder="例如: glm-4.5-air, kimi-k2.5, openrouter-auto..." list="model-name-list">
-                <span id="model-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
-                <datalist id="model-name-list">
-                  <option value="glm-4.5-air">GLM-4.5-Air (智谱, 默认)</option>
-                  <option value="glm-4.7">GLM-4.7 (智谱)</option>
-                  <option value="kimi-k2.5">Kimi K2.5 (Moonshot, 256K) ★</option>
-                  <option value="deepseek-v3">DeepSeek V3</option>
-                  <option value="deepseek-chat">DeepSeek Chat</option>
-                  <option value="gpt-5.4">GPT-5.4 (OpenAI)</option>
-                  <option value="claude-sonnet-4.6">Claude Sonnet 4.6</option>
-                  <option value="qwen-plus">Qwen Plus (通义千问)</option>
-                  <option value="openrouter-auto">OpenRouter Auto (自动路由)</option>
-                  <option value="openrouter-gpt-5.4">OpenRouter GPT-5.4</option>
-                  <option value="qwen3.6-free">Qwen3.6-Free (OR免费)</option>
-                  <option value="nemotron-free">Nemotron (OR免费)</option>
-                  <option value="gpt-oss-120b-free">GPT-OSS-120B (OR免费)</option>
-                </datalist>
-              </div>
-            </div>
-            <div class="cfg-row">
-              <div class="cfg-label">API Key<small>api_key</small></div>
-              <div class="cfg-field"><input type="password" class="cfg-input" data-path="agents.defaults.api_key" id="model-api-key" placeholder="输入 API Key（保存后将显示为已填写）" style="max-width:400px"></div>
-            </div>
-            <div class="cfg-row">
-              <div class="cfg-label" data-i18n="lbl_max_tokens">Token 上限<small>max_tokens</small></div>
+              <div class="cfg-label" data-i18n="lbl_default_model">默认模型<small>agents.defaults.model_name</small></div>
               <div class="cfg-field">
-                <input type="number" class="cfg-input cfg-input-xs" id="max-tokens-input" data-path="agents.defaults.max_tokens" min="100" max="256000">
-                <span id="token-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
+                <select class="cfg-input cfg-input-sm" id="default-model-select" data-path="agents.defaults.model_name" style="max-width:320px"></select>
+                <span style="font-size:11px;color:#999;margin-left:6px" data-i18n="hint_default_model">选择 model_list 中的一项作为当前使用的模型</span>
               </div>
             </div>
-            <div class="cfg-row">
-              <div class="cfg-label" data-i18n="lbl_tool_iters">迭代次数<small>max_tool_iterations</small></div>
-              <div class="cfg-field"><input type="number" class="cfg-input cfg-input-xs" data-path="agents.defaults.max_tool_iterations" min="1" max="50"></div>
+
+            <!-- Quick-add preset buttons -->
+            <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;padding:8px;background:#f0f4f8;border-radius:6px;font-size:11.5px">
+              <span style="color:#666;font-weight:600;margin-right:4px;line-height:26px" data-i18n="lbl_quick_add">快速添加:</span>
+              <button type="button" class="pc-btn gray" style="padding:3px 10px;font-size:11px" onclick="addModelPreset('zhipu')">智谱 GLM</button>
+              <button type="button" class="pc-btn gray" style="padding:3px 10px;font-size:11px" onclick="addModelPreset('openrouter')">OpenRouter</button>
+              <button type="button" class="pc-btn gray" style="padding:3px 10px;font-size:11px" onclick="addModelPreset('deepseek')">DeepSeek</button>
+              <button type="button" class="pc-btn gray" style="padding:3px 10px;font-size:11px" onclick="addModelPreset('openai')">OpenAI</button>
+              <button type="button" class="pc-btn gray" style="padding:3px 10px;font-size:11px" onclick="addModelPreset('moonshot')">Moonshot/Kimi</button>
+              <button type="button" class="pc-btn gray" style="padding:3px 10px;font-size:11px" onclick="addModelPreset('qwen')">通义千问</button>
+              <button type="button" class="pc-btn gray" style="padding:3px 10px;font-size:11px" onclick="addModelPreset('ollama')">Ollama(本地)</button>
+              <button type="button" class="pc-btn blue" style="padding:3px 10px;font-size:11px" onclick="addEmptyModelRow()">&#43; 自定义</button>
             </div>
-            <div class="cfg-row">
-              <div class="cfg-label" data-i18n="lbl_steering">并发模式<small>steering_mode</small></div>
-              <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="steering_mode">
-                <option value="one-at-a-time">one-at-a-time</option>
-                <option value="parallel">parallel</option>
-              </select></div>
+
+            <!-- Dynamic model_list table -->
+            <table style="width:100%;border-collapse:collapse;font-size:12px" id="model-list-table">
+              <thead>
+                <tr style="background:#eef1f5;text-align:left">
+                  <th style="padding:6px 4px;width:16%">model_name</th>
+                  <th style="padding:6px 4px;width:22%">model</th>
+                  <th style="padding:6px 4px;width:28%">api_base</th>
+                  <th style="padding:6px 4px;width:20%">api_key</th>
+                  <th style="padding:6px 4px;width:8%;text-align:center">启用</th>
+                  <th style="padding:6px 4px;width:6%"></th>
+                </tr>
+              </thead>
+              <tbody id="model-list-tbody">
+                <!-- dynamically populated -->
+              </tbody>
+            </table>
+            <div style="font-size:11px;color:#888;margin-top:6px;background:#fff8e1;padding:6px 10px;border-radius:4px;border-left:3px solid #ffc107" data-i18n="hint_model_edit">
+              &#8505; 编辑 model_list 中每个模型的完整配置。API Key 保存在 model_list 的 api_keys 字段中，也可通过路由器终端用 <code>picoclaw config security</code> 配置到 .security.yml。
+            </div>
+
+            <!-- Other agent settings -->
+            <div style="margin-top:14px;border-top:1px solid #eee;padding-top:10px">
+              <div class="cfg-row">
+                <div class="cfg-label" data-i18n="lbl_max_tokens">Token 上限<small>max_tokens</small></div>
+                <div class="cfg-field">
+                  <input type="number" class="cfg-input cfg-input-xs" id="max-tokens-input" data-path="agents.defaults.max_tokens" min="100" max="256000">
+                  <span id="token-ctx-hint" style="font-size:11px;color:#888;margin-left:6px;white-space:nowrap"></span>
+                </div>
+              </div>
+              <div class="cfg-row">
+                <div class="cfg-label" data-i18n="lbl_tool_iters">迭代次数<small>max_tool_iterations</small></div>
+                <div class="cfg-field"><input type="number" class="cfg-input cfg-input-xs" data-path="agents.defaults.max_tool_iterations" min="1" max="50"></div>
+              </div>
+              <div class="cfg-row">
+                <div class="cfg-label" data-i18n="lbl_steering">并发模式<small>steering_mode</small></div>
+                <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="steering_mode">
+                  <option value="one-at-a-time">one-at-a-time</option>
+                  <option value="parallel">parallel</option>
+                </select></div>
+              </div>
             </div>
           </div>
         </div>
@@ -648,8 +651,10 @@ zh: {
   save_restart:"保存并重启", reset_form:"重置", format_json:"格式化", sync_from_form:"从表单同步",
   no_logs:"暂无 picoclaw 日志", refresh_logs:"刷新日志",
   enabled:"已启用", disabled:"已禁用", no_channels:"暂无配置的通道",
-  sec_ai_model:"AI 模型配置", lbl_provider:"AI 提供商", lbl_model:"模型名称",
+  sec_ai_model:"AI 模型配置", lbl_default_model:"默认模型", lbl_quick_add:"快速添加:",
   lbl_max_tokens:"Token 上限", lbl_tool_iters:"迭代次数", lbl_steering:"并发模式",
+  hint_default_model:"选择 model_list 中的一项作为当前使用的模型",
+  hint_model_edit:"编辑 model_list 中每个模型的完整配置。API Key 保存在 model_list 的 api_keys 字段中。",
   sec_channels:"通道管理", sec_providers:"API 密钥与提供商", sec_system:"系统设置", sec_tools:"工具与功能",
   confirm_save:"确定保存配置并重启 PicoClaw？", json_error:"JSON 错误：",
   ch_feishu:"飞书", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"企业微信",
@@ -671,6 +676,14 @@ zh: {
   tl_cron:"启用定时任务", tl_web_fetch:"启用网页抓取",
   tl_read_file:"允许读取文件", tl_write_file:"允许写入文件",
   tl_skills:"启用技能系统", tl_mcp:"启用 MCP", tl_subagent:"启用子代理",
+  sec_search_engine:"搜索引擎", hint_search_gfw:"⚠ 国内网络下 DuckDuckGo/Brave/Google 等被墙无法使用，建议启用 glm_search（智谱搜索）或 baidu_search。",
+  lbl_glm_search:"智谱搜索 (glm_search)", tl_glm_search:"国内可用，推荐",
+  lbl_baidu_search:"百度搜索 (baidu_search)", tl_baidu_search:"国内可用",
+  lbl_duckduckgo:"DuckDuckGo", tl_duckduckgo:"国内被墙",
+  lbl_brave_search:"Brave Search", tl_brave_search:"国内被墙",
+  lbl_tavily_search:"Tavily", tl_tavily_search:"需 API Key",
+  lbl_perplexity_search:"Perplexity", tl_perplexity_search:"需 API Key",
+  lbl_searxng_search:"SearXNG", tl_searxng_search:"自托管",
   lbl_api_key:"API Key", lbl_base_url:"Base URL", ph_api_key:"粘贴 API Key", ph_optional:"可选",
   save_confirm:"确定保存配置并重启 PicoClaw？",
   weixin_guide_title:"微信个人号接入", weixin_not_connected:"尚未接入微信",
@@ -701,10 +714,10 @@ zh: {
   model_guide_example_code:"", // use default
   mg_th_name:"model_name", mg_th_provider:"提供商 / 协议", mg_th_context:"上下文窗口", mg_th_tokens:"推荐 Token", mg_th_note:"备注",
   mg_note_longchat:"超长对话首选", mg_note_default:"默认", mg_note_autoroute:"自动选择最优", mg_note_free:"免费",
-  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"智谱 Zhipu",
-  mg_prov_glm-4.5-air:"智谱 Zhipu", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
-  mg_prov_qwen-plus:"通义千问", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
-  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
+  "mg_prov_kimi-k2.5":"Moonshot (openai)", "mg_prov_claude-sonnet-4.6":"Anthropic", "mg_prov_glm-4.7":"智谱 Zhipu",
+  "mg_prov_glm-4.5-air":"智谱 Zhipu", "mg_prov_deepseek-v3":"DeepSeek", "mg_prov_gpt-5.4":"OpenAI",
+  "mg_prov_qwen-plus":"通义千问", "mg_prov_openrouter-auto":"OpenRouter", "mg_prov_deepseek-chat":"DeepSeek",
+  "mg_prov_qwen3.6-free":"OpenRouter (free)", "mg_prov_nemotron-free":"OpenRouter (free)", "mg_prov_gpt-oss-120b-free":"OpenRouter (free)"
 },
 en: {
   version_info:"Version Info", current_version:"Current Version", build_time:"Build Time", latest_ver_label:"Latest Version",
@@ -723,8 +736,10 @@ en: {
   save_restart:"Save & Restart", reset_form:"Reset", format_json:"Format", sync_from_form:"Sync from Form",
   no_logs:"No picoclaw logs", refresh_logs:"Refresh Logs",
   enabled:"Enabled", disabled:"Disabled", no_channels:"No channels configured",
-  sec_ai_model:"AI Model", lbl_provider:"AI Provider", lbl_model:"Model Name",
+  sec_ai_model:"AI Model Config", lbl_default_model:"Default Model", lbl_quick_add:"Quick Add:",
   lbl_max_tokens:"Max Tokens", lbl_tool_iters:"Max Tool Iterations", lbl_steering:"Steering Mode",
+  hint_default_model:"Select one model from model_list as the active model",
+  hint_model_edit:"Edit each model's full config in model_list. API Key is saved in the api_keys field of each entry.",
   sec_channels:"Channel Management", sec_providers:"API Keys & Providers", sec_system:"System Settings", sec_tools:"Tools & Features",
   confirm_save:"Save config and restart PicoClaw?", json_error:"JSON Error: ",
   ch_feishu:"Feishu", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"WeCom Bot",
@@ -746,6 +761,14 @@ en: {
   tl_cron:"Enable cron jobs", tl_web_fetch:"Enable web fetch",
   tl_read_file:"Enable file read", tl_write_file:"Enable file write",
   tl_skills:"Enable skills", tl_mcp:"Enable MCP", tl_subagent:"Enable subagent",
+  sec_search_engine:"Search Engine", hint_search_gfw:"⚠ DuckDuckGo/Brave/Google are blocked in China. Recommend glm_search or baidu_search instead.",
+  lbl_glm_search:"Zhipu Search (glm_search)", tl_glm_search:"Works in China, recommended",
+  lbl_baidu_search:"Baidu Search (baidu_search)", tl_baidu_search:"Works in China",
+  lbl_duckduckgo:"DuckDuckGo", tl_duckduckgo:"Blocked in China",
+  lbl_brave_search:"Brave Search", tl_brave_search:"Blocked in China",
+  lbl_tavily_search:"Tavily", tl_tavily_search:"Requires API Key",
+  lbl_perplexity_search:"Perplexity", tl_perplexity_search:"Requires API Key",
+  lbl_searxng_search:"SearXNG", tl_searxng_search:"Self-hosted",
   lbl_api_key:"API Key", lbl_base_url:"Base URL", ph_api_key:"Paste API Key", ph_optional:"Optional",
   save_confirm:"Save config and restart PicoClaw?",
   weixin_guide_title:"WeChat Setup", weixin_not_connected:"WeChat not connected",
@@ -776,10 +799,10 @@ en: {
   model_guide_example_code:"",
   mg_th_name:"model_name", mg_th_provider:"Provider / Protocol", mg_th_context:"Context Window", mg_th_tokens:"Recommended Tokens", mg_th_note:"Notes",
   mg_note_longchat:"Best for long conversations", mg_note_default:"default", mg_note_autoroute:"Auto-select best", mg_note_free:"Free",
-  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"Zhipu AI",
-  mg_prov_glm-4.5-air:"Zhipu AI", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
-  mg_prov_qwen-plus:"Qwen / Tongyi", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
-  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
+  "mg_prov_kimi-k2.5":"Moonshot (openai)", "mg_prov_claude-sonnet-4.6":"Anthropic", "mg_prov_glm-4.7":"Zhipu AI",
+  "mg_prov_glm-4.5-air":"Zhipu AI", "mg_prov_deepseek-v3":"DeepSeek", "mg_prov_gpt-5.4":"OpenAI",
+  "mg_prov_qwen-plus":"Qwen / Tongyi", "mg_prov_openrouter-auto":"OpenRouter", "mg_prov_deepseek-chat":"DeepSeek",
+  "mg_prov_qwen3.6-free":"OpenRouter (free)", "mg_prov_nemotron-free":"OpenRouter (free)", "mg_prov_gpt-oss-120b-free":"OpenRouter (free)"
 },
 ja: {
   version_info:"バージョン情報", current_version:"現在のバージョン", build_time:"ビルド時間", latest_ver_label:"最新バージョン",
@@ -798,8 +821,10 @@ ja: {
   save_restart:"保存＆再起動", reset_form:"リセット", format_json:"フォーマット", sync_from_form:"フォームから同期",
   no_logs:"picoclawログなし", refresh_logs:"ログ更新",
   enabled:"有効", disabled:"無効", no_channels:"設定済みチャンネルなし",
-  sec_ai_model:"AIモデル設定", lbl_provider:"AIプロバイダー", lbl_model:"モデル名",
+  sec_ai_model:"AIモデル設定", lbl_default_model:"デフォルトモデル", lbl_quick_add:"追加:",
   lbl_max_tokens:"最大トークン数", lbl_tool_iters:"最大ツール反復", lbl_steering:"並行モード",
+  hint_default_model:"model_listから使用するモデルを選択",
+  hint_model_edit:"model_listの各モデル設定を編集。APIキーはapi_keysフィールドに保存されます。",
   sec_channels:"チャンネル管理", sec_providers:"APIキー＆プロバイダー", sec_system:"システム設定", sec_tools:"ツール＆機能",
   confirm_save:"設定を保存して再起動しますか？", json_error:"JSONエラー: ",
   ch_feishu:"Feishu", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"WeCom Bot",
@@ -821,6 +846,14 @@ ja: {
   tl_cron:"Cronジョブ有効", tl_web_fetch:"Webフェッチ有効",
   tl_read_file:"ファイル読取有効", tl_write_file:"ファイル書込有効",
   tl_skills:"スキル有効", tl_mcp:"MCP有効", tl_subagent:"サブエージェント有効",
+  sec_search_engine:"検索エンジン", hint_search_gfw:"⚠ 中国ではDuckDuckGo/Brave/Googleがブロックされています。glm_searchまたはbaidu_searchを推奨。",
+  lbl_glm_search:"智補検索 (glm_search)", tl_glm_search:"中国で利用可能、推奨",
+  lbl_baidu_search:"Baidu検索 (baidu_search)", tl_baidu_search:"中国で利用可能",
+  lbl_duckduckgo:"DuckDuckGo", tl_duckduckgo:"中国でブロック",
+  lbl_brave_search:"Brave Search", tl_brave_search:"中国でブロック",
+  lbl_tavily_search:"Tavily", tl_tavily_search:"APIキー必要",
+  lbl_perplexity_search:"Perplexity", tl_perplexity_search:"APIキー必要",
+  lbl_searxng_search:"SearXNG", tl_searxng_search:"セルフホスト",
   lbl_api_key:"APIキー", lbl_base_url:"Base URL", ph_api_key:"APIキーを貼り付け", ph_optional:"任意",
   save_confirm:"設定を保存してPicoClawを再起動しますか？",
   weixin_guide_title:"WeChat個人アカウント", weixin_not_connected:"WeChat未接続",
@@ -851,10 +884,10 @@ ja: {
   model_guide_example_code:"",
   mg_th_name:"model_name", mg_th_provider:"プロバイダ / プロトコル", mg_th_context:"コンテキストウィンドウ", mg_th_tokens:"推奨トークン", mg_th_note:"備考",
   mg_note_longchat:"長い会話に最適", mg_note_default:"デフォルト", mg_note_autoroute:"自動選択", mg_note_free:"無料",
-  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"Zhipu AI",
-  mg_prov_glm-4.5-air:"Zhipu AI", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
-  mg_prov_qwen-plus:"Qwen / Tongyi", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
-  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
+  "mg_prov_kimi-k2.5":"Moonshot (openai)", "mg_prov_claude-sonnet-4.6":"Anthropic", "mg_prov_glm-4.7":"Zhipu AI",
+  "mg_prov_glm-4.5-air":"Zhipu AI", "mg_prov_deepseek-v3":"DeepSeek", "mg_prov_gpt-5.4":"OpenAI",
+  "mg_prov_qwen-plus":"Qwen / Tongyi", "mg_prov_openrouter-auto":"OpenRouter", "mg_prov_deepseek-chat":"DeepSeek",
+  "mg_prov_qwen3.6-free":"OpenRouter (free)", "mg_prov_nemotron-free":"OpenRouter (free)", "mg_prov_gpt-oss-120b-free":"OpenRouter (free)"
 },
 pt: {
   version_info:"Versão", current_version:"Versão Atual", build_time:"Build", latest_ver_label:"Última Versão",
@@ -873,8 +906,10 @@ pt: {
   save_restart:"Salvar & Reiniciar", reset_form:"Resetar", format_json:"Formatar", sync_from_form:"Sincronizar",
   no_logs:"Sem logs", refresh_logs:"Atualizar",
   enabled:"Ativado", disabled:"Desativado", no_channels:"Nenhum canal",
-  sec_ai_model:"Config IA", lbl_provider:"Provedor IA", lbl_model:"Modelo",
+  sec_ai_model:"Config IA", lbl_default_model:"Modelo Padrão", lbl_quick_add:"Adicionar:",
   lbl_max_tokens:"Max Tokens", lbl_tool_iters:"Máx Iterações", lbl_steering:"Modo Concorrência",
+  hint_default_model:"Selecione um model_list como modelo ativo",
+  hint_model_edit:"Edite a config de cada modelo. API Key salva no campo api_keys.",
   sec_channels:"Canais", sec_providers:"API Keys", sec_system:"Sistema", sec_tools:"Ferramentas",
   confirm_save:"Salvar e reiniciar?", json_error:"Erro JSON: ",
   ch_feishu:"Feishu", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"WeCom Bot",
@@ -896,6 +931,14 @@ pt: {
   tl_cron:"Ativar cron jobs", tl_web_fetch:"Ativar web fetch",
   tl_read_file:"Ativar leitura", tl_write_file:"Ativar escrita",
   tl_skills:"Ativar skills", tl_mcp:"Ativar MCP", tl_subagent:"Ativar subagente",
+  sec_search_engine:"Motor de Busca", hint_search_gfw:"⚠ DuckDuckGo/Brave/Google estão bloqueados na China. Recomenda-se glm_search ou baidu_search.",
+  lbl_glm_search:"Busca Zhipu (glm_search)", tl_glm_search:"Funciona na China, recomendado",
+  lbl_baidu_search:"Busca Baidu (baidu_search)", tl_baidu_search:"Funciona na China",
+  lbl_duckduckgo:"DuckDuckGo", tl_duckduckgo:"Bloqueado na China",
+  lbl_brave_search:"Brave Search", tl_brave_search:"Bloqueado na China",
+  lbl_tavily_search:"Tavily", tl_tavily_search:"Requer API Key",
+  lbl_perplexity_search:"Perplexity", tl_perplexity_search:"Requer API Key",
+  lbl_searxng_search:"SearXNG", tl_searxng_search:"Auto-hospedado",
   lbl_api_key:"API Key", lbl_base_url:"Base URL", ph_api_key:"Colar API Key", ph_optional:"Opcional",
   save_confirm:"Salvar config e reiniciar?",
   weixin_guide_title:"WeChat", weixin_not_connected:"WeChat não conectado",
@@ -926,10 +969,10 @@ pt: {
   model_guide_example_code:"",
   mg_th_name:"model_name", mg_th_provider:"Provedor / Protocolo", mg_th_context:"Janela de Contexto", mg_th_tokens:"Tokens Recomendados", mg_th_note:"Notas",
   mg_note_longchat:"Ideal para conversas longas", mg_note_default:"padrão", mg_note_autoroute:"Seleção automática", mg_note_free:"Grátis",
-  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"Zhipu AI",
-  mg_prov_glm-4.5-air:"Zhipu AI", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
-  mg_prov_qwen-plus:"Qwen / Tongyi", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
-  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
+  "mg_prov_kimi-k2.5":"Moonshot (openai)", "mg_prov_claude-sonnet-4.6":"Anthropic", "mg_prov_glm-4.7":"Zhipu AI",
+  "mg_prov_glm-4.5-air":"Zhipu AI", "mg_prov_deepseek-v3":"DeepSeek", "mg_prov_gpt-5.4":"OpenAI",
+  "mg_prov_qwen-plus":"Qwen / Tongyi", "mg_prov_openrouter-auto":"OpenRouter", "mg_prov_deepseek-chat":"DeepSeek",
+  "mg_prov_qwen3.6-free":"OpenRouter (free)", "mg_prov_nemotron-free":"OpenRouter (free)", "mg_prov_gpt-oss-120b-free":"OpenRouter (free)"
 },
 de: {
   version_info:"Versionsinfo", current_version:"Aktuelle Version", build_time:"Build-Zeit", latest_ver_label:"Neueste Version",
@@ -971,6 +1014,14 @@ de: {
   tl_cron:"Cron-Jobs aktivieren", tl_web_fetch:"Web-Fetch aktivieren",
   tl_read_file:"Dateilesen aktivieren", tl_write_file:"Dateischreiben aktivieren",
   tl_skills:"Skills aktivieren", tl_mcp:"MCP aktivieren", tl_subagent:"Subagent aktivieren",
+  sec_search_engine:"Suchmaschine", hint_search_gfw:"⚠ DuckDuckGo/Brave/Google sind in China blockiert. Empfehlung: glm_search oder baidu_search.",
+  lbl_glm_search:"Zhipu Suche (glm_search)", tl_glm_search:"In China verfügbar, empfohlen",
+  lbl_baidu_search:"Baidu Suche (baidu_search)", tl_baidu_search:"In China verfügbar",
+  lbl_duckduckgo:"DuckDuckGo", tl_duckduckgo:"In China blockiert",
+  lbl_brave_search:"Brave Search", tl_brave_search:"In China blockiert",
+  lbl_tavily_search:"Tavily", tl_tavily_search:"API-Key erforderlich",
+  lbl_perplexity_search:"Perplexity", tl_perplexity_search:"API-Key erforderlich",
+  lbl_searxng_search:"SearXNG", tl_searxng_search:"Selbst-gehostet",
   lbl_api_key:"API-Schlüssel", lbl_base_url:"Base URL", ph_api_key:"API-Schlüssel einfügen", ph_optional:"Optional",
   save_confirm:"Konfiguration speichern und neustarten?",
   weixin_guide_title:"WeChat", weixin_not_connected:"WeChat nicht verbunden",
@@ -1001,10 +1052,10 @@ de: {
   model_guide_example_code:"",
   mg_th_name:"model_name", mg_th_provider:"Anbieter / Protokoll", mg_th_context:"Kontextfenster", mg_th_tokens:"Empfohlene Tokens", mg_th_note:"Hinweis",
   mg_note_longchat:"Bestens für lange Gespräche", mg_note_default:"Standard", mg_note_autoroute:"Automatische Auswahl", mg_note_free:"Kostenlos",
-  mg_prov_kimi-k2.5:"Moonshot (openai)", mg_prov_claude-sonnet-4.6:"Anthropic", mg_prov_glm-4.7:"Zhipu AI",
-  mg_prov_glm-4.5-air:"Zhipu AI", mg_prov_deepseek-v3:"DeepSeek", mg_prov_gpt-5.4:"OpenAI",
-  mg_prov_qwen-plus:"Qwen / Tongyi", mg_prov_openrouter-auto:"OpenRouter", mg_prov_deepseek-chat:"DeepSeek",
-  mg_prov_qwen3.6-free:"OpenRouter (free)", mg_prov_nemotron-free:"OpenRouter (free)", mg_prov_gpt-oss-120b-free:"OpenRouter (free)"
+  "mg_prov_kimi-k2.5":"Moonshot (openai)", "mg_prov_claude-sonnet-4.6":"Anthropic", "mg_prov_glm-4.7":"Zhipu AI",
+  "mg_prov_glm-4.5-air":"Zhipu AI", "mg_prov_deepseek-v3":"DeepSeek", "mg_prov_gpt-5.4":"OpenAI",
+  "mg_prov_qwen-plus":"Qwen / Tongyi", "mg_prov_openrouter-auto":"OpenRouter", "mg_prov_deepseek-chat":"DeepSeek",
+  "mg_prov_qwen3.6-free":"OpenRouter (free)", "mg_prov_nemotron-free":"OpenRouter (free)", "mg_prov_gpt-oss-120b-free":"OpenRouter (free)"
 }
 };
 
@@ -1164,6 +1215,25 @@ function buildToolsForm() {
     html += '<div class="toggle-wrap"><label class="toggle"><input type="checkbox" data-path="' + r[1] + '" data-type="bool"><span class="slider"></span></label><span class="toggle-label">' + I(r[2]) + '</span></div>';
     html += '</div></div>';
   });
+  // Web Search Engine config
+  html += '<div style="margin-top:14px;padding-top:10px;border-top:2px solid #e0e0e0">';
+  html += '<div style="font-size:14px;font-weight:600;color:#333;margin-bottom:10px" data-i18n="sec_search_engine">&#128269; ' + I('sec_search_engine') + '</div>';
+  html += '<div style="font-size:11.5px;color:#888;margin-bottom:8px;background:#fff8e1;padding:6px 10px;border-radius:4px;border-left:3px solid #ffc107">' + I('hint_search_gfw') + '</div>';
+  var engines = [
+    ['lbl_glm_search','tools.web.glm_search.enabled','tl_glm_search'],
+    ['lbl_baidu_search','tools.web.baidu_search.enabled','tl_baidu_search'],
+    ['lbl_duckduckgo','tools.web.duckduckgo.enabled','tl_duckduckgo'],
+    ['lbl_brave_search','tools.web.brave.enabled','tl_brave_search'],
+    ['lbl_tavily_search','tools.web.tavily.enabled','tl_tavily_search'],
+    ['lbl_perplexity_search','tools.web.perplexity.enabled','tl_perplexity_search'],
+    ['lbl_searxng_search','tools.web.searxng.enabled','tl_searxng_search']
+  ];
+  engines.forEach(function(r) {
+    html += '<div class="cfg-row"><div class="cfg-label">' + I(r[0]) + '</div><div class="cfg-field">';
+    html += '<div class="toggle-wrap"><label class="toggle"><input type="checkbox" data-path="' + r[1] + '" data-type="bool"><span class="slider"></span></label><span class="toggle-label">' + I(r[2]) + '</span></div>';
+    html += '</div></div>';
+  });
+  html += '</div>';
   document.getElementById('tools-form-body').innerHTML = html;
   bindToggles();
 }
@@ -1371,7 +1441,146 @@ function setByPath(obj, path, val) {
   cur[parts[parts.length-1]] = val;
 }
 
+// ========== Model List Editor (v2 - full control) ==========
+
+var _modelPresets = {
+  'zhipu': { name: 'glm-4.5-air', model: 'zhipu/glm-4.5-air', base: 'https://open.bigmodel.cn/api/paas/v4' },
+  'openrouter': { name: 'openrouter-auto', model: 'openrouter/auto', base: 'https://openrouter.ai/api/v1' },
+  'deepseek': { name: 'deepseek-chat', model: 'deepseek/deepseek-chat', base: 'https://api.deepseek.com/v1' },
+  'openai': { name: 'gpt-5.4', model: 'openai/gpt-5.4', base: 'https://api.openai.com/v1' },
+  'moonshot': { name: 'kimi-k2.5', model: 'openai', base: 'https://api.moonshot.ai/v1' },
+  'qwen': { name: 'qwen-plus', model: 'qwen/qwen-plus', base: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
+  'ollama': { name: 'ollama-local', model: '', base: 'http://127.0.0.1:11434/v1' }
+};
+
+function addModelPreset(key) {
+  var p = _modelPresets[key];
+  if (!p) return;
+  addModelRow(p.name || '', p.model || '', p.base || '', '', true);
+}
+
+function addEmptyModelRow() {
+  addModelRow('', '', '', '', true);
+}
+
+function addModelRow(model_name, model, api_base, api_key, enabled) {
+  var tbody = document.getElementById('model-list-tbody');
+  var idx = tbody.children.length;
+  var tr = document.createElement('tr');
+  tr.setAttribute('data-model-row', idx);
+  tr.style.cssText = 'background:#fafbfc';
+  tr.innerHTML =
+    '<td style="padding:4px"><input class="cfg-input" data-ml-field="model_name" value="' + escAttr(model_name) + '" placeholder="e.g. glm-4.5-air" style="width:100%;box-sizing:border-box;font-size:12px"></td>' +
+    '<td style="padding:4px"><input class="cfg-input" data-ml-field="model" value="' + escAttr(model || '') + '" placeholder="provider/model" style="width:100%;box-sizing:border-box;font-size:12px"></td>' +
+    '<td style="padding:4px"><input class="cfg-input" data-ml-field="api_base" value="' + escAttr(api_base) + '" placeholder="https://..." style="width:100%;box-sizing:border-box;font-size:12px"></td>' +
+    '<td style="padding:4px"><input type="password" class="cfg-input" data-ml-field="api_keys" value="' + escAttr(api_key) + '" placeholder="sk-..." style="width:100%;box-sizing:border-box;font-size:12px"></td>' +
+    '<td style="padding:4px;text-align:center"><input type="checkbox" data-ml-field="enabled"' + (enabled ? ' checked' : '') + '></td>' +
+    '<td style="padding:4px;text-align:center"><button type="button" onclick="this.closest(\'tr\').remove();refreshDefaultModelSelect();" style="border:none;background:#ffebee;color:#c62828;cursor:pointer;border-radius:4px;padding:2px 8px;font-size:14px">&#215;</button></td>';
+  tbody.appendChild(tr);
+  refreshDefaultModelSelect();
+  // bind input events for auto-select
+  tr.querySelector('[data-ml-field="model_name"]').addEventListener('input', refreshDefaultModelSelect);
+}
+
+function escAttr(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderModelListTable() {
+  var tbody = document.getElementById('model-list-tbody');
+  tbody.innerHTML = '';
+  var ml = (_origConfig.model_list && Array.isArray(_origConfig.model_list)) ? _origConfig.model_list : [];
+  if (ml.length === 0) {
+    addEmptyModelRow();
+    return;
+  }
+  // Temporarily suppress refreshDefaultModelSelect during batch add
+  var _savedRefresh = window.refreshDefaultModelSelect;
+  window.refreshDefaultModelSelect = function() {}; // no-op during batch
+  for (var i = 0; i < ml.length; i++) {
+    var m = ml[i] || {};
+    var key = m.api_keys;
+    var keyStr = '';
+    if (Array.isArray(key)) {
+      // PicoClaw SecureString: if elements are single chars, join them; otherwise take first
+      if (key.length > 0 && typeof key[0] === 'string' && key[0].length === 1) {
+        keyStr = key.join('');
+      } else {
+        keyStr = key[0] || '';
+      }
+    } else if (typeof key === 'string') {
+      keyStr = key;
+    }
+    addModelRow(m.model_name || '', m.model || '', m.api_base || '', keyStr, m.enabled !== false);
+  }
+  // Restore and call refreshDefaultModelSelect once after all rows are added
+  window.refreshDefaultModelSelect = _savedRefresh;
+  refreshDefaultModelSelect();
+}
+
+function collectModelList() {
+  var rows = document.querySelectorAll('#model-list-tbody tr[data-model-row]');
+  var list = [];
+  // Build a map of original model entries by model_name for preserving api_keys format
+  var origMap = {};
+  if (_origConfig && Array.isArray(_origConfig.model_list)) {
+    _origConfig.model_list.forEach(function(m) {
+      if (m.model_name) origMap[m.model_name] = m;
+    });
+  }
+  rows.forEach(function(tr) {
+    var getName = function(fld) { var el = tr.querySelector('[data-ml-field="'+fld+'"]'); return el ? el.value.trim() : ''; };
+    var mn = getName('model_name');
+    if (!mn) return; // skip empty rows
+    var entry = {
+      model_name: mn,
+      model: getName('model'),
+      api_base: getName('api_base'),
+      enabled: !!(tr.querySelector('[data-ml-field="enabled"]') || {}).checked
+    };
+    var ak = getName('api_keys');
+    if (ak) {
+      // If the key is the [NOT_HERE] placeholder, preserve original api_keys format
+      // from _origConfig to keep PicoClaw's SecureString format intact
+      if (ak === '[NOT_HERE]' && origMap[mn] && origMap[mn].api_keys) {
+        entry.api_keys = JSON.parse(JSON.stringify(origMap[mn].api_keys));
+      } else {
+        entry.api_keys = [ak];
+      }
+    }
+    list.push(entry);
+  });
+  return list;
+}
+
+function refreshDefaultModelSelect() {
+  var sel = document.getElementById('default-model-select');
+  if (!sel) return;
+  var curVal = sel.value;
+  // If no current selection, try to get from config
+  if (!curVal && _origConfig && _origConfig.agents && _origConfig.agents.defaults) {
+    curVal = _origConfig.agents.defaults.model_name || '';
+  }
+  sel.innerHTML = '<option value="">-- 选择默认模型 --</option>';
+  var rows = document.querySelectorAll('#model-list-tbody tr[data-model-row]');
+  rows.forEach(function(tr) {
+    var mn = (tr.querySelector('[data-ml-field="model_name"]') || {}).value.trim();
+    if (mn) {
+      var opt = document.createElement('option');
+      opt.value = mn;
+      opt.textContent = mn;
+      sel.appendChild(opt);
+    }
+  });
+  // restore selection or pick first
+  if (curVal && sel.querySelector('option[value="'+curVal+'"]')) sel.value = curVal;
+  else if (sel.options.length > 1) sel.selectedIndex = 1;
+}
+
+// ========== End Model List Editor ==========
+
 function loadFormFromJSON() {
+  // Load standard data-path fields
   document.querySelectorAll('#cfg-form-mode [data-path]').forEach(function(el) {
     var path = el.getAttribute('data-path');
     var val = getByPath(_origConfig, path);
@@ -1381,6 +1590,8 @@ function loadFormFromJSON() {
     else if (el.tagName === 'SELECT') el.value = val;
     else if (el.tagName === 'INPUT') el.value = val;
   });
+  // Render model_list table
+  renderModelListTable();
   updateToggleLabels();
 }
 
@@ -1392,6 +1603,7 @@ function loadJSONFromForm() {
 }
 
 function collectFormValues(obj) {
+  // Standard data-path fields
   document.querySelectorAll('#cfg-form-mode [data-path]').forEach(function(el) {
     var path = el.getAttribute('data-path');
     var type = el.getAttribute('data-type');
@@ -1401,6 +1613,8 @@ function collectFormValues(obj) {
     else val = el.value;
     if (val !== '' && val !== undefined) setByPath(obj, path, val);
   });
+  // Collect model_list from table
+  obj.model_list = collectModelList();
   return obj;
 }
 
