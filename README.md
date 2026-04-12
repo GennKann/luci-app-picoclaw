@@ -143,6 +143,14 @@ PicoClaw can search the web to answer questions. For users in China, we recommen
 
 See [CHANGELOG.md](CHANGELOG.md).
 
-## 📄 License
+## 📜 License
 
-[MIT License](LICENSE)
+This project is licensed under the **MIT License** — free to use, modify, and distribute, but please retain the author attribution.
+
+Issues and Pull Requests are welcome! 💡
+
+---
+
+> ☕ This project is completely open-source and free. If you like it, you can buy me a coffee~
+>
+> ![Buy me a coffee](Screenshots/0412_1.jpg)
