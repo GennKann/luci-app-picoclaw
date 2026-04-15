@@ -146,3 +146,9 @@ Veja [CHANGELOG.md](CHANGELOG.md).
 ## 📄 Licença
 
 [Licença MIT](LICENSE)
+
+---
+
+> ☕ Este projeto é totalmente open-source e gratuito. Se você gosta dele, pode me pagar um café~
+>
+> [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)

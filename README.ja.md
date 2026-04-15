@@ -146,3 +146,9 @@ PicoClawはウェブ検索で質問に答えることができます。中国国
 ## 📄 ライセンス
 
 [MIT License](LICENSE)
+
+---
+
+> ☕ このプロジェクトは完全にオープンソース・無料です。気に入っていただけたら、コーヒーをおごっていただけると嬉しいです~
+>
+> [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)

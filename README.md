@@ -153,4 +153,4 @@ Issues and Pull Requests are welcome! 💡
 
 > ☕ This project is completely open-source and free. If you like it, you can buy me a coffee~
 >
-> ![Buy me a coffee](Screenshots/0412_1.jpg)
+> [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)
