@@ -149,6 +149,14 @@ Siehe [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
-> ☕ Dieses Projekt ist komplett Open-Source und kostenlos. Wenn es Ihnen gefällt, können Sie mir einen Kaffee spendieren~
->
-> [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)
+Support
+-------
+
+Wenn Ihnen dieses Projekt gefällt, können Sie dem Repository einen Stern geben oder mir einen Kaffee spendieren :)
+
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)
+
+<details>
+<summary>🇨🇳 WeChat Pay</summary>
+<img src="Images/wechat_pay.jpg" width="200" alt="WeChat Pay" />
+</details>

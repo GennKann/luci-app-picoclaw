@@ -149,6 +149,14 @@ PicoClawはウェブ検索で質問に答えることができます。中国国
 
 ---
 
-> ☕ このプロジェクトは完全にオープンソース・無料です。気に入っていただけたら、コーヒーをおごっていただけると嬉しいです~
->
-> [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)
+Support
+-------
+
+このプロジェクトが気に入ったら、リポジトリにスターを付けたり、コーヒーをおごっていただけると嬉しいです :)
+
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)
+
+<details>
+<summary>🇨🇳 WeChat Pay</summary>
+<img src="Images/wechat_pay.jpg" width="200" alt="WeChat Pay" />
+</details>

@@ -151,6 +151,14 @@ Issues and Pull Requests are welcome! 💡
 
 ---
 
-> ☕ This project is completely open-source and free. If you like it, you can buy me a coffee~
->
-> [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)
+Support
+-------
+
+If you like this project, you can star this repository or buy me a coffee. :)
+
+[![Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/gennkann)
+
+<details>
+<summary>🇨🇳 微信赞赏 (WeChat Pay)</summary>
+<img src="Images/wechat_pay.jpg" width="200" alt="WeChat Pay" />
+</details>
