@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.5] - 2026-04-24
+
+### Fixed
+- **Shell 注入修复** — 上传安装路径 `upload_path` 添加白名单校验 (`is_safe_tmp_path`) 和 `shell_quote` 转义，防止路径遍历注入
+- **find 结果注入修复** — `do_upload_install` 和 `do_update` 中 `find` 返回路径添加前缀校验，防止恶意文件名注入
+- **rm -rf 替换** — 技能删除改用 Lua 原生 `rmtree()` 递归删除，避免 shell `rm -rf` 静默风险
+- **ANSI 剥离修复** — 聊天回复去 ANSI 码改用纯 Lua `gsub`，消除 `echo | sed` shell 注入风险
+- **XSS 修复** — 技能删除确认框 `confirm()` 中的 `sk.name` 改用 `data-confirm` 属性，防止单引号注入
+
+---
+
 ## [1.1.3] - 2026-04-10
 
 ### Added
@@ -173,6 +184,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.1.5]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.5
 [1.1.3]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.3
 [1.1.2]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.2
 [1.1.0]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.0

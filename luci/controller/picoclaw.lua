@@ -225,49 +225,69 @@ function check_latest_version()
     local latest_url = ""
     local err_msg = ""
     local cache_file = "/tmp/picoclaw_latest_ver"
+    local cache_ttl = 21600 -- 6 hours
+
+    -- Read cached version (may be stale but still useful as fallback)
+    local cached_ver = ""
+    local cached_url = ""
+    local ts = 0
     local cf = io.open(cache_file, "r")
     if cf then
         local cached = cf:read("*a")
         cf:close()
-        local v = cached:match("^([%d.]+)")
-        local u = cached:match("\n(.+)$")
-        local ts = 0
+        cached_ver = cached:match("^([%d.]+)") or ""
+        cached_url = cached:match("\n(.+)$") or ""
         local tf = io.open(cache_file .. ".ts", "r")
         if tf then
             ts = tonumber(tf:read("*l")) or 0
             tf:close()
         end
-        if v and ts and (os.time() - ts < 3600) then
-            return v, u or "", ""
-        end
     end
-    -- Detect current architecture for correct download URL
+    local cache_age = os.time() - ts
+
+    -- If cache is fresh, return directly
+    if cached_ver ~= "" and cache_age < cache_ttl then
+        return cached_ver, cached_url, ""
+    end
+
+    -- Detect architecture for download URL matching
     local arch = "linux_arm64"
     local m = sys.exec("uname -m")
     if m:find("x86") then arch = "linux_amd64"
     elseif m:find("armv7") then arch = "linux_armv7" end
-    local f = io.popen("curl -sL --max-time 5 'https://api.github.com/repos/sipeed/picoclaw/releases/latest' 2>/dev/null")
+
+    -- Method 1: HEAD request to releases/latest redirect (no API rate limit)
+    local f = io.popen("curl -sI -L --max-time 8 'https://github.com/sipeed/picoclaw/releases/latest' 2>/dev/null | grep -i '^location:' | tail -1")
     if f then
-        local body = f:read("*a")
+        local location = f:read("*a"):match("[Ll]ocation:%s*(.+)")
         f:close()
-        local ok, data = pcall(jsonc.parse, body)
-        if ok and data then
-            if data.tag_name then
-                latest_ver = data.tag_name:gsub("^v", "")
-            end
-            if data.assets then
-                for _, asset in ipairs(data.assets) do
-                    if asset.browser_download_url and asset.browser_download_url:find(arch) then
-                        latest_url = asset.browser_download_url
-                        break
-                    end
-                end
+        if location then
+            location = location:match("^%s*(.-)%s*$")
+            local tag = location:match("/tag/v?([%d%.%-]+[a-z]?[%d]*)$")
+            if tag then
+                latest_ver = tag
             end
         end
-    else
-        err_msg = "curl failed"
     end
+
+    -- Method 2: Fallback to Tags API (lighter than full release API)
+    if latest_ver == "" then
+        local f2 = io.popen("curl -sL --max-time 5 'https://api.github.com/repos/sipeed/picoclaw/tags?per_page=1' 2>/dev/null")
+        if f2 then
+            local body = f2:read("*a")
+            f2:close()
+            local ok, data = pcall(jsonc.parse, body)
+            if ok and data and type(data) == "table" and #data > 0 and data[1].name then
+                latest_ver = data[1].name:gsub("^v", "")
+            end
+        end
+    end
+
+    -- Build download URL when we have a version
     if latest_ver ~= "" then
+        latest_url = "https://github.com/sipeed/picoclaw/releases/download/v" .. latest_ver .. "/picoclaw_" .. arch .. ".tar.gz"
+
+        -- Update cache
         local cf2 = io.open(cache_file, "w")
         if cf2 then
             cf2:write(latest_ver .. "\n" .. latest_url)
@@ -279,7 +299,16 @@ function check_latest_version()
             tf:close()
         end
     end
-    if latest_ver == "" then err_msg = "checking" end
+
+    -- On failure: return stale cache (if any) instead of showing "checking"
+    if latest_ver == "" then
+        if cached_ver ~= "" then
+            return cached_ver, cached_url, "stale"
+        else
+            err_msg = "checking"
+        end
+    end
+
     return latest_ver, latest_url, err_msg
 end
 
@@ -289,6 +318,57 @@ function get_logs()
         l = sys.exec("logread 2>/dev/null | tail -30")
     end
     return l
+end
+
+-- Sync workspace memory files when model changes
+-- PicoClaw reads these .md files as its "memory" on startup,
+-- so stale model names there cause AI to self-identify incorrectly
+function sync_workspace_memory(cfg)
+    if type(cfg) ~= "table" then return end
+    local defaults = cfg["agents"]
+    if type(defaults) ~= "table" then defaults = cfg end
+    if type(defaults) ~= "table" then return end
+    defaults = defaults["defaults"] or defaults
+    local new_model = defaults and defaults["model_name"]
+    if not new_model or new_model == "" then return end
+
+    local ws_dir = "/root/.picoclaw/workspace"
+    local changed = false
+
+    -- Layer 1 & 2: Update memory .md files (replace old model name)
+    local mem_files = {
+        { path = ws_dir .. "/MEMORY.md" },
+        { path = ws_dir .. "/memory/MEMORY.md" },
+        { path = ws_dir .. "/USER.md" },
+    }
+    for _, entry in ipairs(mem_files) do
+        local f = io.open(entry.path, "r")
+        if f then
+            local content = f:read("*a")
+            f:close()
+            local updated = content:gsub("(当前默认模型:%s*)%S+", "%1" .. new_model)
+            updated = updated:gsub("(Default model:%s*)%S+", "%1" .. new_model)
+            if updated ~= content then
+                local wf = io.open(entry.path, "w")
+                if wf then wf:write(updated); wf:close() end
+                changed = true
+            end
+        end
+    end
+
+    -- Layer 3: Clear session history only when memory files actually changed
+    -- (i.e., model name was different → stale conversation context exists)
+    if changed then
+        local sess_dir = ws_dir .. "/sessions"
+        -- Use ls glob instead of find for BusyBox compatibility & simplicity
+        local handle = io.popen("ls " .. sess_dir .. "/*.jsonl " .. sess_dir .. "/*.meta.json 2>/dev/null")
+        if handle then
+            for filepath in handle:lines() do
+                os.remove(filepath)
+            end
+            handle:close()
+        end
+    end
 end
 
 function html_escape(s)
@@ -389,45 +469,121 @@ function find_release_asset_url(version)
     return nil, "no_matching_asset"
 end
 
+-- Recursive directory removal using Lua (safer than rm -rf)
+local function rmtree(path)
+    if nixio.fs.stat(path, "type") == "dir" then
+        for entry in nixio.fs.dir(path) do
+            rmtree(path .. "/" .. entry)
+        end
+    end
+    os.remove(path)
+end
+
+-- Escape single quotes for safe shell embedding
+local function shell_quote(s)
+    return "'" .. s:gsub("'", "'\\''") .. "'"
+end
+
+-- Verify path is under expected prefix (prevent traversal/injection)
+local function is_safe_tmp_path(path)
+    return path:match("^/tmp/luci%-upload") or path:match("^/tmp/")
+end
+
+-- Upload and install PicoClaw binary from local file
+function do_upload_install(upload_path)
+    if not upload_path or upload_path == "" then
+        return false, "no_file"
+    end
+    -- Security: only allow LuCI temp upload paths
+    if not is_safe_tmp_path(upload_path) then
+        return false, "invalid_path"
+    end
+    -- Verify uploaded file exists
+    local f = io.open(upload_path, "rb")
+    if not f then return false, "file_not_found" end
+    f:close()
+
+    sys.exec("mkdir -p /tmp/picoclaw-update")
+
+    -- Detect archive type from content (not extension)
+    local head_f = io.open(upload_path, "rb")
+    local magic = head_f:read(2)
+    head_f:close()
+    local is_zip = (magic == "PK")  -- zip starts with PK
+    local extract_ok = false
+
+    if is_zip then
+        sys.exec("cp " .. shell_quote(upload_path) .. " /tmp/picoclaw-update/upload.zip")
+        sys.exec("cd /tmp/picoclaw-update && unzip -o upload.zip 2>&1")
+        extract_ok = nixio.fs.access("/tmp/picoclaw-update/picoclaw")
+    else
+        -- Assume tar.gz (or try tar anyway)
+        sys.exec("cp " .. shell_quote(upload_path) .. " /tmp/picoclaw-update/upload.tar.gz")
+        sys.exec("cd /tmp/picoclaw-update && tar xzf upload.tar.gz 2>&1")
+        extract_ok = nixio.fs.access("/tmp/picoclaw-update/picoclaw")
+    end
+    -- If not at top level, search subdirectories
+    if not extract_ok then
+        local sf = io.popen("find /tmp/picoclaw-update -name 'picoclaw' -type f 2>/dev/null")
+        if sf then
+            local found = sf:read("*a"):match("[^\n]+")
+            sf:close()
+            if found and found:match("^/tmp/picoclaw%-update/") then
+                sys.exec("cp " .. shell_quote(found) .. " /tmp/picoclaw-update/picoclaw")
+                extract_ok = true
+            end
+        end
+    end
+    if not extract_ok then
+        sys.exec("rm -rf /tmp/picoclaw-update")
+        return false, "extract_failed"
+    end
+
+    -- Stop service, install, restart
+    sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
+    sys.exec("sleep 1")
+    sys.exec("cp /usr/bin/picoclaw /usr/bin/picoclaw.bak 2>/dev/null")
+    sys.exec("cp /tmp/picoclaw-update/picoclaw /usr/bin/picoclaw")
+    sys.exec("chmod +x /usr/bin/picoclaw")
+    sys.exec("rm -rf /tmp/picoclaw-update")
+    sys.exec("logger -t picoclaw 'Upload install complete, restarting...'")
+    os.execute("picoclaw gateway >/dev/null 2>&1 &")
+    return true, "ok"
+end
+
 -- Update PicoClaw binary via GitHub Release (auto-detects architecture)
 function do_update()
-    -- Find correct download URL by querying GitHub API
     local dl_url, err = find_release_asset_url()
     if not dl_url then
         sys.exec("logger -t picoclaw 'Update failed: cannot find release asset (" .. (err or "unknown") .. ")'")
         return
     end
-
     sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
     sys.exec("sleep 1")
     sys.exec("mkdir -p /tmp/picoclaw-update")
     sys.exec("curl -L -o /tmp/picoclaw-update/picoclaw.tar.gz '" .. dl_url .. "' --max-time 180 2>&1")
-    -- Verify download size
     local dl_size = sys.exec("wc -c < /tmp/picoclaw-update/picoclaw.tar.gz 2>/dev/null"):match("^%s*(%d+)")
     if not dl_size or tonumber(dl_size) < 5000000 then
         sys.exec("logger -t picoclaw 'Update failed: download too small (" .. (dl_size or "0") .. " bytes)'")
         sys.exec("rm -rf /tmp/picoclaw-update")
         return
     end
-
-    -- Extract (handle both .tar.gz and .zip)
     local ext = dl_url:match("%.([^.]+)$")
     local extract_ok = false
     if ext == "zip" then
-        sys.exec("cd /tmp/picoclaw-update && unzip -o picoclaw.tar.gz 2>&1")  -- file named tar.gz but is zip
+        sys.exec("cd /tmp/picoclaw-update && unzip -o picoclaw.tar.gz 2>&1")
         extract_ok = nixio.fs.access("/tmp/picoclaw-update/picoclaw")
     else
         sys.exec("cd /tmp/picoclaw-update && tar xzf picoclaw.tar.gz 2>&1")
         extract_ok = nixio.fs.access("/tmp/picoclaw-update/picoclaw")
     end
-    -- If not at top level, check subdirectories
     if not extract_ok then
         local f = io.popen("find /tmp/picoclaw-update -name 'picoclaw' -type f 2>/dev/null")
         if f then
             local found = f:read("*a"):match("([^\n]+)")
             f:close()
-            if found then
-                sys.exec("cp '" .. found .. "' /tmp/picoclaw-update/picoclaw")
+            if found and found:match("^/tmp/picoclaw%-update/") then
+                sys.exec("cp " .. shell_quote(found) .. " /tmp/picoclaw-update/picoclaw")
                 extract_ok = true
             end
         end
@@ -437,13 +593,12 @@ function do_update()
         sys.exec("rm -rf /tmp/picoclaw-update")
         return
     end
-
     sys.exec("cp /usr/bin/picoclaw /usr/bin/picoclaw.bak 2>/dev/null")
     sys.exec("cp /tmp/picoclaw-update/picoclaw /usr/bin/picoclaw")
     sys.exec("chmod +x /usr/bin/picoclaw")
     sys.exec("rm -rf /tmp/picoclaw-update")
     sys.exec("logger -t picoclaw 'Update complete, restarting...'")
-    sys.exec("picoclaw gateway >/dev/null 2>&1 &")
+    os.execute("picoclaw gateway >/dev/null 2>&1 &")
     sys.exec("sleep 3")
 end
 
@@ -828,8 +983,8 @@ function action_chat_poll()
             -- Add assistant reply to history
             if reply ~= "" then
                 local history = read_chat_history()
-                -- Strip ANSI codes using sed (Lua gsub can't handle all escape sequences)
-                reply = sys.exec("echo '" .. reply:gsub("'", "'\\''") .. "' | sed 's/\\x1b\\[[0-9;]*m//g' 2>/dev/null"):match("^%s*(.-)%s*$") or ""
+                -- Strip ANSI escape codes using pure Lua (safer than echo+sed shell injection)
+                reply = reply:gsub("\x1b%[[0-9;]*m", "")
                 -- Also strip carriage returns and the banner
                 reply = reply:gsub("\r", "")
                 -- Remove empty lines and the banner lines
@@ -910,7 +1065,7 @@ function action_do()
         local config = http.formvalue("config") or ""
         if config ~= "" then
             -- Validate JSON before saving
-            local valid, _ = pcall(jsonc.parse, config)
+            local valid, cfg_obj = pcall(jsonc.parse, config)
             if not valid then
                 msg = "错误：JSON 格式无效"
                 ok = false
@@ -919,6 +1074,8 @@ function action_do()
                 if f then
                     f:write(config)
                     f:close()
+                    -- Sync workspace memory files so PicoClaw's AI context reflects the new model
+                    sync_workspace_memory(cfg_obj)
                     sys.exec("/etc/init.d/picoclaw stop; killall picoclaw 2>/dev/null; sleep 1; /etc/init.d/picoclaw start")
                     msg = "配置已保存，服务已重启！"
                 else
@@ -933,6 +1090,30 @@ function action_do()
     elseif action == "update" then
         do_update()
         msg = "更新完成，服务已重启！"
+    elseif action == "upload_install" then
+        -- LuCI file upload: http.formvalue returns temp path for file inputs
+        local upload_path = http.formvalue("picoclaw_file") or ""
+        if upload_path == "" then
+            msg = "错误：未选择文件"
+            ok = false
+        else
+            local success, result = do_upload_install(upload_path)
+            if success then
+                msg = "上传安装成功！服务已重启。"
+            elseif result == "invalid_path" then
+                msg = "错误：上传路径无效"
+                ok = false
+            elseif result == "file_not_found" then
+                msg = "错误：上传文件不存在"
+                ok = false
+            elseif result == "extract_failed" then
+                msg = "错误：解压失败，请确认文件是有效的 picoclaw 安装包（tar.gz 或 zip）"
+                ok = false
+            else
+                msg = "错误：安装失败"
+                ok = false
+            end
+        end
     elseif action == "refresh_logs" then
         -- Just redirect to main page to refresh logs (GET with CSRF already validated)
         msg = ""
@@ -974,8 +1155,7 @@ function action_do()
             -- Sanitize: only allow alphanumeric, underscore, hyphen
             if skill_name:match("^[%w_%-]+$") then
                 local skill_path = "/root/.picoclaw/workspace/skills/" .. skill_name
-                os.remove(skill_path .. "/SKILL.md")  -- remove file only, not directory (in case user has extra files)
-                local _, _, exit_code = sys.exec("rm -rf '" .. skill_path .. "' 2>/dev/null; echo $?")
+                rmtree(skill_path)
                 -- Verify deleted
                 local check = io.open(skill_path .. "/SKILL.md", "r")
                 if check then check:close() msg = "错误：删除失败"; ok = false
