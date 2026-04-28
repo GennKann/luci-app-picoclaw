@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.6] - 2026-04-28
+
+### Added
+- **PicoClaw v0.2.7 兼容** — 适配 `channel_list` + `settings` 新配置格式（旧版 `channels` 自动兼容）
+- **新增通道支持** — IRC、Matrix、OneBot、Pico、Pico Client、VK（i18n 5语言翻译）
+- **微信绑定增强** — 新增"已授权但未启用"中间状态检测（通过 security.yml 判断）
+
+### Fixed
+- **通道列表空白** — v0.2.7 配置格式破坏性变更：`channels` → `channel_list`，子字段移入 `settings`，LuCI 模板未适配导致页面空白
+- **通道开关写入错误路径** — `buildChannelsForm()` 中 toggle 的 `data-path` 硬编码 `channels.xxx.enabled`，v0.2.7 下应写 `channel_list.xxx.enabled`
+- **服务启动绕过 procd** — 上传安装/在线更新后用 `os.execute("picoclaw gateway &")` 直接启动，改为 `/etc/init.d/picoclaw start`（procd 管理）
+- **BusyBox pkill 不存在** — `pkill -f` 替换为 `killall`（OpenWrt BusyBox 无 pkill）
+- **i18n 残留** — 删除废弃的 `wechat_work` / `tl_wechat_work` 翻译
+
+### Changed
+- PicoClaw 推荐版本更新至 v0.2.7
+- README 5语言版本号徽章和下载链接更新至 v1.1.6
+
+---
+
 ## [1.1.5] - 2026-04-24
 
 ### Fixed
@@ -184,6 +204,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+[1.1.6]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.6
 [1.1.5]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.5
 [1.1.3]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.3
 [1.1.2]: https://github.com/GennKann/luci-app-picoclaw/releases/tag/v1.1.2

@@ -11,7 +11,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/OpenWrt-24.10%20%7C%2025.xx%20%7C%20iStoreOS-blue?logo=openwrt" alt="OpenWrt">
-  <img src="https://img.shields.io/badge/Version-1.1.5-brightgreen" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.1.6-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -71,7 +71,7 @@ PicoClaw é o programa principal do assistente de IA — você precisa instalá-
 
 ```bash
 cd /tmp
-wget https://github.com/sipeed/picoclaw/releases/download/v0.2.5/picoclaw_Linux_x86_64.tar.gz
+wget https://github.com/sipeed/picoclaw/releases/download/v0.2.7/picoclaw_Linux_x86_64.tar.gz
 tar xzf picoclaw_Linux_x86_64.tar.gz
 cp picoclaw /usr/bin/picoclaw && chmod +x /usr/bin/picoclaw
 picoclaw --version   # Deve exibir o número da versão
@@ -89,8 +89,8 @@ Abra o iStore no roteador → pesquise `picoclaw` → clique em Instalar
 
 ```bash
 cd /tmp
-wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.1.5-1_all.ipk
-opkg install luci-app-picoclaw_1.1.5-1_all.ipk
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.1.6-1_all.ipk
+opkg install luci-app-picoclaw_1.1.6-1_all.ipk
 rm -rf /tmp/luci-*   # Limpar cache do LuCI
 ```
 

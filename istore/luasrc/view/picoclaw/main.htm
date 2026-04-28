@@ -67,6 +67,12 @@
 .ver-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
 .ver-row:last-child{border:none}
 .ver-row .label{color:#888}.ver-row .value{color:#333;font-weight:500}
+.upload-install-area{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#f8f9fa;border-radius:8px;margin-bottom:6px;flex-wrap:wrap}
+.upload-label{font-size:13px;font-weight:600;color:#555;white-space:nowrap}
+.upload-file-label{display:inline-flex;align-items:center;flex:1;min-width:160px;max-width:320px;padding:7px 14px;border:2px dashed #bbb;border-radius:6px;cursor:pointer;transition:all .2s;background:#fff;color:#666;font-size:13px}
+.upload-file-label:hover{border-color:#1e88e5;color:#1e88e5;background:#e3f2fd}
+.upload-file-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px}
+.upload-file-label input[type="file"]{display:none}
 .flash-ok{padding:12px 16px;border-radius:8px;margin-bottom:16px;font-size:13px}
 .flash-ok.flash-ok{background:#e8f5e9;color:#2e7d32;border:1px solid #c8e6c9}
 .flash-ok.flash-err{background:#ffebee;color:#c62828;border:1px solid #ffcdd2}
@@ -213,6 +219,21 @@ if flash_msg ~= "" then
     </div>
   </div>
   <% end %>
+
+  <!-- Local Upload Install -->
+  <div class="upload-install-area">
+    <div class="upload-label" data-i18n="upload_install">本地上传安装</div>
+    <form method="post" action="<%=action_url%>" enctype="multipart/form-data" id="uploadForm">
+      <input type="hidden" name="token" value="<%=csrf_token%>">
+      <input type="hidden" name="action" value="upload_install">
+      <label class="upload-file-label" id="uploadLabel">
+        <span class="upload-file-name" id="uploadFileName" data-i18n="select_file">选择文件 (tar.gz / zip)</span>
+        <input type="file" name="picoclaw_file" accept=".tar.gz,.tgz,.zip" id="uploadFileInput" onchange="updateUploadName(this)">
+      </label>
+      <button type="submit" class="pc-btn blue" onclick="return confirmUpload()" data-i18n="upload_btn">上传安装</button>
+    </form>
+  </div>
+
   <div class="ver-row"><span class="label" data-i18n="current_version">当前版本</span><span class="value">v<%=cur_ver%></span></div>
   <% if git_commit ~= "" then %>
   <div class="ver-row"><span class="label">Git Commit</span><span class="value" style="font-family:monospace;font-size:13px"><%=git_commit%></span></div>
@@ -563,7 +584,7 @@ if flash_msg ~= "" then
           <input type="hidden" name="token" value="<%=csrf_token%>">
           <input type="hidden" name="action" value="delete_skill">
           <input type="hidden" name="skill_name" value="<%=sk.name%>">
-          <button type="submit" class="pc-btn gray" style="padding:2px 8px;font-size:11px" onclick="return confirm('<%=sk.name%>: 确定删除？')">✕</button>
+          <button type="submit" class="pc-btn gray" style="padding:2px 8px;font-size:11px" onclick="return confirm(this.getAttribute('data-confirm'))" data-confirm="<%=sk.name%>: 确定删除？">✕</button>
         </form>
       </div>
       <% end %>
@@ -638,6 +659,8 @@ zh: {
   version_info:"版本信息", current_version:"当前版本", build_time:"构建时间", latest_ver_label:"最新版本",
   latest_version:"已是最新版本", update_available:"发现新版本", update_now:"立即更新",
   confirm_update:"确定要更新 PicoClaw 吗？更新过程中服务会短暂中断。",
+  upload_install:"本地上传安装", select_file:"选择文件 (tar.gz / zip)", upload_btn:"上传安装",
+  confirm_upload:"确定要上传安装", confirm_upload_note:"安装过程中服务会短暂中断。",
   check_failed:"版本检测中...", service_status:"服务状态", running:"运行中", stopped:"已停止",
   service_not_running:"服务未运行", start:"启动", stop:"停止", restart:"重启", normal:"正常", abnormal:"异常",
   autostart_on:"开机自启: 开", autostart_off:"开机自启: 关",
@@ -659,12 +682,13 @@ zh: {
   confirm_save:"确定保存配置并重启 PicoClaw？", json_error:"JSON 错误：",
   ch_feishu:"飞书", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"企业微信",
   ch_weixin:"微信个人号", ch_slack:"Slack", ch_qq:"QQ", ch_line:"LINE",
-  ch_dingtalk:"钉钉", ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam", ch_wechat_work:"企业微信(WeCom)",
+  ch_dingtalk:"钉钉", ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam",
+  ch_irc:"IRC", ch_matrix:"Matrix", ch_onebot:"OneBot", ch_pico:"Pico", ch_pico_client:"Pico Client", ch_vk:"VK",
   tl_feishu:"飞书机器人", tl_telegram:"Telegram Bot", tl_discord:"Discord Bot",
   tl_wecom:"企业微信(WeCom Bot)", tl_weixin:"微信个人号（需扫码授权）",
   tl_slack:"Slack Bot", tl_qq:"QQ Bot", tl_line:"LINE Bot",
   tl_dingtalk:"钉钉机器人", tl_whatsapp:"WhatsApp", tl_maixcam:"MaixCam 设备",
-  tl_wechat_work:"企业微信", tl_pico:"Pico 协议", tl_pico_client:"Pico 客户端",
+  tl_irc:"IRC 协议", tl_matrix:"Matrix 协议", tl_onebot:"OneBot 协议", tl_pico:"Pico 协议", tl_pico_client:"Pico 客户端",
   lbl_listen:"监听地址", lbl_heartbeat:"心跳检测", lbl_heartbeat_interval:"心跳间隔 (秒)",
   lbl_media_cleanup:"媒体清理", lbl_session_scope:"会话作用域",
   tl_heartbeat:"启用心跳", tl_media_cleanup:"自动清理过期媒体文件",
@@ -723,6 +747,8 @@ en: {
   version_info:"Version Info", current_version:"Current Version", build_time:"Build Time", latest_ver_label:"Latest Version",
   latest_version:"Up to date", update_available:"New version available", update_now:"Update Now",
   confirm_update:"Update PicoClaw? Service will restart briefly.",
+  upload_install:"Local Upload Install", select_file:"Select file (tar.gz / zip)", upload_btn:"Upload & Install",
+  confirm_upload:"Confirm upload & install", confirm_upload_note:"Service will restart briefly.",
   check_failed:"Checking for updates...", service_status:"Service Status", running:"Running", stopped:"Stopped",
   service_not_running:"Service not running", start:"Start", stop:"Stop", restart:"Restart", normal:"OK", abnormal:"Error",
   autostart_on:"Auto-start: ON", autostart_off:"Auto-start: OFF",
@@ -744,12 +770,13 @@ en: {
   confirm_save:"Save config and restart PicoClaw?", json_error:"JSON Error: ",
   ch_feishu:"Feishu", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"WeCom Bot",
   ch_weixin:"WeChat", ch_slack:"Slack", ch_qq:"QQ", ch_line:"LINE",
-  ch_dingtalk:"DingTalk", ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam", ch_wechat_work:"WeCom",
+  ch_dingtalk:"DingTalk", ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam",
+  ch_irc:"IRC", ch_matrix:"Matrix", ch_onebot:"OneBot", ch_pico:"Pico", ch_pico_client:"Pico Client", ch_vk:"VK",
   tl_feishu:"Feishu Bot", tl_telegram:"Telegram Bot", tl_discord:"Discord Bot",
   tl_wecom:"WeCom Bot", tl_weixin:"WeChat Personal (QR auth needed)",
   tl_slack:"Slack Bot", tl_qq:"QQ Bot", tl_line:"LINE Bot",
   tl_dingtalk:"DingTalk Bot", tl_whatsapp:"WhatsApp", tl_maixcam:"MaixCam Device",
-  tl_wechat_work:"WeCom Bot", tl_pico:"Pico Protocol", tl_pico_client:"Pico Client",
+  tl_irc:"IRC Protocol", tl_matrix:"Matrix Protocol", tl_onebot:"OneBot Protocol", tl_pico:"Pico Protocol", tl_pico_client:"Pico Client",
   lbl_listen:"Listen Address", lbl_heartbeat:"Heartbeat", lbl_heartbeat_interval:"Heartbeat Interval (s)",
   lbl_media_cleanup:"Media Cleanup", lbl_session_scope:"Session Scope",
   tl_heartbeat:"Enable heartbeat", tl_media_cleanup:"Auto cleanup expired media",
@@ -808,6 +835,8 @@ ja: {
   version_info:"バージョン情報", current_version:"現在のバージョン", build_time:"ビルド時間", latest_ver_label:"最新バージョン",
   latest_version:"最新です", update_available:"新バージョンあり", update_now:"今すぐ更新",
   confirm_update:"PicoClawを更新しますか？サービスが一時的に再起動します。",
+  upload_install:"ローカルアップロード", select_file:"ファイルを選択 (tar.gz / zip)", upload_btn:"アップロード＆インストール",
+  confirm_upload:"アップロードしてインストールしますか", confirm_upload_note:"インストール中、サービスが一時的に再起動します。",
   check_failed:"更新確認中...", service_status:"サービス状態", running:"実行中", stopped:"停止",
   service_not_running:"サービス未実行", start:"起動", stop:"停止", restart:"再起動", normal:"正常", abnormal:"異常",
   autostart_on:"自動起動: ON", autostart_off:"自動起動: OFF",
@@ -829,12 +858,13 @@ ja: {
   confirm_save:"設定を保存して再起動しますか？", json_error:"JSONエラー: ",
   ch_feishu:"Feishu", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"WeCom Bot",
   ch_weixin:"WeChat", ch_slack:"Slack", ch_qq:"QQ", ch_line:"LINE",
-  ch_dingtalk:"DingTalk", ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam", ch_wechat_work:"WeCom",
+  ch_dingtalk:"DingTalk", ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam",
+  ch_irc:"IRC", ch_matrix:"Matrix", ch_onebot:"OneBot", ch_pico:"Pico", ch_pico_client:"Pico Client", ch_vk:"VK",
   tl_feishu:"Feishu Bot", tl_telegram:"Telegram Bot", tl_discord:"Discord Bot",
   tl_wecom:"WeCom Bot", tl_weixin:"WeChat個人（QR認証必要）",
   tl_slack:"Slack Bot", tl_qq:"QQ Bot", tl_line:"LINE Bot",
   tl_dingtalk:"DingTalk Bot", tl_whatsapp:"WhatsApp", tl_maixcam:"MaixCamデバイス",
-  tl_wechat_work:"WeCom Bot", tl_pico:"Pico プロトコル", tl_pico_client:"Pico クライアント",
+  tl_irc:"IRC プロトコル", tl_matrix:"Matrix プロトコル", tl_onebot:"OneBot プロトコル", tl_pico:"Pico プロトコル", tl_pico_client:"Pico クライアント",
   lbl_listen:"リスニングアドレス", lbl_heartbeat:"ハートビート", lbl_heartbeat_interval:"ハートビート間隔 (秒)",
   lbl_media_cleanup:"メディアクリーニング", lbl_session_scope:"セッションスコープ",
   tl_heartbeat:"ハートビート有効", tl_media_cleanup:"期限切れメディアを自動削除",
@@ -893,6 +923,8 @@ pt: {
   version_info:"Versão", current_version:"Versão Atual", build_time:"Build", latest_ver_label:"Última Versão",
   latest_version:"Atualizado", update_available:"Nova versão disponível", update_now:"Atualizar",
   confirm_update:"Atualizar PicoClaw? O serviço será reiniciado.",
+  upload_install:"Upload Local", select_file:"Selecionar arquivo (tar.gz / zip)", upload_btn:"Upload & Instalar",
+  confirm_upload:"Confirmar upload e instalação", confirm_upload_note:"O serviço será reiniciado durante a instalação.",
   check_failed:"Verificando...", service_status:"Status do Serviço", running:"Executando", stopped:"Parado",
   service_not_running:"Serviço parado", start:"Iniciar", stop:"Parar", restart:"Reiniciar", normal:"OK", abnormal:"Erro",
   autostart_on:"Início automático: ON", autostart_off:"Início automático: OFF",
@@ -914,12 +946,13 @@ pt: {
   confirm_save:"Salvar e reiniciar?", json_error:"Erro JSON: ",
   ch_feishu:"Feishu", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"WeCom Bot",
   ch_weixin:"WeChat", ch_slack:"Slack", ch_qq:"QQ", ch_line:"LINE", ch_dingtalk:"DingTalk",
-  ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam", ch_wechat_work:"WeCom",
+  ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam",
+  ch_irc:"IRC", ch_matrix:"Matrix", ch_onebot:"OneBot", ch_pico:"Pico", ch_pico_client:"Pico Client", ch_vk:"VK",
   tl_feishu:"Feishu Bot", tl_telegram:"Telegram Bot", tl_discord:"Discord Bot",
   tl_wecom:"WeCom Bot", tl_weixin:"WeChat Pessoal (QR auth)",
   tl_slack:"Slack Bot", tl_qq:"QQ Bot", tl_line:"LINE Bot",
   tl_dingtalk:"DingTalk Bot", tl_whatsapp:"WhatsApp", tl_maixcam:"MaixCam",
-  tl_wechat_work:"WeCom Bot", tl_pico:"Protocolo Pico", tl_pico_client:"Cliente Pico",
+  tl_irc:"Protocolo IRC", tl_matrix:"Protocolo Matrix", tl_onebot:"Protocolo OneBot", tl_pico:"Protocolo Pico", tl_pico_client:"Cliente Pico",
   lbl_listen:"Endereço de Escuta", lbl_heartbeat:"Heartbeat", lbl_heartbeat_interval:"Intervalo (s)",
   lbl_media_cleanup:"Limpeza Mídia", lbl_session_scope:"Escopo Sessão",
   tl_heartbeat:"Ativar heartbeat", tl_media_cleanup:"Auto limpar mídia expirada",
@@ -978,6 +1011,8 @@ de: {
   version_info:"Versionsinfo", current_version:"Aktuelle Version", build_time:"Build-Zeit", latest_ver_label:"Neueste Version",
   latest_version:"Aktuell", update_available:"Neue Version verfügbar", update_now:"Aktualisieren",
   confirm_update:"PicoClaw aktualisieren? Dienst wird kurz neu gestartet.",
+  upload_install:"Lokaler Upload", select_file:"Datei auswählen (tar.gz / zip)", upload_btn:"Upload & Installieren",
+  confirm_upload:"Upload & Installation bestätigen", confirm_upload_note:"Dienst wird kurz während der Installation neu gestartet.",
   check_failed:"Prüfe Updates...", service_status:"Dienststatus", running:"Läuft", stopped:"Gestoppt",
   service_not_running:"Dienst läuft nicht", start:"Start", stop:"Stop", restart:"Neustart", normal:"OK", abnormal:"Fehler",
   autostart_on:"Autostart: AN", autostart_off:"Autostart: AUS",
@@ -997,12 +1032,13 @@ de: {
   confirm_save:"Konfiguration speichern und neustarten?", json_error:"JSON Fehler: ",
   ch_feishu:"Feishu", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"WeCom Bot",
   ch_weixin:"WeChat", ch_slack:"Slack", ch_qq:"QQ", ch_line:"LINE", ch_dingtalk:"DingTalk",
-  ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam", ch_wechat_work:"WeCom",
+  ch_whatsapp:"WhatsApp", ch_maixcam:"MaixCam",
+  ch_irc:"IRC", ch_matrix:"Matrix", ch_onebot:"OneBot", ch_pico:"Pico", ch_pico_client:"Pico Client", ch_vk:"VK",
   tl_feishu:"Feishu Bot", tl_telegram:"Telegram Bot", tl_discord:"Discord Bot",
   tl_wecom:"WeCom Bot", tl_weixin:"WeChat Persönlich (QR auth)",
   tl_slack:"Slack Bot", tl_qq:"QQ Bot", tl_line:"LINE Bot",
   tl_dingtalk:"DingTalk Bot", tl_whatsapp:"WhatsApp", tl_maixcam:"MaixCam Gerät",
-  tl_wechat_work:"WeCom Bot", tl_pico:"Pico Protokoll", tl_pico_client:"Pico Client",
+  tl_irc:"IRC Protokoll", tl_matrix:"Matrix Protokoll", tl_onebot:"OneBot Protokoll", tl_pico:"Pico Protokoll", tl_pico_client:"Pico Client",
   lbl_listen:"Listen-Adresse", lbl_heartbeat:"Heartbeat", lbl_heartbeat_interval:"Heartbeat-Intervall (s)",
   lbl_media_cleanup:"Medienbereinigung", lbl_session_scope:"Sitzungs-Scope",
   tl_heartbeat:"Heartbeat aktivieren", tl_media_cleanup:"Abgelaufene Medien automatisch löschen",
@@ -1097,26 +1133,36 @@ function applyI18n() {
 }
 
 // ========== Channel definitions ==========
+// v0.2.7+: config uses channel_list.{name}.enabled / channel_list.{name}.settings.{field}
+// Older versions use channels.{name}.enabled / channels.{name}.{field}
+// Both paths are tried for backward compatibility
+var _chPrefix = (typeof _origConfig === 'object' && _origConfig && _origConfig.channel_list && Object.keys(_origConfig.channel_list).length > 0) ? 'channel_list' : 'channels';
 var CHANNELS = [
-  {key:'feishu', fields:[{path:'channels.feishu.app_id',ph:'App ID',sm:true},{path:'channels.feishu.app_secret',ph:'App Secret',sm:true,pw:true}]},
-  {key:'telegram', fields:[{path:'channels.telegram.base_url',ph:'Base URL (optional)'},{path:'channels.telegram.proxy',ph:'Proxy (optional)'}]},
+  {key:'feishu', fields:[{path:_chPrefix+'.feishu.settings.app_id',ph:'App ID',sm:true},{path:_chPrefix+'.feishu.settings.app_secret',ph:'App Secret',sm:true,pw:true}]},
+  {key:'telegram', fields:[{path:_chPrefix+'.telegram.settings.base_url',ph:'Base URL (optional)'},{path:_chPrefix+'.telegram.settings.proxy',ph:'Proxy (optional)'}]},
   {key:'discord', fields:[]},
-  {key:'wechat_work', fields:[]},
-  {key:'weixin', fields:[{path:'channels.weixin.base_url',ph:'Base URL'},{path:'channels.weixin.cdn_base_url',ph:'CDN Base URL'},{path:'channels.weixin.proxy',ph:'Proxy'}]},
-  {key:'wecom', fields:[{path:'channels.wecom.bot_id',ph:'Bot ID',sm:true}]},
+  {key:'wecom', fields:[{path:_chPrefix+'.wecom.settings.bot_id',ph:'Bot ID',sm:true}]},
+  {key:'weixin', fields:[{path:_chPrefix+'.weixin.settings.base_url',ph:'Base URL'},{path:_chPrefix+'.weixin.settings.cdn_base_url',ph:'CDN Base URL'},{path:_chPrefix+'.weixin.settings.proxy',ph:'Proxy'}]},
   {key:'slack', fields:[]},
-  {key:'qq', fields:[{path:'channels.qq.app_id',ph:'App ID',sm:true}]},
-  {key:'dingtalk', fields:[]},
+  {key:'qq', fields:[{path:_chPrefix+'.qq.settings.app_id',ph:'App ID',sm:true}]},
+  {key:'dingtalk', fields:[{path:_chPrefix+'.dingtalk.settings.client_id',ph:'Client ID',sm:true}]},
   {key:'whatsapp', fields:[]},
   {key:'line', fields:[]},
-  {key:'maixcam', fields:[]}
+  {key:'maixcam', fields:[]},
+  {key:'irc', fields:[]},
+  {key:'matrix', fields:[]},
+  {key:'onebot', fields:[]},
+  {key:'pico', fields:[]},
+  {key:'pico_client', fields:[]},
+  {key:'vk', fields:[]}
 ];
 
 function buildChannelsList() {
   var html = '';
   var found = false;
+  var chData = _origConfig.channel_list || _origConfig.channels || {};
   CHANNELS.forEach(function(ch) {
-    var enabled = getByPath(_origConfig, 'channels.' + ch.key + '.enabled');
+    var enabled = getByPath(_origConfig, _chPrefix + '.' + ch.key + '.enabled');
     if (enabled === undefined) return;
     found = true;
     var cls = enabled ? 'badge-on' : 'badge-off';
@@ -1130,7 +1176,7 @@ function buildChannelsForm() {
   var html = '';
   CHANNELS.forEach(function(ch) {
     html += '<div class="cfg-row"><div class="cfg-label">' + I('ch_' + ch.key, ch.key) + '</div><div class="cfg-field">';
-    html += '<div class="toggle-wrap"><label class="toggle"><input type="checkbox" data-path="channels.' + ch.key + '.enabled" data-type="bool"><span class="slider"></span></label>';
+    html += '<div class="toggle-wrap"><label class="toggle"><input type="checkbox" data-path="' + _chPrefix + '.' + ch.key + '.enabled" data-type="bool"><span class="slider"></span></label>';
     html += '<span class="toggle-label">' + (I('tl_' + ch.key, '') || ch.key) + '</span></div>';
     if (ch.fields.length) {
       html += '<div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">';
@@ -1737,6 +1783,20 @@ function updateModelHint() {
   }
   setTimeout(updateModelHint, 100);
 })();
+
+// ========== Upload Install ==========
+function updateUploadName(input) {
+  var el = document.getElementById('uploadFileName');
+  if (!el || !input.files || !input.files[0]) return;
+  el.textContent = input.files[0].name;
+  el.style.color = '#1e88e5';
+  el.style.fontWeight = '600';
+}
+function confirmUpload() {
+  var inp = document.getElementById('uploadFileInput');
+  if (!inp || !inp.files || !inp.files[0]) { alert(I('select_file') || 'Please select a file'); return false; }
+  return confirm((I('confirm_upload') || 'Confirm upload & install') + ': ' + inp.files[0].name);
+}
 
 // ========== Model Guide Table (i18n-aware) ==========
 var MODEL_GUIDE_DATA = [

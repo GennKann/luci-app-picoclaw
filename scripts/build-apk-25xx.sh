@@ -13,7 +13,7 @@
 set -e
 
 PKG_NAME="luci-app-picoclaw"
-PKG_VERSION="1.1.5"
+PKG_VERSION="1.1.6"
 PKG_DESC="LuCI management interface for PicoClaw AI assistant"
 PKG_MAINTAINER="GennKann"
 PKG_ARCH="all"
@@ -67,9 +67,18 @@ fi
 mkdir -p "${BUILD_DIR}/pkg/etc/init.d"
 cat > "${BUILD_DIR}/pkg/etc/init.d/picoclaw" << 'INITD'
 #!/bin/sh /etc/rc.common
-START=99
-STOP=90
+### BEGIN INIT INFO
+# Provides:          picoclaw
+# Required-Start:    $network
+# Required-Stop:     $network
+# Default-Start:     99
+# Default-Stop:      10
+# Short-Description: PicoClaw AI Gateway
+# Description:       Start PicoClaw as a procd managed service
+### END INIT INFO
 
+START=99
+STOP=10
 USE_PROCD=1
 
 start_service() {
@@ -84,7 +93,16 @@ start_service() {
 }
 
 stop_service() {
+    # First try graceful shutdown via procd
     killall picoclaw 2>/dev/null
+    sleep 1
+    # Force kill if still alive (procd may respawn)
+    if [ -n "$(pidof picoclaw)" ]; then
+        kill -9 $(pidof picoclaw) 2>/dev/null
+        sleep 1
+    fi
+    # Final cleanup: ensure no zombie processes
+    sleep 1
 }
 
 service_triggers() {

@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=luci-app-picoclaw
-PKG_VERSION:=1.1.3
+PKG_VERSION:=1.1.6
 PKG_RELEASE:=
 
 LUCI_TITLE:=LuCI support for PicoClaw AI Assistant

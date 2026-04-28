@@ -65,7 +65,7 @@ end
 -- Install PicoClaw binary from GitHub
 function do_install_picoclaw(arch)
     local version = get_latest_picoclaw_version()
-    if version == "" then version = "0.2.4" end
+    if version == "" then version = "0.2.6" end
     local url = "https://github.com/sipeed/picoclaw/releases/download/v" .. version .. "/picoclaw_" .. arch .. ".tar.gz"
     sys.exec("mkdir -p /tmp/picoclaw-install")
     sys.exec("curl -L -o /tmp/picoclaw-install/picoclaw.tar.gz '" .. url .. "' --max-time 120 2>&1")
@@ -161,6 +161,8 @@ function get_status()
     if cfg then
         if cfg.gateway and cfg.gateway.port then
             actual_port = tonumber(cfg.gateway.port)
+        elseif cfg.channel_list and cfg.channel_list.maixcam and cfg.channel_list.maixcam.settings and cfg.channel_list.maixcam.settings.port then
+            actual_port = tonumber(cfg.channel_list.maixcam.settings.port)
         elseif cfg.channels and cfg.channels.maixcam and cfg.channels.maixcam.port then
             actual_port = tonumber(cfg.channels.maixcam.port)
         end
@@ -209,7 +211,7 @@ function get_version_info()
     local git_commit = ""
     local output = sys.exec("picoclaw version 2>/dev/null | sed 's/\\x1b\\[[0-9;]*m//g'")
     if output and output ~= "" then
-        -- Match: "picoclaw 0.2.4 (git: 5f50ae5)"
+        -- Match: "picoclaw 0.2.6 (git: 5f50ae5)"
         local v, g = output:match("picoclaw%s+([%d.]+)%s*%(%s*git:%s*([a-f0-9]+)%s*%)")
         if v then cur_ver = v end
         if g then git_commit = g end
@@ -540,14 +542,14 @@ function do_upload_install(upload_path)
     end
 
     -- Stop service, install, restart
-    sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
+    sys.exec("killall picoclaw 2>/dev/null")
     sys.exec("sleep 1")
     sys.exec("cp /usr/bin/picoclaw /usr/bin/picoclaw.bak 2>/dev/null")
     sys.exec("cp /tmp/picoclaw-update/picoclaw /usr/bin/picoclaw")
     sys.exec("chmod +x /usr/bin/picoclaw")
     sys.exec("rm -rf /tmp/picoclaw-update")
     sys.exec("logger -t picoclaw 'Upload install complete, restarting...'")
-    os.execute("picoclaw gateway >/dev/null 2>&1 &")
+    sys.exec("/etc/init.d/picoclaw start 2>/dev/null || (HOME=/root /usr/bin/picoclaw gateway >/dev/null 2>&1 &)")
     return true, "ok"
 end
 
@@ -558,7 +560,7 @@ function do_update()
         sys.exec("logger -t picoclaw 'Update failed: cannot find release asset (" .. (err or "unknown") .. ")'")
         return
     end
-    sys.exec("pkill -f 'picoclaw gateway' 2>/dev/null")
+    sys.exec("killall picoclaw 2>/dev/null")
     sys.exec("sleep 1")
     sys.exec("mkdir -p /tmp/picoclaw-update")
     sys.exec("curl -L -o /tmp/picoclaw-update/picoclaw.tar.gz '" .. dl_url .. "' --max-time 180 2>&1")
@@ -598,7 +600,7 @@ function do_update()
     sys.exec("chmod +x /usr/bin/picoclaw")
     sys.exec("rm -rf /tmp/picoclaw-update")
     sys.exec("logger -t picoclaw 'Update complete, restarting...'")
-    os.execute("picoclaw gateway >/dev/null 2>&1 &")
+    sys.exec("/etc/init.d/picoclaw start 2>/dev/null || (HOME=/root /usr/bin/picoclaw gateway >/dev/null 2>&1 &)")
     sys.exec("sleep 3")
 end
 
@@ -1275,13 +1277,18 @@ function action_main()
     end
 
     -- Parse weixin status using proper JSON parser
-    -- Check multiple indicators: enabled flag, base_url, session files
+    -- v0.2.7+: channel_list.weixin.enabled + channel_list.weixin.settings.{base_url,...}
+    -- Older:    channels.weixin.enabled + channels.weixin.{base_url,...}
+    -- States: "none" = not authorized, "configured" = authorized but disabled, "connected" = enabled
+    -- Note: v0.2.7 creates default entries for ALL channels with enabled=false,
+    -- so mere existence of channel_list.weixin does NOT mean the user ran auth.
+    -- We check security.yml for weixin auth token to detect "configured" state.
     local weixin_status = "none"
     local weixin_configured = false
     local config = parse_json_file("/root/.picoclaw/config.json")
     if config then
-        -- WeChat config is under config.channels.weixin (not config.weixin)
-        local channels = config.channels
+        -- v0.2.7+: config.channel_list.weixin; older: config.channels.weixin
+        local channels = config.channel_list or config.channels or {}
         local weixin = nil
         if type(channels) == "table" then
             weixin = channels.weixin
@@ -1291,12 +1298,25 @@ function action_main()
             weixin = config.weixin
         end
         if weixin and type(weixin) == "table" then
-            -- WeChat status: only enabled=true means fully connected
-            -- base_url/cdn_base_url are default values set by PicoClaw on init,
-            -- they do NOT indicate QR authorization was completed
             if weixin.enabled == true then
                 weixin_status = "connected"
                 weixin_configured = true
+            else
+                -- Check if weixin has been authenticated by looking for auth data in security.yml
+                -- After `picoclaw auth weixin`, security.yml will have weixin.settings with token
+                local sec_file = io.open("/root/.picoclaw/.security.yml", "r")
+                if sec_file then
+                    local sec_content = sec_file:read("*a")
+                    sec_file:close()
+                    -- Look for weixin section in channel_list with non-empty settings
+                    -- Pattern: "weixin:\n    settings:\n      <key>: <value>" (not just "settings: {}")
+                    if sec_content:match("weixin:%s*\n%s+settings:%s*\n%s+%S")
+                       or sec_content:match("weixin:%s*\n%s+settings:%s*[^{}%s]")
+                    then
+                        weixin_status = "configured"
+                        weixin_configured = true
+                    end
+                end
             end
         end
     end
