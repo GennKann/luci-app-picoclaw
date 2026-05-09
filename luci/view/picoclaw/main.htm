@@ -643,8 +643,7 @@ if flash_msg ~= "" then
         <% end %>
       </div>
     </div>
-
-    <div style="margin-top:8px"><a href="<%=action_url%>" class="pc-btn blue" style="font-size:13px" data-i18n="hw_refresh">刷新硬件状态</a></div>
+    <div style="margin-top:8px"><form method="post" action="<%=action_url%>" style="display:inline;"><input type="hidden" name="token" value="<%=csrf_token%>"><input type="hidden" name="action" value="refresh_hardware"><button type="submit" class="pc-btn blue" style="font-size:13px" data-i18n="hw_refresh">刷新硬件状态</button></form></div>
   </div>
 </div>
 </div>
