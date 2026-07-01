@@ -488,6 +488,7 @@ end
 
 -- Verify path is under expected prefix (prevent traversal/injection)
 local function is_safe_tmp_path(path)
+    if type(path) ~= "string" then return false end
     return path:match("^/tmp/luci%-upload") or path:match("^/tmp/")
 end
 
@@ -1021,6 +1022,28 @@ function action_chat_poll()
 end
 
 function action_do()
+    -- Register file handler BEFORE check_csrf(): the multipart body is parsed
+    -- when check_csrf() calls http.formvalue("token"), so the handler must be
+    -- set up first or the uploaded file content will never be captured.
+    -- http.formvalue() for <input type="file"> returns a table, not a path,
+    -- which is why the old code crashed with "attempt to call method 'match'".
+    local upload_tmp = "/tmp/picoclaw-upload.archive"
+    local upload_received = false
+    local _fp
+    http.setfilehandler(function(meta, chunk, eof)
+        if not _fp and meta and meta.name == "picoclaw_file" then
+            _fp = io.open(upload_tmp, "wb")
+        end
+        if _fp and chunk then
+            _fp:write(chunk)
+            upload_received = true
+        end
+        if _fp and eof then
+            _fp:close()
+            _fp = nil
+        end
+    end)
+
     if not check_csrf() then return end
 
     local action = http.formvalue("action") or ""
@@ -1093,13 +1116,15 @@ function action_do()
         do_update()
         msg = "更新完成，服务已重启！"
     elseif action == "upload_install" then
-        -- LuCI file upload: http.formvalue returns temp path for file inputs
-        local upload_path = http.formvalue("picoclaw_file") or ""
-        if upload_path == "" then
+        -- File content was captured into upload_tmp by setfilehandler above.
+        -- (http.formvalue("picoclaw_file") returns a table for file inputs,
+        --  not a usable temp path.)
+        if not upload_received then
             msg = "错误：未选择文件"
             ok = false
         else
-            local success, result = do_upload_install(upload_path)
+            local success, result = do_upload_install(upload_tmp)
+            os.remove(upload_tmp)
             if success then
                 msg = "上传安装成功！服务已重启。"
             elseif result == "invalid_path" then
