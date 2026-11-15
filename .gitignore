@@ -7,3 +7,5 @@ Thumbs.db
 *.log
 release/
 istore/openwrt-app-actions/
+*.apk
+dist/

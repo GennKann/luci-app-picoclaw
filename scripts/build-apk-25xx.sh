@@ -1,15 +1,11 @@
 #!/bin/sh
 # ============================================
-# luci-app-picoclaw APK Builder for OpenWrt 25.xx
-# Run this script ON your OpenWrt 25.x router
+#  [DEPRECATED] 已废弃，请改用 scripts/build-apk-v3.sh
+#
+#  这个脚本产出的是 v2 格式的包，OpenWrt 25.x（apk-tools 3.x）只认
+#  v3/ADB 格式，装不上（实测报 UNTRUSTED / 无法解包）。
+#  新脚本：scripts/build-apk-v3.sh
 # ============================================
-#
-# Usage:
-#   chmod +x build-apk.sh
-#   ./build-apk.sh
-#
-# Output: luci-app-picoclaw_25.xx_all.apk
-
 set -e
 
 PKG_NAME="luci-app-picoclaw"

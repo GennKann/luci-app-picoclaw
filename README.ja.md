@@ -6,12 +6,12 @@
 
 <p align="center">
   <b>ルーターをAIアシスタントに — ブラウザで<a href="https://github.com/sipeed/picoclaw">PicoClaw</a>を管理</b><br>
-  <sub>サービス管理 · モデル設定 · ハードウェア制御</sub>
+  <sub>サービス · チャンネル · モデル · 定期実行ジョブ · MCP · スキル · ハードウェア</sub>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/OpenWrt-24.10%20%7C%2025.xx%20%7C%20iStoreOS-blue?logo=openwrt" alt="OpenWrt">
-  <img src="https://img.shields.io/badge/Version-1.1.6-brightgreen" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.2.0-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -27,33 +27,27 @@
 
 ## これは何？
 
-**[PicoClaw](https://github.com/sipeed/picoclaw)** は、ルーター上で動作するAIアシスタントです。大規模言語モデル（ChatGPT、DeepSeek、GLMなど）に接続し、Feishu、Telegram、Discord、WeChatなどでチャットできます。
+**[PicoClaw](https://github.com/sipeed/picoclaw)** は、**ルーター上で**動くAIアシスタントです。大規模言語モデル（DeepSeek、GLM、Qwen、OpenAIなど）に接続し、Feishu、Telegram、Discord、WeChatなどでチャットできます。
 
-しかし、PicoClaw自体にはグラフィカルインターフェースがなく、コマンドラインやJSON手動編集で設定する必要があります。
-
-**このプロジェクトはPicoClawのWeb管理インターフェース**（LuCIプラグイン）を追加します。ブラウザだけで全ての操作が可能：サービスの起動/停止、AIモデルの切替、APIキーの設定、検索エンジンの管理など — コマンドライン不要。
-
-> **LuCI** はOpenWrtルーターで使用されるWebインターフェースフレームワークです。ルーターの管理画面（例：192.168.1.1）を開くと、それがLuCIです。
-
-## 📸 スクリーンショット
-
-| ダッシュボード | 設定エディタ |
-|:---:|:---:|
-| ![Dashboard](Screenshots/screenshot_main.png) | ![Config](Screenshots/screenshot_config.png) |
-
-| ハードウェア制御 | モバイル表示 |
-|:---:|:---:|
-| ![Hardware](Screenshots/screenshot_hardware.png) | ![Mobile](Screenshots/screenshot_mobile.png) |
+PicoClaw自体にGUIはなく、設定はすべてJSONを手で編集する方式でした。**このプロジェクトがそのUI** — サービス、モデル、チャンネル、定期実行ジョブ、MCPサーバー、スキル、ハードウェアをすべてブラウザから操作できます。SSHもJSON手編集も不要です。
 
 ## ✨ 機能
 
-- **サービス制御** — ワンクリックで起動 / 停止 / 再起動、自動起動設定、リアルタイムログ表示
-- **チャンネル管理** — Feishu、Telegram、Discord、WeChatなどの接続ステータス確認
-- **モデル設定** — AIモデルのビジュアルフォームエディタ、プロバイダープリセット付き（Zhipu、DeepSeek、Qwen、OpenAIなど）— APIキーを入力するだけ
-- **検索エンジン設定** — AIがウェブ検索で回答可能。GLM Search、Baidu、DuckDuckGoなどに対応（中国国内可用性情報付き）
-- **ハードウェア制御** — システム情報、USBデバイス、GPIO切替
-- **スキル管理** — PicoClawスキルの表示、削除、インポート、3つの内蔵プリセット（診断、バックアップ、アプリインストーラ）
-- **JSONエディタ** — 上級者向けの直接設定ファイル編集（検証付き）
+1ページに9つのタブ:
+
+| タブ | できること |
+|---|---|
+| **チャンネル** | Feishu / Telegram / Discord / WeChatなどの接続状態の確認とON/OFF |
+| **チャット** | ルーターの管理画面からそのままAIと会話 |
+| **設定エディタ** | `config.json` をフォームで編集、上級者は生JSONモードも |
+| **ログ** | PicoClawのリアルタイム出力 — エラー、LLM呼び出し、token使用量 |
+| **ハードウェア** | システム情報、USBデバイス、GPIO切替 |
+| **定期実行ジョブ** | cron / 間隔ジョブ — 作成・有効化・無効化・削除 |
+| **MCPサーバー** | MCPサーバーの追加・削除（stdio / http / sse） |
+| **スキル** | Agentスキルの閲覧・インストール・インポート・削除 |
+| **モデルと認証** | モデル一覧、デフォルトモデル、有効/無効、APIキーの状態、thinking level |
+
+加えてサービスのワンクリック起動/停止/再起動、自動起動設定、検索エンジンのプリセット、上級者向けJSONエディタを備えています。
 
 ## 📋 動作要件
 
@@ -65,57 +59,97 @@
 
 ## 🚀 インストール
 
-### ステップ1: PicoClawのインストール
+### ステップ1: PicoClaw本体のインストール
 
-PicoClawはコアとなるAIアシスタントプログラムです — 先にインストールする必要があります。ルーターにSSH接続して実行：
+このプラグインはWeb UIのみです。PicoClaw本体は別のプログラムなので、先にSSHでインストールします:
 
 ```bash
 cd /tmp
-wget https://github.com/sipeed/picoclaw/releases/download/v0.2.7/picoclaw_Linux_x86_64.tar.gz
+wget https://github.com/sipeed/picoclaw/releases/download/v0.3.1/picoclaw_Linux_x86_64.tar.gz
 tar xzf picoclaw_Linux_x86_64.tar.gz
 cp picoclaw /usr/bin/picoclaw && chmod +x /usr/bin/picoclaw
-picoclaw --version   # バージョン番号が表示されればOK
+picoclaw --version
 ```
 
-> ⚠️ 上記リンクはx86_64用です。ルーターがARMの場合（Xiaomi、TP-Linkなど）、[PicoClaw Releases](https://github.com/sipeed/picoclaw/releases)から正しいバイナリをダウンロードしてください。
+> ⚠️ 上のリンクは **x86_64** 用です。ARMルーター（Xiaomi、TP-Linkの多く）は `picoclaw_Linux_arm64.tar.gz` または `picoclaw_Linux_armv7.tar.gz` が必要です — [PicoClaw Releases](https://github.com/sipeed/picoclaw/releases) で確認してください。`uname -m` で調べられます。
 
-### ステップ2: LuCIインターフェースのインストール
+### ステップ2: このプラグインのインストール
 
-**方法A: iStore**（推奨、最も簡単）
+**方法A: iStore**（最も簡単）
 
-ルーターのiStoreを開く → `picoclaw` を検索 → インストール
+ルーター管理画面でiStoreを開き、`picoclaw` を検索 → Install
 
-**方法B: コマンドラインでIPKをインストール**
+**方法B: IPK**（`opkg` を使うOpenWrt）
 
 ```bash
 cd /tmp
-wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.1.6-1_all.ipk
-opkg install luci-app-picoclaw_1.1.6-1_all.ipk
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.2.0-1_all.ipk
+opkg install luci-app-picoclaw_1.2.0-1_all.ipk
 rm -rf /tmp/luci-*   # LuCIキャッシュをクリア
 ```
 
-インストール後、ブラウザでアクセス：`http://<ルーターIP>/cgi-bin/luci/admin/services/picoclaw`
+**方法C: APK**（OpenWrt 25.x の `apk` システム）
+
+```bash
+cd /tmp
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw-1.2.0-r1.apk
+apk add --allow-untrusted luci-app-picoclaw-1.2.0-r1.apk
+rm -rf /tmp/luci-*   # LuCIキャッシュをクリア
+```
+
+> APKは未署名のため、`--allow-untrusted` が必要です。
+
+**ソースからビルド**
+
+```bash
+# IPK（opkgシステム）
+python3 scripts/build-ipk.py
+
+# APK v3（OpenWrt 25.x / apkシステム）— ルーター上で直接実行
+sh scripts/build-apk-v3.sh
+```
+
+> Windowsでcloneした場合：`core.autocrlf` が有効ならGitがLFをCRLFに変換します。LuCIのLua/HTMLパーサはLFのみ受付（CRLFは `unfinished string` になります）。配置前に `dos2unix` を実行するか `git config core.autocrlf false` を設定してください。
+
+### ステップ3: 開く
+
+`http://<ルーターIP>/cgi-bin/luci/admin/services/picoclaw`
+
+モデルとAPIキーを追加すれば使えます — [モデル設定](#-モデル設定) を参照。
+
+## 📸 スクリーンショット
+
+| チャンネル | モデルと認証 |
+|:---:|:---:|
+| ![チャンネル](Screenshots/screenshot_main.png) | ![モデル](Screenshots/screenshot_models.png) |
+
+| スキル | 定期実行ジョブ |
+|:---:|:---:|
+| ![スキル](Screenshots/screenshot_skills.png) | ![ジョブ](Screenshots/screenshot_cron.png) |
 
 ## 🤖 モデル設定
 
-PicoClawが動作するには、大規模言語モデルに接続する必要があります。PicoClawは「クライアント」であり、AI自体は含まれていません — 各AIサービスのAPIを呼び出します。**APIキー**（パスワードのようなもの）を提供して、PicoClawがサービスにアクセスできるようにします。
+PicoClawには少なくとも1つのモデルプロバイダーの **APIキー**（パスワードのようなもの）が必要です。
 
-**設定方法：**
+**最速の方法 — UIから:**
 
-1. **設定エディタ**タブ → **モデルリスト**セクションを見つける
-2. プロバイダープリセットボタン（例：「Zhipu GLM」「DeepSeek」）をクリック — APIベースURLが自動入力されます
-3. **APIキー**を入力（プロバイダーのウェブサイトで登録して取得）
-4. ドロップダウンから**デフォルトモデル**を選択
-5. **保存**をクリック
+1. **モデルと認証** タブを開く
+2. **モデルを追加** をクリックし、プリセット（DeepSeek / Zhipu GLM / Qwen / OpenAI / Anthropic / OpenRouter / Ollama）を選ぶ — API Base とモデルIDは自動入力されます
+3. **APIキー** を貼り付け
+4. **デフォルトに設定** をクリックして **保存**
 
-**対応プロバイダー：** Zhipu · DeepSeek · Qwen · OpenAI · Anthropic · OpenRouter · Ollama
+**またはターミナルから**（キーが `config.json` に入りません）:
 
-> 💡 **APIキーをお持ちでない方へ：** ほとんどのプロバイダーは無料クレジットを提供しています：
-> - [Zhipu（智谱）](https://open.bigmodel.cn/) — 中国国内、登録時無料クレジット
-> - [DeepSeek](https://platform.deepseek.com/) — 中国国内、登録時無料クレジット
-> - [OpenRouter](https://openrouter.ai/) — 複数モデルを集約
+```bash
+picoclaw model add -b https://api.deepseek.com/v1 -k sk-xxx -m deepseek-flash -n deepseek-flash
+picoclaw model deepseek-flash        # デフォルトに設定
+```
 
-> 🔒 APIキーはPicoClawの二重ファイルセキュリティシステム（`config.json`にはプレースホルダーのみ、実際のキーは`.security.yml`に保存）で安全に保管され、平文で露出することはありません。
+> 🔒 UIで入力したキーは `config.json` ではなく PicoClaw の `.security.yml` に保存されます。
+
+**thinking level** — 各モデル行にドロップダウン（default / low / medium / high / max / adaptive）があり、`thinking_level` に対応します。実際の出力に影響するかはプロバイダ次第です。DeepSeekは low/high/max に対応しますが、他のプロバイダは adaptive のみ受付ることが多く、対応外の値はデフォルトにフォールバックします。
+
+**キーの入手先**: [Zhipu](https://open.bigmodel.cn/) · [DeepSeek](https://platform.deepseek.com/) · [OpenRouter](https://openrouter.ai/) — いずれも登録で無料クレジットがもらえます。
 
 ## 🔍 検索エンジン
 
@@ -138,6 +172,8 @@ PicoClawはウェブ検索で質問に答えることができます。中国国
 | APIキー欄に`[NOT_HERE]`と表示？ | 正常 — 実際のキーは`.security.yml`にあり、LuCI UIで管理 |
 | APIキーとは？ | AIサービスを呼び出すためのパスワードのようなもの。プロバイダーのサイトで登録して取得 — ほとんどは無料クレジットあり |
 | ルーターのアーキテクチャ確認方法は？ | SSH接続して`uname -m`を実行。よくある値：x86_64, aarch64, mipsel |
+| OpenWrt 25.x でIPKが入らない？ | 25.xは `opkg` ではなく `apk` を使います。`.apk` をダウンロードして `apk add --allow-untrusted` |
+| 設定保存で "unknown field(s)" と表示される？ | PicoClaw 0.3.1 は `config.json` を厳格に検証します。使えるのは `model_name`、`provider`、`model`、`api_base`、`api_keys`、`enabled`、`thinking_level` のみ。`max_tokens` は `agents.defaults` に置いてください |
 
 ## 変更履歴
 

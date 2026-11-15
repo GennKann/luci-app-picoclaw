@@ -15,15 +15,53 @@
 .pc-btn.green{background:#43a047}.pc-btn.orange{background:#ef6c00}
 .pc-btn.blue{background:#1e88e5}.pc-btn.purple{background:#8e24aa}
 .pc-btn.gray{background:#616161}.pc-btn:visited{color:#fff}
-.pc-tabs{display:flex;border-bottom:2px solid #e0e0e0;margin-bottom:0}
+.pc-tabs{display:flex;flex-wrap:wrap;border-bottom:2px solid #e0e0e0;margin-bottom:0}
 .pc-tab{padding:10px 20px;cursor:pointer;font-size:14px;color:#888;border:none;background:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s}
 .pc-tab.act{color:#1976d2;border-bottom-color:#1976d2;font-weight:600}
 .pc-tab:hover{color:#1976d2}
-.pc-panel{display:none;padding-top:16px}.pc-panel.act{display:block}
+.pc-tab:active{transform:scale(.97)}
+.pc-panel{display:none;padding-top:16px}.pc-panel.act{display:block;animation:pcPanelIn .26s cubic-bezier(.22,.61,.36,1)}
+@keyframes pcPanelIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.mg-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+.mg-hint{font-size:12px;color:#8a8a8a;margin-top:4px;line-height:1.6}
+.mg-form{background:#f7f9fb;border:1px solid #e3e8ef;border-radius:8px;padding:14px 16px;margin-bottom:16px;animation:pcPanelIn .2s ease}
+.mg-form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 16px}
+.mg-field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.mg-field > span{font-size:12px;color:#666;font-weight:600}
+.mg-field small{font-weight:400;color:#a0a0a0}
+.mg-field.wide{grid-column:1/-1}
+.mg-input,.mg-select,.mg-area{width:100%;padding:7px 10px;border:1px solid #d8dde5;border-radius:6px;font-size:13px;box-sizing:border-box;background:#fff;transition:border-color .2s,box-shadow .2s;font-family:inherit}
+.mg-input:focus,.mg-select:focus,.mg-area:focus{outline:none;border-color:#1976d2;box-shadow:0 0 0 3px rgba(25,118,210,.1)}
+.mg-area{min-height:64px;resize:vertical;font-family:'Courier New',monospace;font-size:12px}
+.mg-table{width:100%;border-collapse:collapse;font-size:13px}
+.mg-table th{text-align:left;padding:8px 10px;background:#f2f5f9;color:#555;font-weight:600;font-size:12px;border-bottom:2px solid #e3e8ef;white-space:nowrap}
+.mg-table td{padding:9px 10px;border-bottom:1px solid #f0f2f5;vertical-align:middle;word-break:break-all}
+.mg-table td:last-child{white-space:nowrap}
+.mg-table tr:last-child td{border-bottom:none}
+.mg-table tbody tr{transition:background .18s}
+.mg-table tbody tr:hover{background:#f8fafc}
+.mg-table td.nw,.mg-table th.nw{white-space:nowrap}
+.mg-mono{font-family:'Courier New',monospace;font-size:12px;color:#444}
+.mg-sub{font-size:11px;color:#9aa0a6;margin-top:2px}
+.mg-acts{display:flex;gap:5px;flex-wrap:nowrap;justify-content:flex-end;white-space:nowrap}
+.mg-btn{display:inline-block;padding:4px 10px;border:1px solid #d8dde5;border-radius:5px;background:#fff;color:#555;font-size:12px;cursor:pointer;transition:all .18s;white-space:nowrap}
+.mg-btn:hover{border-color:#1976d2;color:#1976d2;background:#f2f8ff}
+.mg-btn:active{transform:scale(.96)}
+.mg-btn.danger:hover{border-color:#e53935;color:#e53935;background:#fff5f5}
+.mg-btn.ok:hover{border-color:#43a047;color:#2e7d32;background:#f3fbf4}
+.mg-skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.mg-skill{display:flex;flex-direction:column;gap:6px;border:1px solid #e6eaf0;border-radius:8px;padding:12px 14px;background:#fff;transition:box-shadow .2s,transform .2s,border-color .2s}
+.mg-skill:hover{box-shadow:0 3px 10px rgba(0,0,0,.07);border-color:#d3dced;transform:translateY(-1px)}
+.mg-skill-top{display:flex;align-items:center;gap:8px}
+.mg-skill-name{font-size:13px;font-weight:600;color:#1a73c9;word-break:break-all}
+.mg-skill-desc{font-size:12px;color:#7d858e;line-height:1.6;min-height:34px}
+.mg-skill form{margin-top:auto}
+.mg-empty{color:#b6bcc4;font-size:13px;text-align:center;padding:22px 0}
+.mg-pre{background:#f6f8fa;border:1px solid #e6eaf0;border-radius:6px;padding:10px 12px;font-family:'Courier New',monospace;font-size:12px;color:#444;white-space:pre-wrap;word-break:break-all;line-height:1.6;margin:0}
 .ch-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0}
 .ch-row:last-child{border:none}
 .ch-name{font-size:14px;font-weight:500}
-.badge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:12px;font-weight:600}
+.badge{display:inline-block;padding:3px 12px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap}
 .badge-on{background:#c8e6c9;color:#2e7d32}.badge-off{background:#ffcdd2;color:#c62828}
 .cfg-section{margin-bottom:20px}.cfg-section:last-child{margin-bottom:0}
 .cfg-section-head{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;padding:12px 16px;background:#f5f7fa;border-radius:8px;margin-bottom:2px;transition:background .2s}
@@ -253,9 +291,12 @@ if flash_msg ~= "" then
     <div style="background:#e3f2fd;border-radius:8px;padding:12px 14px;margin-bottom:10px">
       <div style="font-weight:600;color:#1565c0;margin-bottom:6px" data-i18n="model_guide_steps_title">&#128203; 切换模型（两步）</div>
       <div style="padding-left:14px">
-        <div style="margin-bottom:4px" data-i18n="model_guide_step1"><b>1.</b> 在 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">config.json → model_list</code> 中添加模型条目（含 api_base、api_keys）</div>
-        <div data-i18n="model_guide_step2"><b>2.</b> 设置 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">agents.defaults.model_name</code> 为目标模型的 <b>model_name</b>，保存并重启</div>
+        <div style="margin-bottom:4px" data-i18n="model_guide_step1"><b>1.</b> 在 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">config.json → model_list</code> 中加条目：model_name / provider / model / api_base（密钥不放这里，见下方说明）</div>
+        <div data-i18n="model_guide_step2"><b>2.</b> 把 <code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">agents.defaults.model_name</code> 指向条目的 model_name，可一条命令搞定：<code style="background:#bbdefb;padding:1px 6px;border-radius:3px;font-size:11.5px">picoclaw model &lt;名字&gt;</code>，然后重启服务</div>
       </div>
+    </div>
+    <div style="background:#fff4e5;border-left:3px solid #fb8c00;border-radius:6px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#8a4b00" data-i18n="model_guide_strict_tip">
+      <b>0.3.1 起配置是严格校验的</b>：model_list 条目只认 model_name / provider / model / api_base / api_keys / enabled，写进 max_tokens、context_window、temperature 这类字段会让 PicoClaw 直接拒绝加载整个 config.json（服务起不来）。
     </div>
     <div id="model-tags-container" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px"></div>
     <details open style="margin-top:4px">
@@ -264,20 +305,39 @@ if flash_msg ~= "" then
         <thead>
         <tr style="background:#e8eaf6">
           <th style="text-align:left;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_name">model_name</th>
-          <th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_provider">提供商 / 协议</th>
+          <th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_provider">provider 值</th>
           <th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_context">上下文窗口</th>
-          <th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_tokens">推荐 Token</th>
+          <th style="text-align:right;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_tokens">建议 max_tokens</th>
           <th style="text-align:center;padding:5px 8px;border:1px solid #c5cae9" data-i18n="mg_th_note">备注</th>
         </tr>
         </thead>
         <tbody id="model-guide-table-body"></tbody>
       </table>
+      <div style="font-size:11.5px;color:#777;margin-top:6px;line-height:1.7">
+        <span data-i18n="mg_tokens_where_note">建议 max_tokens 写进 agents.defaults.max_tokens，不能写进 model_list 条目。上下文窗口是模型能力，仅供挑选参考。</span>
+        <span style="display:inline-block;margin-left:4px;padding:1px 7px;border-radius:4px;background:#eceff1;color:#455a64;font-family:'Courier New',monospace">max_tokens = <%=max_tokens_now%></span>
+      </div>
+    </details>
+    <details style="margin-top:8px">
+      <summary style="cursor:pointer;font-size:12px;color:#1565c0;padding:4px 0;font-weight:600" data-i18n="mg_provider_matrix_title">&#x25B6; 0.3.1 支持的 provider 值</summary>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:11.5px">
+        <thead>
+        <tr style="background:#eef2f7">
+          <th style="text-align:left;padding:5px 8px;border:1px solid #dde3ea" data-i18n="mg_pm_th_value">provider 值</th>
+          <th style="text-align:left;padding:5px 8px;border:1px solid #dde3ea" data-i18n="mg_pm_th_vendor">厂商 / 说明</th>
+          <th style="text-align:left;padding:5px 8px;border:1px solid #dde3ea" data-i18n="mg_pm_th_auth">认证方式</th>
+        </tr>
+        </thead>
+        <tbody id="provider-matrix-body"></tbody>
+      </table>
+      </div>
     </details>
     <details style="margin-top:8px">
       <summary style="cursor:pointer;font-size:12px;color:#666;padding:4px 0;font-weight:600" data-i18n="model_guide_example_title">&#x25B6; model_list 配置示例</summary>
-      <div id="model-example-code" style="background:#263238;color:#aed581;padding:10px 12px;border-radius:6px;font-size:11.5px;line-height:1.6;overflow-x:auto;margin-top:6px"></div>
+      <div id="model-example-code" style="background:#263238;color:#aed581;padding:10px 12px;border-radius:6px;font-size:11.5px;line-height:1.7;overflow-x:auto;margin-top:6px;white-space:pre-wrap;word-break:break-word"></div>
       <div style="margin-top:6px;font-size:11.5px;color:#666;background:#fff8e1;padding:8px 10px;border-radius:4px;border-left:3px solid #ffc107" data-i18n="model_guide_security_tip">
-        &#9888; <b>注意：</b>API Key 可写在 model_list 的 api_keys 字段中，也可通过路由器终端用 <code>picoclaw config security</code> 配置到 .security.yml（更安全，不明文存储）。
+        &#9888; <b>密钥：</b>0.3.1 已经没有 <code>picoclaw config security</code> 这个子命令。用 <code>picoclaw model add -k</code> 会自动写进 <code>/root/.picoclaw/.security.yml</code>，也可以直接编辑该文件；写在 config.json 的 api_keys 仍能识别，但属于明文存放。
       </div>
     </details>
   </div>
@@ -321,6 +381,10 @@ if flash_msg ~= "" then
     <button class="pc-tab" onclick="switchTab('config',this)" data-i18n="tab_config">配置编辑</button>
     <button class="pc-tab" onclick="switchTab('logs',this)" data-i18n="tab_logs">系统日志</button>
     <button class="pc-tab" onclick="switchTab('hardware',this)" data-i18n="tab_hardware">硬件控制</button>
+    <button class="pc-tab" onclick="switchTab('cron',this)" data-i18n="tab_cron">定时任务</button>
+    <button class="pc-tab" onclick="switchTab('mcp',this)" data-i18n="tab_mcp">MCP 服务</button>
+    <button class="pc-tab" onclick="switchTab('skills',this)" data-i18n="tab_skills">技能</button>
+    <button class="pc-tab" onclick="switchTab('models',this)" data-i18n="tab_models">模型与认证</button>
   </div>
 
   <!-- Channels Panel -->
@@ -414,7 +478,7 @@ if flash_msg ~= "" then
               </tbody>
             </table>
             <div style="font-size:11px;color:#888;margin-top:6px;background:#fff8e1;padding:6px 10px;border-radius:4px;border-left:3px solid #ffc107" data-i18n="hint_model_edit">
-              &#8505; 编辑 model_list 中每个模型的完整配置。API Key 保存在 model_list 的 api_keys 字段中，也可通过路由器终端用 <code>picoclaw config security</code> 配置到 .security.yml。
+              &#8505; 编辑 model_list 中每个模型的完整配置。这里的 API Key 会明文写进 config.json 的 api_keys 字段；想放 .security.yml 就用 <code>picoclaw model add -k</code> 或直接编辑该文件。
             </div>
 
             <!-- Other agent settings -->
@@ -432,7 +496,7 @@ if flash_msg ~= "" then
               </div>
               <div class="cfg-row">
                 <div class="cfg-label" data-i18n="lbl_steering">并发模式<small>steering_mode</small></div>
-                <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="steering_mode">
+                <div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="agents.defaults.steering_mode">
                   <option value="one-at-a-time">one-at-a-time</option>
                   <option value="parallel">parallel</option>
                 </select></div>
@@ -548,61 +612,13 @@ if flash_msg ~= "" then
       <% end %>
     </div>
 
-    <!-- PicoClaw Tools: Skills -->
     <div class="hw-card">
-      <h4>🦞 <span data-i18n="hw_skills">已安装技能</span> (<%=#hw_tools.skills%>)
-        <button type="button" class="pc-btn blue" style="margin-left:auto;padding:3px 10px;font-size:12px" onclick="toggleSkillImport()" data-i18n="hw_import_skill">+ 导入技能</button>
-        <form method="post" action="<%=action_url%>" style="display:inline;margin-left:6px">
-          <input type="hidden" name="token" value="<%=csrf_token%>">
-          <input type="hidden" name="action" value="install_preset_skills">
-          <button type="submit" class="pc-btn purple" style="padding:3px 10px;font-size:12px" onclick="return confirm(I('confirm_preset_skills'))" data-i18n="hw_install_presets">📦 预设技能</button>
-        </form>
-      </h4>
-      <!-- Import skill form (hidden by default) -->
-      <div id="skill-import-form" style="display:none;margin-bottom:12px;padding:12px;background:#fff;border:1px solid #e0e0e0;border-radius:8px">
-        <div style="margin-bottom:8px">
-          <label style="font-size:12px;color:#666;font-weight:600" data-i18n="hw_skill_name">技能名称</label>
-          <input type="text" id="import-skill-name" class="cfg-input" style="margin-top:4px;font-size:13px" placeholder="my-skill">
-        </div>
-        <div style="margin-bottom:10px">
-          <label style="font-size:12px;color:#666;font-weight:600" data-i18n="hw_skill_content">技能内容 (SKILL.md)</label>
-          <textarea id="import-skill-content" class="pc-editor" style="min-height:120px;margin-top:4px;font-size:12px" placeholder="description: &quot;技能描述&quot;&#10;---&#10;技能说明内容..."></textarea>
-        </div>
-        <div style="display:flex;gap:8px">
-          <button type="button" class="pc-btn green" style="font-size:12px" onclick="doImportSkill()" data-i18n="hw_do_import">确认导入</button>
-          <button type="button" class="pc-btn gray" style="font-size:12px" onclick="toggleSkillImport()" data-i18n="hw_cancel">取消</button>
-        </div>
+      <h4 data-i18n="hw_moved_title">技能与定时任务</h4>
+      <div class="mg-hint" style="margin-bottom:8px" data-i18n="hw_moved_note">已搬到独立标签页，在上方「技能」「定时任务」中管理</div>
+      <div class="pc-actions" style="margin-top:0">
+        <button type="button" class="pc-btn blue" style="font-size:12px" onclick="switchTab('skills',document.querySelectorAll('.pc-tab')[7])" data-i18n="tab_skills">技能</button>
+        <button type="button" class="pc-btn blue" style="font-size:12px" onclick="switchTab('cron',document.querySelectorAll('.pc-tab')[5])" data-i18n="tab_cron">定时任务</button>
       </div>
-      <% if #hw_tools.skills > 0 then %>
-      <% for _,sk in ipairs(hw_tools.skills) do %>
-      <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f0f0f0">
-        <div style="flex:1;min-width:0">
-          <span style="color:#1976d2;font-weight:600;font-size:13px"><%=sk.name%></span>
-          <% if sk.description ~= "" then %><div style="color:#888;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><%=sk.description%></div><% end %>
-        </div>
-        <form method="post" action="<%=action_url%>" style="flex-shrink:0">
-          <input type="hidden" name="token" value="<%=csrf_token%>">
-          <input type="hidden" name="action" value="delete_skill">
-          <input type="hidden" name="skill_name" value="<%=sk.name%>">
-          <button type="submit" class="pc-btn gray" style="padding:2px 8px;font-size:11px" onclick="return confirm(this.getAttribute('data-confirm'))" data-confirm="<%=sk.name%>: 确定删除？">✕</button>
-        </form>
-      </div>
-      <% end %>
-      <% else %>
-      <div class="hw-empty" data-i18n="hw_no_skills">暂无已安装技能</div>
-      <% end %>
-    </div>
-
-    <!-- PicoClaw Tools: Cron -->
-    <div class="hw-card">
-      <h4>⏰ <span data-i18n="hw_cron">定时任务</span> (<%=#hw_tools.cron_jobs%>)</h4>
-      <% if #hw_tools.cron_jobs > 0 then %>
-      <% for _,job in ipairs(hw_tools.cron_jobs) do %>
-      <div style="padding:4px 0;font-size:13px;color:#333;word-break:break-all;border-bottom:1px solid #f0f0f0"><%=job%></div>
-      <% end %>
-      <% else %>
-      <div class="hw-empty" data-i18n="hw_no_cron">暂无定时任务</div>
-      <% end %>
     </div>
 
     <!-- GPIO (collapsed by default) -->
@@ -646,11 +662,437 @@ if flash_msg ~= "" then
 
     <div style="margin-top:8px"><a href="<%=action_url%>" class="pc-btn blue" style="font-size:13px" data-i18n="hw_refresh">刷新硬件状态</a></div>
   </div>
+
+  <!-- Cron Panel -->
+  <div class="pc-panel" id="panel-cron" style="padding:16px 24px 24px">
+    <div class="mg-head">
+      <div>
+        <h3 style="margin:0;font-size:16px" data-i18n="cron_title">定时任务</h3>
+        <div class="mg-hint" data-i18n="cron_hint">按固定间隔或 cron 表达式唤醒 PicoClaw 执行一条任务消息。保存后自动重启服务，约 3 秒中断</div>
+      </div>
+      <button type="button" class="pc-btn blue" onclick="toggleBox('cron-add-form')" data-i18n="cron_new">新建任务</button>
+    </div>
+
+    <div id="cron-add-form" class="mg-form" style="display:none">
+      <form method="post" action="<%=action_url%>">
+        <input type="hidden" name="token" value="<%=csrf_token%>">
+        <input type="hidden" name="action" value="cron_add">
+        <div class="mg-form-grid">
+          <label class="mg-field"><span data-i18n="cron_name">任务名称</span>
+            <input class="mg-input" type="text" name="job_name" required maxlength="60" placeholder="daily-report">
+          </label>
+          <label class="mg-field"><span data-i18n="cron_sched_type">触发方式</span>
+            <select class="mg-select" name="sched_mode" id="cron-mode" onchange="cronModeChange()">
+              <option value="every" data-i18n="cron_mode_every">固定间隔</option>
+              <option value="cron" data-i18n="cron_mode_cron">cron 表达式</option>
+            </select>
+          </label>
+          <label class="mg-field" id="cron-every-wrap"><span data-i18n="cron_every">间隔（秒）</span>
+            <input class="mg-input" type="number" name="every_sec" min="10" value="3600">
+          </label>
+          <label class="mg-field" id="cron-expr-wrap" style="display:none"><span data-i18n="cron_expr">cron 表达式</span>
+            <input class="mg-input mg-mono" type="text" name="cron_expr" placeholder="0 9 * * *">
+            <small data-i18n="cron_expr_note">分 时 日 月 周，例 0 9 * * * 表示每天 9 点</small>
+          </label>
+          <label class="mg-field"><span data-i18n="cron_channel">投递通道 <small>可选</small></span>
+            <input class="mg-input" type="text" name="job_channel" placeholder="feishu">
+          </label>
+          <label class="mg-field"><span data-i18n="cron_to">收件人 <small>可选</small></span>
+            <input class="mg-input" type="text" name="job_to" placeholder="user id / chat id">
+          </label>
+          <label class="mg-field wide"><span data-i18n="cron_message">任务消息</span>
+            <textarea class="mg-area" name="job_message" required placeholder="汇总今天的路由器流量并发送报告"></textarea>
+          </label>
+        </div>
+        <div class="pc-actions">
+          <button type="submit" class="pc-btn green" data-i18n="cron_save">保存任务</button>
+          <button type="button" class="pc-btn gray" onclick="toggleBox('cron-add-form')" data-i18n="btn_cancel">取消</button>
+        </div>
+      </form>
+    </div>
+
+    <% if #cron_jobs > 0 then %>
+    <div style="overflow-x:auto">
+    <table class="mg-table">
+      <thead><tr>
+        <th data-i18n="cron_col_name">名称</th>
+        <th data-i18n="cron_col_sched">计划</th>
+        <th data-i18n="cron_col_msg">消息</th>
+        <th data-i18n="cron_col_state">状态</th>
+        <th data-i18n="cron_col_next">下次运行</th>
+        <th style="text-align:right" data-i18n="col_action">操作</th>
+      </tr></thead>
+      <tbody>
+      <% for _, job in ipairs(cron_jobs) do %>
+        <tr>
+          <td class="nw"><strong><%=job.name%></strong><div class="mg-sub mg-mono"><%=job.id%></div></td>
+          <td class="mg-mono" style="white-space:nowrap"><%=job.sched%></td>
+          <td style="max-width:280px">
+            <div style="font-size:12px;color:#555"><%=job.message%></div>
+            <% if job.channel ~= "" or job.to ~= "" then %>
+            <div class="mg-sub mg-mono"><%=job.channel%><% if job.to ~= "" then %> / <%=job.to%><% end %></div>
+            <% end %>
+          </td>
+          <td class="nw"><span class="badge <% if job.enabled then %>badge-on<% else %>badge-off<% end %>" data-i18n="<% if job.enabled then %>state_on<% else %>state_off<% end %>"><% if job.enabled then %>已启用<% else %>已禁用<% end %></span></td>
+          <td class="mg-mono" style="white-space:nowrap"><%=job.next_run%></td>
+          <td>
+            <div class="mg-acts">
+              <form method="post" action="<%=action_url%>" style="display:inline">
+                <input type="hidden" name="token" value="<%=csrf_token%>">
+                <input type="hidden" name="action" value="cron_toggle">
+                <input type="hidden" name="job_id" value="<%=job.id%>">
+                <input type="hidden" name="want" value="<% if job.enabled then %>0<% else %>1<% end %>">
+                <button type="submit" class="mg-btn <% if job.enabled then %>danger<% else %>ok<% end %>" data-i18n="<% if job.enabled then %>btn_disable<% else %>btn_enable<% end %>"><% if job.enabled then %>禁用<% else %>启用<% end %></button>
+              </form>
+              <form method="post" action="<%=action_url%>" style="display:inline" onsubmit="return confirm(I('confirm_delete_job'))">
+                <input type="hidden" name="token" value="<%=csrf_token%>">
+                <input type="hidden" name="action" value="cron_delete">
+                <input type="hidden" name="job_id" value="<%=job.id%>">
+                <button type="submit" class="mg-btn danger" data-i18n="btn_delete">删除</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+    </div>
+    <% else %>
+    <div class="mg-empty" data-i18n="cron_empty">还没有定时任务</div>
+    <% end %>
+  </div>
+
+  <!-- MCP Panel -->
+  <div class="pc-panel" id="panel-mcp" style="padding:16px 24px 24px">
+    <div class="mg-head">
+      <div>
+        <h3 style="margin:0;font-size:16px" data-i18n="mcp_title">MCP 服务</h3>
+        <div class="mg-hint" data-i18n="mcp_hint">挂载外部 MCP 服务器给 PicoClaw 使用，保存后自动重启服务</div>
+      </div>
+      <button type="button" class="pc-btn blue" onclick="toggleBox('mcp-add-form')" data-i18n="mcp_new">添加服务器</button>
+    </div>
+
+    <div id="mcp-add-form" class="mg-form" style="display:none">
+      <form method="post" action="<%=action_url%>">
+        <input type="hidden" name="token" value="<%=csrf_token%>">
+        <input type="hidden" name="action" value="mcp_add">
+        <div class="mg-form-grid">
+          <label class="mg-field"><span data-i18n="mcp_name">名称</span>
+            <input class="mg-input" type="text" name="mcp_name" required maxlength="40" placeholder="filesystem">
+          </label>
+          <label class="mg-field"><span data-i18n="mcp_transport">传输方式</span>
+            <select class="mg-select" name="mcp_transport" id="mcp-transport" onchange="mcpTransportChange()">
+              <option value="stdio">stdio</option>
+              <option value="http">http</option>
+              <option value="sse">sse</option>
+            </select>
+          </label>
+          <label class="mg-field wide"><span data-i18n="mcp_target">命令或 URL</span>
+            <input class="mg-input mg-mono" type="text" name="mcp_target" required placeholder="npx  /  https://example.com/mcp">
+            <small data-i18n="mcp_target_note">stdio 填可执行文件，http/sse 填完整 URL</small>
+          </label>
+          <label class="mg-field wide mcp-stdio-only"><span data-i18n="mcp_args">启动参数 <small>可选</small></span>
+            <input class="mg-input mg-mono" type="text" name="mcp_args" placeholder="-y @modelcontextprotocol/server-filesystem /root">
+          </label>
+          <label class="mg-field mcp-stdio-only"><span data-i18n="mcp_env">环境变量 <small>可选 每行一个</small></span>
+            <textarea class="mg-area" name="mcp_env" placeholder="TOKEN=xxx"></textarea>
+          </label>
+          <label class="mg-field mcp-http-only" style="display:none"><span data-i18n="mcp_headers">请求头 <small>可选 每行一个</small></span>
+            <textarea class="mg-area" name="mcp_headers" placeholder="Authorization: Bearer xxx"></textarea>
+          </label>
+          <div class="mg-field mcp-stdio-only"><span data-i18n="mcp_deferred">工具延迟加载</span>
+            <span class="toggle-wrap"><label class="toggle"><input type="checkbox" name="mcp_deferred" value="1"><span class="slider"></span></label>
+            <span class="toggle-label" data-i18n="mcp_deferred_note">工具先隐藏，需要时再激活</span></span>
+          </div>
+        </div>
+        <div class="pc-actions">
+          <button type="submit" class="pc-btn green" data-i18n="mcp_save">保存服务器</button>
+          <button type="button" class="pc-btn gray" onclick="toggleBox('mcp-add-form')" data-i18n="btn_cancel">取消</button>
+        </div>
+      </form>
+    </div>
+
+    <% if #mcp_servers > 0 then %>
+    <div style="overflow-x:auto">
+    <table class="mg-table">
+      <thead><tr>
+        <th data-i18n="mcp_col_name">名称</th>
+        <th data-i18n="mcp_col_type">类型</th>
+        <th data-i18n="mcp_col_target">命令 / URL</th>
+        <th data-i18n="mcp_col_state">状态</th>
+        <th style="text-align:right" data-i18n="col_action">操作</th>
+      </tr></thead>
+      <tbody>
+      <% for _, sv in ipairs(mcp_servers) do %>
+        <tr>
+          <td class="nw"><strong><%=sv.name%></strong>
+            <% if sv.deferred then %><div class="mg-sub" data-i18n="mcp_deferred_badge">延迟加载</div><% end %>
+          </td>
+          <td class="mg-mono"><%=sv.type%></td>
+          <td class="mg-mono" style="max-width:340px"><%=sv.target%>
+            <% if sv.env > 0 or sv.headers > 0 then %>
+            <div class="mg-sub"><%=sv.env%> env / <%=sv.headers%> header</div>
+            <% end %>
+          </td>
+          <td class="nw"><span class="badge <% if sv.enabled then %>badge-on<% else %>badge-off<% end %>" data-i18n="<% if sv.enabled then %>state_on<% else %>state_off<% end %>"><% if sv.enabled then %>已启用<% else %>已禁用<% end %></span></td>
+          <td>
+            <div class="mg-acts">
+              <form method="post" action="<%=action_url%>" style="display:inline" onsubmit="return confirm(I('confirm_delete_mcp'))">
+                <input type="hidden" name="token" value="<%=csrf_token%>">
+                <input type="hidden" name="action" value="mcp_delete">
+                <input type="hidden" name="mcp_name" value="<%=sv.name%>">
+                <button type="submit" class="mg-btn danger" data-i18n="btn_delete">删除</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+    </div>
+    <% else %>
+    <div class="mg-empty" data-i18n="mcp_empty">还没有配置 MCP 服务器</div>
+    <% end %>
+  </div>
+
+  <!-- Skills Panel -->
+  <div class="pc-panel" id="panel-skills" style="padding:16px 24px 24px">
+    <div class="mg-head">
+      <div>
+        <h3 style="margin:0;font-size:16px" data-i18n="skills_title">技能</h3>
+        <div class="mg-hint" data-i18n="skills_hint">工作区技能直接决定 PicoClaw 能做什么。安装需要访问 GitHub 或 clawhub，网络受限时可能失败</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button type="button" class="pc-btn blue" onclick="toggleBox('skills-install-form')" data-i18n="skills_install">从注册表安装</button>
+        <button type="button" class="pc-btn blue" onclick="toggleSkillImport()" data-i18n="hw_import_skill">导入技能</button>
+        <form method="post" action="<%=action_url%>" style="display:inline">
+          <input type="hidden" name="token" value="<%=csrf_token%>">
+          <input type="hidden" name="action" value="install_preset_skills">
+          <button type="submit" class="pc-btn purple" onclick="return confirm(I('confirm_preset_skills'))" data-i18n="hw_install_presets">预设技能</button>
+        </form>
+      </div>
+    </div>
+
+    <div id="skills-install-form" class="mg-form" style="display:none">
+      <form method="post" action="<%=action_url%>">
+        <input type="hidden" name="token" value="<%=csrf_token%>">
+        <input type="hidden" name="action" value="skill_install">
+        <div class="mg-form-grid">
+          <label class="mg-field wide"><span data-i18n="skills_spec">技能来源</span>
+            <input class="mg-input mg-mono" type="text" name="skill_spec" required placeholder="sipeed/picoclaw-skills/weather  或  weather">
+            <small data-i18n="skills_spec_note">填 作者/仓库/技能 时走 GitHub，填单个名字时配合下面的注册表</small>
+          </label>
+          <label class="mg-field"><span data-i18n="skills_registry">注册表 <small>可选</small></span>
+            <select class="mg-select" name="skill_registry">
+              <option value="" data-i18n="skills_registry_none">不使用</option>
+              <option value="clawhub">clawhub</option>
+              <option value="github">github</option>
+            </select>
+          </label>
+        </div>
+        <div class="pc-actions">
+          <button type="submit" class="pc-btn green" data-i18n="skills_do_install">开始安装</button>
+          <button type="button" class="pc-btn gray" onclick="toggleBox('skills-install-form')" data-i18n="btn_cancel">取消</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="skill-import-form" style="display:none" class="mg-form">
+      <div class="mg-form-grid">
+        <label class="mg-field wide"><span data-i18n="hw_skill_name">技能名称</span>
+          <input type="text" id="import-skill-name" class="mg-input" placeholder="my-skill">
+        </label>
+        <label class="mg-field wide"><span data-i18n="hw_skill_content">技能内容 (SKILL.md)</span>
+          <textarea id="import-skill-content" class="mg-area" style="min-height:140px" placeholder="---&#10;name: my-skill&#10;description: 技能描述&#10;---&#10;技能说明内容..."></textarea>
+        </label>
+      </div>
+      <div class="pc-actions">
+        <button type="button" class="pc-btn green" onclick="doImportSkill()" data-i18n="hw_do_import">确认导入</button>
+        <button type="button" class="pc-btn gray" onclick="toggleSkillImport()" data-i18n="btn_cancel">取消</button>
+      </div>
+    </div>
+
+    <div class="mg-sub" style="margin:2px 0 8px;font-size:12px"><span data-i18n="skills_installed_group">已安装</span> (<%=skills_installed%>)</div>
+    <% if skills_installed > 0 then %>
+    <div class="mg-skill-grid">
+      <% for _, sk in ipairs(skills_list) do %><% if not sk.builtin then %>
+      <div class="mg-skill">
+        <div class="mg-skill-top">
+          <span class="mg-skill-name"><%=sk.name%></span>
+          <% if sk.version ~= "" then %>
+          <span class="mg-sub" style="margin-left:auto">v<%=sk.version%></span>
+          <% end %>
+        </div>
+        <div class="mg-skill-desc"><%=sk.description%></div>
+        <form method="post" action="<%=action_url%>" style="display:flex;justify-content:flex-end" onsubmit="return confirm(I('confirm_delete_skill'))">
+          <input type="hidden" name="token" value="<%=csrf_token%>">
+          <input type="hidden" name="action" value="delete_skill">
+          <input type="hidden" name="skill_name" value="<%=sk.dir%>">
+          <button type="submit" class="mg-btn danger" data-i18n="btn_delete">删除</button>
+        </form>
+      </div>
+      <% end %><% end %>
+    </div>
+    <% else %>
+    <div class="mg-empty" data-i18n="skills_empty">还没有安装技能</div>
+    <% end %>
+
+    <% if skills_preset > 0 then %>
+    <div class="mg-sub" style="margin:18px 0 8px;font-size:12px">
+      <span data-i18n="skills_available_group">可安装的内置技能</span> (<%=skills_preset%>)
+      <span style="color:#aaa;margin-left:6px" data-i18n="skills_available_note">删掉后还会留在这里，点安装可恢复</span>
+    </div>
+    <div class="mg-skill-grid">
+      <% for _, sk in ipairs(skills_list) do %><% if sk.builtin then %>
+      <div class="mg-skill" style="background:#fbfcfe">
+        <div class="mg-skill-top">
+          <span class="mg-skill-name" style="color:#5b6472"><%=sk.name%></span>
+          <span class="badge badge-off" style="margin-left:auto" data-i18n="skills_builtin">内置</span>
+        </div>
+        <div class="mg-skill-desc"><%=sk.description%></div>
+        <form method="post" action="<%=action_url%>" style="display:flex;justify-content:flex-end">
+          <input type="hidden" name="token" value="<%=csrf_token%>">
+          <input type="hidden" name="action" value="install_preset_one">
+          <input type="hidden" name="skill_name" value="<%=sk.dir%>">
+          <button type="submit" class="mg-btn ok" data-i18n="skills_install_one">安装</button>
+        </form>
+      </div>
+      <% end %><% end %>
+    </div>
+    <% end %>
+  </div>
+
+  <!-- Models Panel -->
+  <div class="pc-panel" id="panel-models" style="padding:16px 24px 24px">
+    <div class="mg-head">
+      <div>
+        <h3 style="margin:0;font-size:16px" data-i18n="models_title">模型与认证</h3>
+        <div class="mg-hint" data-i18n="models_hint">model_list 决定 PicoClaw 能用哪些模型。API Key 存在 .security.yml，不在这里显示</div>
+      </div>
+      <button type="button" class="pc-btn blue" onclick="toggleBox('model-add-form')" data-i18n="models_add">添加模型</button>
+    </div>
+
+    <div id="model-add-form" class="mg-form" style="display:none">
+      <form method="post" action="<%=action_url%>">
+        <input type="hidden" name="token" value="<%=csrf_token%>">
+        <input type="hidden" name="action" value="model_add">
+        <div class="mg-form-grid">
+          <label class="mg-field"><span data-i18n="models_new_alias">别名</span>
+            <input class="mg-input mg-mono" type="text" name="new_model_name" required maxlength="40" placeholder="deepseek-v3">
+          </label>
+          <label class="mg-field"><span data-i18n="models_new_id">模型 ID</span>
+            <input class="mg-input mg-mono" type="text" name="new_model_id" required placeholder="deepseek-chat">
+          </label>
+          <label class="mg-field"><span data-i18n="models_new_base">API Base</span>
+            <input class="mg-input mg-mono" type="text" name="new_model_base" required placeholder="https://api.deepseek.com/v1">
+          </label>
+          <label class="mg-field"><span data-i18n="models_new_key">API Key</span>
+            <input class="mg-input mg-mono" type="password" name="new_model_key" required placeholder="sk-...">
+          </label>
+        </div>
+        <div class="mg-hint" style="margin:8px 0 0" data-i18n="models_add_note">新增的模型会同时写进 model_list 并被设为默认模型</div>
+        <div class="pc-actions">
+          <button type="submit" class="pc-btn green" data-i18n="models_do_add">保存模型</button>
+          <button type="button" class="pc-btn gray" onclick="toggleBox('model-add-form')" data-i18n="btn_cancel">取消</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="hw-card" style="margin-bottom:14px">
+      <h4 data-i18n="models_default">当前默认</h4>
+      <div class="hw-row"><span class="k" data-i18n="models_default_model">默认模型</span><span class="v mg-mono"><% if models_info.default_name ~= "" then %><%=models_info.default_name%><% else %>-<% end %></span></div>
+      <div class="hw-row"><span class="k" data-i18n="models_endpoint">端点</span><span class="v mg-mono" style="font-size:12px"><% if default_model_base ~= "" then %><%=default_model_base%><% else %>-<% end %></span></div>
+      <div class="hw-row"><span class="k" data-i18n="models_col_think">推理</span><span class="v mg-mono"><% if default_model_thinking ~= "" then %><%=default_model_thinking%><% else %><span data-i18n="think_default">默认</span><% end %></span></div>
+      <div class="hw-row"><span class="k"><span data-i18n="models_provider">Provider</span> <small style="color:#aaa" data-i18n="models_provider_hint">defaults 字段 一般不用改</small></span><span class="v mg-mono" style="color:#888"><% if models_info.provider ~= "" then %><%=models_info.provider%><% else %>-<% end %></span></div>
+    </div>
+
+    <% if #models_info.list > 0 then %>
+    <div style="overflow-x:auto">
+    <table class="mg-table">
+      <thead><tr>
+        <th data-i18n="models_col_alias">别名</th>
+        <th data-i18n="models_col_id">模型 ID</th>
+        <th data-i18n="models_col_base">API Base</th>
+        <th data-i18n="models_col_key">密钥</th>
+        <th data-i18n="models_col_think">推理</th>
+        <th data-i18n="models_col_state">状态</th>
+        <th style="text-align:right" data-i18n="col_action">操作</th>
+      </tr></thead>
+      <tbody>
+      <% for _, m in ipairs(models_info.list) do %>
+        <tr>
+          <td class="nw"><strong><%=m.name%></strong>
+            <% if m.is_default then %><div class="mg-sub" data-i18n="models_is_default">当前默认</div><% end %>
+          </td>
+          <td class="mg-mono"><%=m.model%></td>
+          <td class="mg-mono" style="max-width:260px;font-size:11px"><%=m.base%></td>
+          <td>
+            <% if m.has_key then %>
+            <span class="badge badge-on" title="<%=m.key_count%>"><span data-i18n="models_key_yes">已配置</span><% if m.key_count > 1 then %> x<%=m.key_count%><% end %></span>
+            <% else %>
+            <span class="badge badge-off" data-i18n="models_key_no">缺失</span>
+            <% end %>
+          </td>
+          <td class="nw">
+            <form method="post" action="<%=action_url%>" style="display:inline">
+              <input type="hidden" name="token" value="<%=csrf_token%>">
+              <input type="hidden" name="action" value="model_set_thinking">
+              <input type="hidden" name="model_name" value="<%=m.name%>">
+              <select class="mg-select" name="level" style="width:auto;padding:3px 6px;font-size:12px" onchange="this.form.submit()">
+                <option value=""<% if m.thinking == "" then %> selected<% end %> data-i18n="think_default">默认</option>
+                <option value="low"<% if m.thinking == "low" then %> selected<% end %>>low</option>
+                <option value="medium"<% if m.thinking == "medium" then %> selected<% end %>>medium</option>
+                <option value="high"<% if m.thinking == "high" then %> selected<% end %>>high</option>
+                <option value="max"<% if m.thinking == "max" then %> selected<% end %>>max</option>
+                <option value="adaptive"<% if m.thinking == "adaptive" then %> selected<% end %>>adaptive</option>
+              </select>
+            </form>
+          </td>
+          <td class="nw"><span class="badge <% if m.enabled then %>badge-on<% else %>badge-off<% end %>" data-i18n="<% if m.enabled then %>state_on<% else %>state_off<% end %>"><% if m.enabled then %>已启用<% else %>已禁用<% end %></span></td>
+          <td>
+            <div class="mg-acts">
+              <% if not m.is_default then %>
+              <form method="post" action="<%=action_url%>" style="display:inline">
+                <input type="hidden" name="token" value="<%=csrf_token%>">
+                <input type="hidden" name="action" value="model_set_default">
+                <input type="hidden" name="model_name" value="<%=m.name%>">
+                <button type="submit" class="mg-btn ok" data-i18n="models_set_default">设为默认</button>
+              </form>
+              <% end %>
+              <form method="post" action="<%=action_url%>" style="display:inline">
+                <input type="hidden" name="token" value="<%=csrf_token%>">
+                <input type="hidden" name="action" value="model_toggle">
+                <input type="hidden" name="model_name" value="<%=m.name%>">
+                <input type="hidden" name="want" value="<% if m.enabled then %>0<% else %>1<% end %>">
+                <button type="submit" class="mg-btn <% if m.enabled then %>danger<% else %>ok<% end %>" data-i18n="<% if m.enabled then %>btn_disable<% else %>btn_enable<% end %>"><% if m.enabled then %>禁用<% else %>启用<% end %></button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+      </tbody>
+    </table>
+    </div>
+    <% else %>
+    <div class="mg-empty" data-i18n="models_empty">model_list 为空</div>
+    <% end %>
+
+    <div class="mg-hint" style="margin-top:8px" data-i18n="models_think_note">推理强度写进条目的 thinking_level，切换后自动重启。是否生效由 provider 决定：DeepSeek 认 low/high/max，部分厂商只认 adaptive，不支持的会被忽略并回落到默认。</div>
+
+    <div class="hw-section" style="margin-top:16px">
+      <div class="hw-section-head" onclick="toggleBox('auth-block')" data-i18n="models_auth">认证状态</div>
+      <div class="hw-section-body" id="auth-block">
+        <pre class="mg-pre"><% if auth_summary ~= "" then %><%=auth_summary%><% else %>-<% end %></pre>
+        <div class="mg-hint" data-i18n="models_auth_note">OAuth 类 Provider 需要 SSH 到路由器执行 picoclaw auth login --provider &lt;name&gt;，这里只读</div>
+      </div>
+    </div>
+  </div>
 </div>
 </div>
 
 <script>
 var _origConfig = JSON.parse('<%=config_json_safe%>' || '{}');
+var PC_DEFAULT_MODEL = '<%=default_model_name%>';
 var _curLang = localStorage.getItem('pc_lang') || 'zh';
 
 // ========== i18n ==========
@@ -664,8 +1106,42 @@ zh: {
   check_failed:"版本检测中...", service_status:"服务状态", running:"运行中", stopped:"已停止",
   service_not_running:"服务未运行", start:"启动", stop:"停止", restart:"重启", normal:"正常", abnormal:"异常",
   autostart_on:"开机自启: 开", autostart_off:"开机自启: 关",
-  memory_mb:"内存 (MB)", process_id:"进程 ID", port_18790:"端口 18790",
+  memory_mb:"内存 (MB)", process_id:"进程 ID", port_18790:"端口 18790", gateway_port:"网关端口",
   tab_channels:"通道列表", tab_config:"配置编辑", tab_logs:"系统日志", tab_hardware:"硬件控制", tab_chat:"对话",
+  tab_cron:"定时任务", tab_mcp:"MCP 服务", tab_skills:"技能", tab_models:"模型与认证",
+  col_action:"操作", btn_cancel:"取消", btn_delete:"删除", btn_enable:"启用", btn_disable:"禁用",
+  state_on:"已启用", state_off:"已禁用",
+  confirm_delete_job:"确定删除这个定时任务", confirm_delete_mcp:"确定删除这个 MCP 服务器", confirm_delete_skill:"确定删除这个技能",
+  cron_title:"定时任务", cron_hint:"按固定间隔或 cron 表达式唤醒 PicoClaw 执行一条任务消息。保存后自动重启服务，约 3 秒中断",
+  cron_new:"新建任务", cron_save:"保存任务", cron_name:"任务名称", cron_sched_type:"触发方式",
+  cron_mode_every:"固定间隔", cron_mode_cron:"cron 表达式", cron_every:"间隔（秒）", cron_expr:"cron 表达式",
+  cron_expr_note:"分 时 日 月 周，例 0 9 * * * 表示每天 9 点", cron_channel:"投递通道", cron_to:"收件人",
+  cron_message:"任务消息", cron_col_name:"名称", cron_col_sched:"计划", cron_col_msg:"消息",
+  cron_col_state:"状态", cron_col_next:"下次运行", cron_empty:"还没有定时任务",
+  mcp_title:"MCP 服务", mcp_hint:"挂载外部 MCP 服务器给 PicoClaw 使用，保存后自动重启服务",
+  mcp_new:"添加服务器", mcp_save:"保存服务器", mcp_name:"名称", mcp_transport:"传输方式",
+  mcp_target:"命令或 URL", mcp_target_note:"stdio 填可执行文件，http/sse 填完整 URL",
+  mcp_args:"启动参数", mcp_env:"环境变量", mcp_headers:"请求头", mcp_deferred:"工具延迟加载",
+  mcp_deferred_note:"工具先隐藏，需要时再激活", mcp_deferred_badge:"延迟加载",
+  mcp_col_name:"名称", mcp_col_type:"类型", mcp_col_target:"命令 / URL", mcp_col_state:"状态",
+  mcp_empty:"还没有配置 MCP 服务器",
+  skills_title:"技能", skills_hint:"工作区技能决定 PicoClaw 能做什么。安装需要访问 GitHub 或 clawhub，网络受限时可能失败",
+  skills_install:"从注册表安装", skills_do_install:"开始安装", skills_spec:"技能来源",
+  skills_spec_note:"填 作者/仓库/技能 走 GitHub，填单个名字时配合下面的注册表",
+  skills_registry:"注册表", skills_registry_none:"不使用", skills_builtin:"内置",
+  skills_installed_group:"已安装", skills_available_group:"可安装的内置技能", skills_install_one:"安装",
+  skills_available_note:"删掉后还会留在这里，点安装可恢复",
+  skills_empty:"还没有安装技能",
+  models_title:"模型与认证", models_hint:"model_list 决定 PicoClaw 能用哪些模型。API Key 存在 .security.yml，不在这里显示",
+  models_add:"添加模型", models_do_add:"保存模型", models_add_note:"新增的模型会同时写进 model_list 并被设为默认模型",
+  models_default:"当前默认", models_default_model:"默认模型", models_provider:"Provider",
+  models_col_alias:"别名", models_col_id:"模型 ID", models_col_base:"API Base", models_col_key:"密钥",
+  models_col_state:"状态", models_col_think:"推理", think_default:"默认", models_endpoint:"端点", models_provider_hint:"defaults 字段 一般不用改", models_is_default:"当前默认", models_set_default:"设为默认",
+  models_think_note:"推理强度写进条目的 thinking_level，切换后自动重启。是否生效由 provider 决定：DeepSeek 认 low/high/max，部分厂商只认 adaptive，不支持的会被忽略并回落到默认。",
+  models_key_yes:"已配置", models_key_no:"缺失", models_empty:"model_list 为空",
+  models_new_alias:"别名", models_new_id:"模型 ID", models_new_base:"API Base", models_new_key:"API Key",
+  models_auth:"认证状态", models_auth_note:"OAuth 类 Provider 需要 SSH 到路由器执行 picoclaw auth login，这里只读",
+  hw_moved_title:"技能与定时任务", hw_moved_note:"已搬到独立标签页，在上方「技能」「定时任务」中管理",
   chat_title_text:"与 PicoClaw 对话", chat_hint:"通过 PicoClaw Agent 直接对话，回复可能需要几秒钟。",
   chat_placeholder:"输入消息...", chat_send:"发送", chat_clear:"清空对话",
   chat_welcome:"你好！我是 PicoClaw AI 助手，有什么可以帮你的？", chat_thinking:"正在思考...",
@@ -677,7 +1153,7 @@ zh: {
   sec_ai_model:"AI 模型配置", lbl_default_model:"默认模型", lbl_quick_add:"快速添加:",
   lbl_max_tokens:"Token 上限", lbl_tool_iters:"迭代次数", lbl_steering:"并发模式",
   hint_default_model:"选择 model_list 中的一项作为当前使用的模型",
-  hint_model_edit:"编辑 model_list 中每个模型的完整配置。API Key 保存在 model_list 的 api_keys 字段中。",
+  hint_model_edit:"编辑 model_list 中每个模型的完整配置。这里的 API Key 会明文写进 config.json 的 api_keys 字段。",
   sec_channels:"通道管理", sec_providers:"API 密钥与提供商", sec_system:"系统设置", sec_tools:"工具与功能",
   confirm_save:"确定保存配置并重启 PicoClaw？", json_error:"JSON 错误：",
   ch_feishu:"飞书", ch_telegram:"Telegram", ch_discord:"Discord", ch_wecom:"企业微信",
@@ -689,7 +1165,8 @@ zh: {
   tl_slack:"Slack Bot", tl_qq:"QQ Bot", tl_line:"LINE Bot",
   tl_dingtalk:"钉钉机器人", tl_whatsapp:"WhatsApp", tl_maixcam:"MaixCam 设备",
   tl_irc:"IRC 协议", tl_matrix:"Matrix 协议", tl_onebot:"OneBot 协议", tl_pico:"Pico 协议", tl_pico_client:"Pico 客户端",
-  lbl_listen:"监听地址", lbl_heartbeat:"心跳检测", lbl_heartbeat_interval:"心跳间隔 (秒)",
+  lbl_listen:"监听地址", lbl_port:"端口", lbl_heartbeat:"心跳检测", lbl_heartbeat_interval:"心跳间隔 (秒)",
+  providers_moved_title:"模型与密钥已移到 model_list", providers_moved_note:"0.3.1 不再有 providers 字段：API Key 写在 model_list 条目的 api_keys 或 .security.yml，Base URL 写在条目的 api_base。", providers_moved_btn:"前往模型与认证",
   lbl_media_cleanup:"媒体清理", lbl_session_scope:"会话作用域",
   tl_heartbeat:"启用心跳", tl_media_cleanup:"自动清理过期媒体文件",
   scope_per_peer:"per-channel-peer", scope_per_channel:"per-channel", scope_global:"global",
@@ -726,18 +1203,23 @@ zh: {
   // Model Guide (i18n)
   model_guide_title:"AI 模型配置指南",
   model_guide_steps_title:"切换模型（两步）",
-  model_guide_step1:"1. 在 config.json → model_list 中添加模型条目（含 api_base、api_keys）",
-  model_guide_step2:"2. 设置 agents.defaults.model_name 为目标模型的 model_name，保存并重启",
-  mg_tag_kimi:"kimi-k2.5 = 256K (推荐长对话)",
-  mg_tag_default:"glm-4.5-air = 默认模型",
+  model_guide_step1:"1. 在 config.json → model_list 中加条目：model_name / provider / model / api_base（密钥不放这里，见下方说明）",
+  model_guide_step2:"2. 把 agents.defaults.model_name 指向条目的 model_name，可一条命令搞定：picoclaw model 名字，然后重启服务",
+  model_guide_strict_tip:"0.3.1 起配置是严格校验的：model_list 条目只认 model_name / provider / model / api_base / api_keys / enabled / thinking_level，写进 max_tokens、context_window、temperature 这类字段会让 PicoClaw 直接拒绝加载整个 config.json（服务起不来）。",
+  mg_tag_kimi:"kimi-k3 = 1M 上下文 (推荐长对话)",
+  mg_tag_default:"高亮行 = 你当前的默认模型",
   mg_tag_orauto:"openrouter-auto = 自动路由",
-  mg_tag_free:"多个免费模型可用 (OR)",
+  mg_tag_free:"OpenRouter 免费档仍可用",
   model_guide_table_title:"已知支持的模型及参数",
   model_guide_example_title:"model_list 配置示例",
-  model_guide_security_tip:"⚠️ 注意：API Key 可写在 model_list 的 api_keys 字段中，也可通过路由器终端用 picoclaw config security 配置到 .security.yml（更安全，不明文存储）。",
+  model_guide_security_tip:"⚠️ 密钥：0.3.1 已经没有 picoclaw config security 这个子命令。用 picoclaw model add -k 会自动写进 /root/.picoclaw/.security.yml，也可以直接编辑该文件；写在 config.json 的 api_keys 仍能识别，但属于明文存放。",
   model_guide_example_code:"", // use default
-  mg_th_name:"model_name", mg_th_provider:"提供商 / 协议", mg_th_context:"上下文窗口", mg_th_tokens:"推荐 Token", mg_th_note:"备注",
-  mg_note_longchat:"超长对话首选", mg_note_default:"默认", mg_note_autoroute:"自动选择最优", mg_note_free:"免费",
+  mg_th_name:"model_name", mg_th_provider:"provider 值", mg_th_context:"上下文窗口", mg_th_tokens:"建议 max_tokens", mg_th_note:"备注",
+  mg_tokens_where_note:"建议 max_tokens 写进 agents.defaults.max_tokens，不能写进 model_list 条目。上下文窗口是模型能力，仅供挑选参考。",
+  mg_provider_matrix_title:"0.3.1 支持的 provider 值", mg_pm_th_value:"provider 值", mg_pm_th_vendor:"厂商 / 说明", mg_pm_th_auth:"认证方式",
+  mg_note_longchat:"超长对话首选", mg_note_default:"当前默认", mg_note_autoroute:"自动选择最优", mg_note_free:"免费",
+  mg_note_think:"思考默认开 便宜", mg_note_phasing:"逐步下线", mg_note_flagship:"旗舰", mg_note_balanced:"均衡",
+  mg_note_longctx:"长上下文第一", mg_note_cheap:"便宜快", mg_note_old:"老版本 仍可用",
   "mg_prov_kimi-k2.5":"Moonshot (openai)", "mg_prov_claude-sonnet-4.6":"Anthropic", "mg_prov_glm-4.7":"智谱 Zhipu",
   "mg_prov_glm-4.5-air":"智谱 Zhipu", "mg_prov_deepseek-v3":"DeepSeek", "mg_prov_gpt-5.4":"OpenAI",
   "mg_prov_qwen-plus":"通义千问", "mg_prov_openrouter-auto":"OpenRouter", "mg_prov_deepseek-chat":"DeepSeek",
@@ -752,8 +1234,42 @@ en: {
   check_failed:"Checking for updates...", service_status:"Service Status", running:"Running", stopped:"Stopped",
   service_not_running:"Service not running", start:"Start", stop:"Stop", restart:"Restart", normal:"OK", abnormal:"Error",
   autostart_on:"Auto-start: ON", autostart_off:"Auto-start: OFF",
-  memory_mb:"Memory (MB)", process_id:"Process ID", port_18790:"Port 18790",
+  memory_mb:"Memory (MB)", process_id:"Process ID", port_18790:"Port 18790", gateway_port:"Gateway Port",
   tab_channels:"Channels", tab_config:"Config Editor", tab_logs:"System Logs", tab_hardware:"Hardware", tab_chat:"Chat",
+  tab_cron:"Scheduled Jobs", tab_mcp:"MCP Servers", tab_skills:"Skills", tab_models:"Models & Auth",
+  col_action:"Actions", btn_cancel:"Cancel", btn_delete:"Delete", btn_enable:"Enable", btn_disable:"Disable",
+  state_on:"Enabled", state_off:"Disabled",
+  confirm_delete_job:"Delete this scheduled job?", confirm_delete_mcp:"Delete this MCP server?", confirm_delete_skill:"Delete this skill?",
+  cron_title:"Scheduled Jobs", cron_hint:"Wake PicoClaw on a fixed interval or cron expression to run a task message. Saving restarts the service (~3s gap)",
+  cron_new:"New Job", cron_save:"Save Job", cron_name:"Job Name", cron_sched_type:"Trigger",
+  cron_mode_every:"Fixed interval", cron_mode_cron:"Cron expression", cron_every:"Interval (sec)", cron_expr:"Cron expression",
+  cron_expr_note:"min hour day month weekday, e.g. 0 9 * * * means 9am daily", cron_channel:"Channel", cron_to:"Recipient",
+  cron_message:"Task message", cron_col_name:"Name", cron_col_sched:"Schedule", cron_col_msg:"Message",
+  cron_col_state:"State", cron_col_next:"Next Run", cron_empty:"No scheduled jobs yet",
+  mcp_title:"MCP Servers", mcp_hint:"Attach external MCP servers for PicoClaw. Saving restarts the service",
+  mcp_new:"Add Server", mcp_save:"Save Server", mcp_name:"Name", mcp_transport:"Transport",
+  mcp_target:"Command or URL", mcp_target_note:"stdio takes an executable, http/sse takes a full URL",
+  mcp_args:"Arguments", mcp_env:"Environment", mcp_headers:"Headers", mcp_deferred:"Defer tools",
+  mcp_deferred_note:"Tools stay hidden until explicitly activated", mcp_deferred_badge:"deferred",
+  mcp_col_name:"Name", mcp_col_type:"Type", mcp_col_target:"Command / URL", mcp_col_state:"State",
+  mcp_empty:"No MCP servers configured",
+  skills_title:"Skills", skills_hint:"Workspace skills decide what PicoClaw can do. Installing needs GitHub or clawhub access",
+  skills_install:"Install from registry", skills_do_install:"Install", skills_spec:"Skill source",
+  skills_spec_note:"owner/repo/skill goes through GitHub; a bare name uses the registry below",
+  skills_registry:"Registry", skills_registry_none:"None", skills_builtin:"Built-in",
+  skills_installed_group:"Installed", skills_available_group:"Built-in, not installed", skills_install_one:"Install",
+  skills_available_note:"deleted ones stay here, click install to restore",
+  skills_empty:"No skills installed yet",
+  models_title:"Models & Auth", models_hint:"model_list decides which models PicoClaw can use. API keys live in .security.yml and are not shown here",
+  models_add:"Add Model", models_do_add:"Save Model", models_add_note:"A new model is written to model_list and set as the default model",
+  models_default:"Current Default", models_default_model:"Default model", models_provider:"Provider",
+  models_col_alias:"Alias", models_col_id:"Model ID", models_col_base:"API Base", models_col_key:"Key",
+  models_col_state:"State", models_col_think:"Thinking", think_default:"default", models_endpoint:"Endpoint", models_provider_hint:"defaults field, usually untouched", models_is_default:"current default", models_set_default:"Set default",
+  models_think_note:"Thinking level is stored as thinking_level on the model entry; switching restarts the service. Support depends on the provider: DeepSeek takes low/high/max, some vendors only take adaptive, unsupported values fall back to default.",
+  models_key_yes:"Configured", models_key_no:"Missing", models_empty:"model_list is empty",
+  models_new_alias:"Alias", models_new_id:"Model ID", models_new_base:"API Base", models_new_key:"API Key",
+  models_auth:"Auth Status", models_auth_note:"OAuth providers need picoclaw auth login over SSH; read-only here",
+  hw_moved_title:"Skills & scheduled jobs", hw_moved_note:"Moved to their own tabs above",
   chat_title_text:"Chat with PicoClaw", chat_hint:"Chat directly via PicoClaw Agent. Replies may take a few seconds.",
   chat_placeholder:"Type a message...", chat_send:"Send", chat_clear:"Clear",
   chat_welcome:"Hello! I'm PicoClaw AI assistant. How can I help?", chat_thinking:"Thinking...",
@@ -777,7 +1293,8 @@ en: {
   tl_slack:"Slack Bot", tl_qq:"QQ Bot", tl_line:"LINE Bot",
   tl_dingtalk:"DingTalk Bot", tl_whatsapp:"WhatsApp", tl_maixcam:"MaixCam Device",
   tl_irc:"IRC Protocol", tl_matrix:"Matrix Protocol", tl_onebot:"OneBot Protocol", tl_pico:"Pico Protocol", tl_pico_client:"Pico Client",
-  lbl_listen:"Listen Address", lbl_heartbeat:"Heartbeat", lbl_heartbeat_interval:"Heartbeat Interval (s)",
+  lbl_listen:"Listen Address", lbl_port:"Port", lbl_heartbeat:"Heartbeat", lbl_heartbeat_interval:"Heartbeat Interval (s)",
+  providers_moved_title:"Models and keys moved to model_list", providers_moved_note:"0.3.1 has no providers field: put the API key in model_list[].api_keys or .security.yml, and the base URL in api_base.", providers_moved_btn:"Go to Models & Auth",
   lbl_media_cleanup:"Media Cleanup", lbl_session_scope:"Session Scope",
   tl_heartbeat:"Enable heartbeat", tl_media_cleanup:"Auto cleanup expired media",
   scope_per_peer:"per-channel-peer", scope_per_channel:"per-channel", scope_global:"global",
@@ -814,18 +1331,20 @@ en: {
   // Model Guide (i18n)
   model_guide_title:"AI Model Configuration Guide",
   model_guide_steps_title:"Switch Model (2 steps)",
-  model_guide_step1:"1. Add a model entry in config.json → model_list (with api_base, api_keys)",
-  model_guide_step2:"2. Set agents.defaults.model_name to the target model's model_name, save & restart",
-  mg_tag_kimi:"kimi-k2.5 = 256K (recommended for long chats)",
-  mg_tag_default:"glm-4.5-air = default model",
+  model_guide_step1:"1. Add a model_list entry in config.json: model_name / provider / model / api_base (keys live elsewhere, see below)",
+  model_guide_step2:"2. Point agents.defaults.model_name at that model_name - one command does it: picoclaw model <name> - then restart",
+  mg_tag_kimi:"kimi-k3 = 1M context (recommended for long chats)",
+  mg_tag_default:"Highlighted row = your current default",
   mg_tag_orauto:"openrouter-auto = auto-route",
-  mg_tag_free:"Multiple free models available (OR)",
+  mg_tag_free:"OpenRouter free tier still works",
   model_guide_table_title:"Known supported models & parameters",
   model_guide_example_title:"model_list configuration example",
-  model_guide_security_tip:"⚠️ Note: API Key can be set in model_list's api_keys field, or via router terminal with picoclaw config security to .security.yml (more secure, not stored in plaintext).",
+  model_guide_security_tip:"⚠️ Keys: 0.3.1 no longer has a picoclaw config security subcommand. picoclaw model add -k writes the key into /root/.picoclaw/.security.yml automatically, or edit that file directly; api_keys inside config.json still works but is plaintext.",
   model_guide_example_code:"",
-  mg_th_name:"model_name", mg_th_provider:"Provider / Protocol", mg_th_context:"Context Window", mg_th_tokens:"Recommended Tokens", mg_th_note:"Notes",
-  mg_note_longchat:"Best for long conversations", mg_note_default:"default", mg_note_autoroute:"Auto-select best", mg_note_free:"Free",
+  mg_th_name:"model_name", mg_th_provider:"provider value", mg_th_context:"Context Window", mg_th_tokens:"Suggested max_tokens", mg_th_note:"Notes",
+  mg_note_longchat:"Best for long conversations", mg_note_default:"current default", mg_note_autoroute:"Auto-select best", mg_note_free:"Free",
+  mg_note_think:"Thinks by default, cheap", mg_note_phasing:"Being phased out", mg_note_flagship:"Flagship", mg_note_balanced:"Balanced",
+  mg_note_longctx:"Top long-context", mg_note_cheap:"Cheap and fast", mg_note_old:"Older, still works",
   "mg_prov_kimi-k2.5":"Moonshot (openai)", "mg_prov_claude-sonnet-4.6":"Anthropic", "mg_prov_glm-4.7":"Zhipu AI",
   "mg_prov_glm-4.5-air":"Zhipu AI", "mg_prov_deepseek-v3":"DeepSeek", "mg_prov_gpt-5.4":"OpenAI",
   "mg_prov_qwen-plus":"Qwen / Tongyi", "mg_prov_openrouter-auto":"OpenRouter", "mg_prov_deepseek-chat":"DeepSeek",
@@ -842,6 +1361,10 @@ ja: {
   autostart_on:"自動起動: ON", autostart_off:"自動起動: OFF",
   memory_mb:"メモリ (MB)", process_id:"プロセス ID", port_18790:"ポート 18790",
   tab_channels:"チャンネル一覧", tab_config:"設定編集", tab_logs:"システムログ", tab_hardware:"ハードウェア", tab_chat:"チャット",
+  tab_cron:"スケジュール", tab_mcp:"MCP", tab_skills:"スキル", tab_models:"モデル",
+  cron_title:"スケジュール", mcp_title:"MCP サーバー", skills_title:"スキル", models_title:"モデルと認証",
+  col_action:"操作", btn_cancel:"キャンセル", btn_delete:"削除", btn_enable:"有効", btn_disable:"無効",
+  state_on:"有効", state_off:"無効",
   chat_title_text:"PicoClawと対話", chat_hint:"PicoClaw Agentを通じて直接対話します。応答に数秒かかる場合があります。",
   chat_placeholder:"メッセージを入力...", chat_send:"送信", chat_clear:"クリア",
   chat_welcome:"こんにちは！PicoClaw AIアシスタントです。何かお手伝いできますか？", chat_thinking:"考え中...",
@@ -902,7 +1425,7 @@ ja: {
   // Model Guide (i18n)
   model_guide_title:"AI モデル設定ガイド",
   model_guide_steps_title:"モデル切り替え（2ステップ）",
-  model_guide_step1:"1. config.json → model_list にモデルエントリを追加（api_base, api_keys を含む）",
+  model_guide_step1:"1. config.json → model_list にエントリを追加（model_name / provider / model / api_base。キーはここに入れない）",
   model_guide_step2:"2. agents.defaults.model_name を対象モデルの model_name に設定し、保存して再起動",
   mg_tag_kimi:"kimi-k2.5 = 256K (長い会話に推奨)",
   mg_tag_default:"glm-4.5-air = デフォルトモデル",
@@ -910,7 +1433,7 @@ ja: {
   mg_tag_free:"複数の無料モデル利用可能 (OR)",
   model_guide_table_title:"既知の対応モデルとパラメータ",
   model_guide_example_title:"model_list 設定例",
-  model_guide_security_tip:"⚠️ 注意：APIキーは model_list の api_keys フィールドに書くか、ルーター端末で picoclaw config security コマンドで .security.yml に設定できます（より安全、平文保存されません）。",
+  model_guide_security_tip:"⚠️ キー：0.3.1 には picoclaw config security サブコマンドはありません。picoclaw model add -k が自動で /root/.picoclaw/.security.yml に書き込みます（直接編集も可）。config.json の api_keys も認識されますが平文です。",
   model_guide_example_code:"",
   mg_th_name:"model_name", mg_th_provider:"プロバイダ / プロトコル", mg_th_context:"コンテキストウィンドウ", mg_th_tokens:"推奨トークン", mg_th_note:"備考",
   mg_note_longchat:"長い会話に最適", mg_note_default:"デフォルト", mg_note_autoroute:"自動選択", mg_note_free:"無料",
@@ -930,6 +1453,10 @@ pt: {
   autostart_on:"Início automático: ON", autostart_off:"Início automático: OFF",
   memory_mb:"Memória (MB)", process_id:"Process ID", port_18790:"Porta 18790",
   tab_channels:"Canais", tab_config:"Editor de Config", tab_logs:"Logs do Sistema", tab_hardware:"Hardware", tab_chat:"Chat",
+  tab_cron:"Tarefas", tab_mcp:"MCP", tab_skills:"Habilidades", tab_models:"Modelos",
+  cron_title:"Tarefas agendadas", mcp_title:"Servidores MCP", skills_title:"Habilidades", models_title:"Modelos e autenticação",
+  col_action:"Ações", btn_cancel:"Cancelar", btn_delete:"Excluir", btn_enable:"Ativar", btn_disable:"Desativar",
+  state_on:"Ativo", state_off:"Inativo",
   chat_title_text:"Conversar com PicoClaw", chat_hint:"Converse diretamente via PicoClaw Agent. Respostas podem demorar alguns segundos.",
   chat_placeholder:"Digite uma mensagem...", chat_send:"Enviar", chat_clear:"Limpar",
   chat_welcome:"Olá! Sou o assistente PicoClaw AI. Como posso ajudar?", chat_thinking:"Pensando...",
@@ -990,7 +1517,7 @@ pt: {
   // Model Guide (i18n)
   model_guide_title:"Guia de Configuração de Modelo IA",
   model_guide_steps_title:"Trocar de Modelo (2 passos)",
-  model_guide_step1:"1. Adicionar entrada em config.json → model_list (com api_base, api_keys)",
+  model_guide_step1:"1. Adicionar entrada em config.json → model_list: model_name / provider / model / api_base (a chave fica em outro lugar)",
   model_guide_step2:"2. Definir agents.defaults.model_name como o model_name do modelo alvo, salvar e reiniciar",
   mg_tag_kimi:"kimi-k2.5 = 256K (recomendado para conversas longas)",
   mg_tag_default:"glm-4.5-air = modelo padrão",
@@ -998,7 +1525,7 @@ pt: {
   mg_tag_free:"Múltiplos modelos grátis disponíveis (OR)",
   model_guide_table_title:"Modelos conhecidos e parâmetros",
   model_guide_example_title:"Exemplo de configuração model_list",
-  model_guide_security_tip:"⚠️ Nota: API Key pode ser definida no campo api_keys do model_list, ou via terminal do router com picoclaw config security para .security.yml (mais seguro, não armazenado em texto plano).",
+  model_guide_security_tip:"⚠️ Chaves: 0.3.1 não tem mais o subcomando picoclaw config security. picoclaw model add -k grava a chave em /root/.picoclaw/.security.yml automaticamente (ou edite o arquivo). api_keys dentro do config.json ainda funciona, mas em texto plano.",
   model_guide_example_code:"",
   mg_th_name:"model_name", mg_th_provider:"Provedor / Protocolo", mg_th_context:"Janela de Contexto", mg_th_tokens:"Tokens Recomendados", mg_th_note:"Notas",
   mg_note_longchat:"Ideal para conversas longas", mg_note_default:"padrão", mg_note_autoroute:"Seleção automática", mg_note_free:"Grátis",
@@ -1018,6 +1545,10 @@ de: {
   autostart_on:"Autostart: AN", autostart_off:"Autostart: AUS",
   memory_mb:"Speicher (MB)", process_id:"Prozess-ID", port_18790:"Port 18790",
   tab_channels:"Kanäle", tab_config:"Konfig Editor", tab_logs:"Systemprotokolle", tab_hardware:"Hardware", tab_chat:"Chat",
+  tab_cron:"Zeitpläne", tab_mcp:"MCP", tab_skills:"Skills", tab_models:"Modelle",
+  cron_title:"Geplante Aufgaben", mcp_title:"MCP-Server", skills_title:"Skills", models_title:"Modelle & Auth",
+  col_action:"Aktionen", btn_cancel:"Abbrechen", btn_delete:"Löschen", btn_enable:"Aktivieren", btn_disable:"Deaktivieren",
+  state_on:"Aktiv", state_off:"Inaktiv",
   chat_title_text:"Mit PicoClaw chatten", chat_hint:"Chat direkt über PicoClaw Agent. Antworten können einige Sekunden dauern.",
   chat_placeholder:"Nachricht eingeben...", chat_send:"Senden", chat_clear:"Leeren",
   chat_welcome:"Hallo! Ich bin der PicoClaw AI-Assistent. Wie kann ich helfen?", chat_thinking:"Denke nach...",
@@ -1084,7 +1615,7 @@ de: {
   mg_tag_free:"Mehrere kostenlose Modelle verfügbar (OR)",
   model_guide_table_title:"Bekannte unterstützte Modelle & Parameter",
   model_guide_example_title:"model_list Konfigurationsbeispiel",
-  model_guide_security_tip:"⚠️ Hinweis: API-Schlüssel kann im api_keys-Feld von model_list gesetzt werden, oder über das Router-Terminal mit picoclaw config security in .security.yml (sicherer, nicht im Klartext gespeichert).",
+  model_guide_security_tip:"⚠️ Schlüssel: 0.3.1 hat kein picoclaw config security mehr. picoclaw model add -k schreibt den Schlüssel automatisch in /root/.picoclaw/.security.yml (oder die Datei direkt bearbeiten). api_keys in config.json funktioniert noch, ist aber Klartext.",
   model_guide_example_code:"",
   mg_th_name:"model_name", mg_th_provider:"Anbieter / Protokoll", mg_th_context:"Kontextfenster", mg_th_tokens:"Empfohlene Tokens", mg_th_note:"Hinweis",
   mg_note_longchat:"Bestens für lange Gespräche", mg_note_default:"Standard", mg_note_autoroute:"Automatische Auswahl", mg_note_free:"Kostenlos",
@@ -1096,7 +1627,11 @@ de: {
 };
 
 function I(key, fallback) {
-  return (T[_curLang] && T[_curLang][key]) || T.zh[key] || fallback || key;
+  var own = T[_curLang];
+  if (own && own[key] != null) return own[key];
+  // 新页面只做了中英两套文案，其余语言先回退英文，再回退中文
+  if (_curLang !== 'zh' && T.en && T.en[key] != null) return T.en[key];
+  return T.zh[key] || fallback || key;
 }
 
 function setLang(lang) {
@@ -1193,36 +1728,28 @@ function buildChannelsForm() {
 }
 
 function buildProvidersForm() {
-  var providers = [
-    {id:'zhipu',url:'https://open.bigmodel.cn/api/paas/v4/'},
-    {id:'openai',url:'https://api.openai.com/v1/'},
-    {id:'chatgpt',url:'https://api.openai.com/v1/'},
-    {id:'claude',url:'https://api.anthropic.com/'},
-    {id:'deepseek',url:'https://api.deepseek.com/'},
-    {id:'anthropic',url:'https://api.anthropic.com/'}
-  ];
+  // 0.3.1 已经没有顶层 providers 键：模型与密钥统一在 model_list 里
   var html = '';
-  providers.forEach(function(p) {
-    html += '<div class="cfg-row"><div class="cfg-label">' + p.id + ' ' + I('lbl_api_key') + '</div>';
-    html += '<div class="cfg-field"><input type="password" class="cfg-input" data-path="providers.' + p.id + '.api_key" placeholder="' + I('ph_api_key') + '"></div></div>';
-    html += '<div class="cfg-row"><div class="cfg-label">' + p.id + ' ' + I('lbl_base_url') + '<small>' + I('ph_optional') + '</small></div>';
-    html += '<div class="cfg-field"><input type="text" class="cfg-input" data-path="providers.' + p.id + '.base_url" placeholder="' + p.url + '"></div></div>';
-  });
-  html += '<div class="cfg-row"><div class="cfg-label">Ollama ' + I('lbl_base_url') + '</div>';
-  html += '<div class="cfg-field"><input type="text" class="cfg-input" data-path="providers.ollama.base_url" placeholder="http://localhost:11434/"></div></div>';
+  html += '<div style="padding:12px 14px;background:#fff8e1;border-left:3px solid #ffc107;border-radius:6px;font-size:12px;color:#7a5200;line-height:1.7">';
+  html += '<div style="font-weight:600;margin-bottom:4px">' + I('providers_moved_title') + '</div>';
+  html += '<div>' + I('providers_moved_note') + '</div>';
+  html += '<div style="margin-top:8px"><button type="button" class="pc-btn blue" style="font-size:12px" onclick="switchTab(\'models\',document.querySelectorAll(\'.pc-tab\')[8])">' + I('providers_moved_btn') + '</button></div>';
+  html += '</div>';
   document.getElementById('providers-form-body').innerHTML = html;
 }
 
 function buildSystemForm() {
   var html = '';
-  html += '<div class="cfg-row"><div class="cfg-label">' + I('lbl_listen') + '<small>listen</small></div>';
-  html += '<div class="cfg-field"><input type="text" class="cfg-input cfg-input-sm" data-path="listen" placeholder="0.0.0.0:18790"></div></div>';
+  html += '<div class="cfg-row"><div class="cfg-label">' + I('lbl_listen') + '<small>gateway.host</small></div>';
+  html += '<div class="cfg-field"><input type="text" class="cfg-input cfg-input-sm" data-path="gateway.host" placeholder="0.0.0.0"></div></div>';
+  html += '<div class="cfg-row"><div class="cfg-label">' + I('lbl_port') + '<small>gateway.port</small></div>';
+  html += '<div class="cfg-field"><input type="number" class="cfg-input cfg-input-xs" data-path="gateway.port" min="1" max="65535" placeholder="18790"></div></div>';
   html += '<div class="cfg-row"><div class="cfg-label">' + I('lbl_heartbeat') + '</div>';
   html += '<div class="cfg-field"><div class="toggle-wrap"><label class="toggle"><input type="checkbox" data-path="heartbeat.enabled" data-type="bool"><span class="slider"></span></label><span class="toggle-label">' + I('tl_heartbeat') + '</span></div></div></div>';
   html += '<div class="cfg-row"><div class="cfg-label">' + I('lbl_heartbeat_interval') + '</div>';
   html += '<div class="cfg-field"><input type="number" class="cfg-input cfg-input-xs" data-path="heartbeat.interval" min="5" max="300"></div></div>';
   html += '<div class="cfg-row"><div class="cfg-label">' + I('lbl_media_cleanup') + '</div>';
-  html += '<div class="cfg-field"><div class="toggle-wrap"><label class="toggle"><input type="checkbox" data-path="media_cleanup.enabled" data-type="bool"><span class="slider"></span></label><span class="toggle-label">' + I('tl_media_cleanup') + '</span></div></div></div>';
+  html += '<div class="cfg-field"><div class="toggle-wrap"><label class="toggle"><input type="checkbox" data-path="tools.media_cleanup.enabled" data-type="bool"><span class="slider"></span></label><span class="toggle-label">' + I('tl_media_cleanup') + '</span></div></div></div>';
   html += '<div class="cfg-row"><div class="cfg-label">' + I('lbl_session_scope') + '</div>';
   html += '<div class="cfg-field"><select class="cfg-input cfg-input-sm" data-path="session.dm_scope">';
   html += '<option value="per-channel-peer">' + I('scope_per_peer') + '</option>';
@@ -1290,6 +1817,31 @@ function switchTab(name, el) {
   document.querySelectorAll('.pc-panel').forEach(function(p){p.classList.remove('act')});
   el.classList.add('act');
   document.getElementById('panel-'+name).classList.add('act');
+}
+
+// 折叠区块：新增的定时任务 / MCP / 模型表单共用
+function toggleBox(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.display = (el.style.display === 'none') ? 'block' : 'none';
+}
+
+function cronModeChange() {
+  var m = document.getElementById('cron-mode');
+  if (!m) return;
+  var isCron = (m.value === 'cron');
+  var e = document.getElementById('cron-every-wrap');
+  var x = document.getElementById('cron-expr-wrap');
+  if (e) e.style.display = isCron ? 'none' : 'flex';
+  if (x) x.style.display = isCron ? 'flex' : 'none';
+}
+
+function mcpTransportChange() {
+  var t = document.getElementById('mcp-transport');
+  if (!t) return;
+  var isStdio = (t.value === 'stdio');
+  document.querySelectorAll('.mcp-stdio-only').forEach(function(el){ el.style.display = isStdio ? 'flex' : 'none'; });
+  document.querySelectorAll('.mcp-http-only').forEach(function(el){ el.style.display = isStdio ? 'none' : 'flex'; });
 }
 
 // ========== Chat functions ==========
@@ -1490,13 +2042,13 @@ function setByPath(obj, path, val) {
 // ========== Model List Editor (v2 - full control) ==========
 
 var _modelPresets = {
-  'zhipu': { name: 'glm-4.5-air', model: 'zhipu/glm-4.5-air', base: 'https://open.bigmodel.cn/api/paas/v4' },
-  'openrouter': { name: 'openrouter-auto', model: 'openrouter/auto', base: 'https://openrouter.ai/api/v1' },
-  'deepseek': { name: 'deepseek-chat', model: 'deepseek/deepseek-chat', base: 'https://api.deepseek.com/v1' },
-  'openai': { name: 'gpt-5.4', model: 'openai/gpt-5.4', base: 'https://api.openai.com/v1' },
-  'moonshot': { name: 'kimi-k2.5', model: 'openai', base: 'https://api.moonshot.ai/v1' },
-  'qwen': { name: 'qwen-plus', model: 'qwen/qwen-plus', base: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
-  'ollama': { name: 'ollama-local', model: '', base: 'http://127.0.0.1:11434/v1' }
+  'deepseek':   { name: 'deepseek-flash',  model: 'deepseek/deepseek-flash', base: 'https://api.deepseek.com/v1' },
+  'zhipu':      { name: 'glm-5.3',         model: 'zhipu/glm-5.3',           base: 'https://open.bigmodel.cn/api/paas/v4' },
+  'openrouter': { name: 'openrouter-auto', model: 'openrouter/auto',         base: 'https://openrouter.ai/api/v1' },
+  'moonshot':   { name: 'kimi-k3',         model: 'moonshot/kimi-k3',        base: 'https://api.moonshot.ai/v1' },
+  'openai':     { name: 'gpt-5.5',         model: 'openai/gpt-5.5',          base: 'https://api.openai.com/v1' },
+  'qwen':       { name: 'qwen3.8-max',     model: 'qwen/qwen3.8-max',        base: 'https://dashscope.aliyuncs.com/compatible-mode/v1' },
+  'ollama':     { name: 'ollama-local',    model: '',                        base: 'http://127.0.0.1:11434/v1' }
 };
 
 function addModelPreset(key) {
@@ -1584,6 +2136,12 @@ function collectModelList() {
       api_base: getName('api_base'),
       enabled: !!(tr.querySelector('[data-ml-field="enabled"]') || {}).checked
     };
+    // 保留表单里没有的字段（provider 等），否则 0.3.1 会当成缺省值丢掉
+    if (origMap[mn]) {
+      Object.keys(origMap[mn]).forEach(function(k) {
+        if (!(k in entry) && k !== 'api_keys') entry[k] = origMap[mn][k];
+      });
+    }
     var ak = getName('api_keys');
     if (ak) {
       // If the key is the [NOT_HERE] placeholder, preserve original api_keys format
@@ -1717,24 +2275,36 @@ function doImportSkill() {
 
 // ========== 模型元数据：推荐 max_tokens & 上下文窗口 ==========
 var MODEL_INFO = {
-  'glm-4.5-air':           { max_tokens: 8192,   ctx_window: 128000,  label: 'GLM-4.5-Air (智谱, 默认)', is_default: true },
-  'glm-4.7':               { max_tokens: 8192,   ctx_window: 128000,  label: 'GLM-4.7 (智谱)' },
-  'openrouter-auto':       { max_tokens: 16384,  ctx_window: 131072,  label: 'OpenRouter Auto (自动路由)' },
-  'openrouter-gpt-5.4':    { max_tokens: 16384,  ctx_window: 128000,  label: 'GPT-5.4 via OpenRouter' },
-  'deepseek-v3':           { max_tokens: 16384,  ctx_window: 128000,  label: 'DeepSeek V3' },
-  'deepseek-chat':         { max_tokens: 8192,   ctx_window: 64000,   label: 'DeepSeek Chat (64K)' },
-  'gpt-5.4':               { max_tokens: 16384,  ctx_window: 128000,  label: 'GPT-5.4 (OpenAI)' },
-  'qwen-plus':             { max_tokens: 8192,   ctx_window: 131072,  label: 'Qwen Plus (通义千问, 131K)' },
-  'kimi-k2.5':             { max_tokens: 16384,  ctx_window: 262144,  label: 'Kimi K2.5 · Moonshot ★256K', star: true },
-  'claude-sonnet-4.6':     { max_tokens: 8192,   ctx_window: 200000,  label: 'Claude Sonnet 4.6 (200K)' },
+  // 2026-11 主流模型
+  'deepseek-flash':        { max_tokens: 16384, ctx_window: 1048576, label: 'DeepSeek V4.1 Flash (1M)' },
+  'deepseek-v4-pro':       { max_tokens: 16384, ctx_window: 1048576, label: 'DeepSeek V4 Pro (已路由到 Flash)' },
+  'claude-fable-5.2':      { max_tokens: 8192,  ctx_window: 1000000, label: 'Claude Fable 5.2 (1M)' },
+  'claude-sonnet-5.5':     { max_tokens: 8192,  ctx_window: 1000000, label: 'Claude Sonnet 5.5 (1M)' },
+  'gpt-5.5':               { max_tokens: 16384, ctx_window: 1000000, label: 'GPT-5.5 (1M)' },
+  'gpt-5.4-mini':          { max_tokens: 8192,  ctx_window: 272000,  label: 'GPT-5.4 mini (272K)' },
+  'gemini-4-carbon':       { max_tokens: 16384, ctx_window: 1000000, label: 'Gemini 4 Carbon (1M)' },
+  'gemini-3.1-flash-lite': { max_tokens: 8192,  ctx_window: 1000000, label: 'Gemini 3.1 Flash-Lite (1M)' },
+  'glm-5.3':               { max_tokens: 8192,  ctx_window: 1000000, label: 'GLM-5.3 (智谱, 1M)' },
+  'glm-4.7':               { max_tokens: 8192,  ctx_window: 200000,  label: 'GLM-4.7 (智谱)' },
+  'kimi-k3':               { max_tokens: 16384, ctx_window: 1000000, label: 'Kimi K3 (1M)', star: true },
+  'qwen3.8-max':           { max_tokens: 16384, ctx_window: 1000000, label: 'Qwen3.8 Max (1M)' },
+  // 本机在用的
+  'glm-4.5-air':           { max_tokens: 8192,  ctx_window: 128000,  label: 'GLM-4.5-Air (智谱)' },
+  'openrouter-auto':       { max_tokens: 16384, ctx_window: 1048576, label: 'OpenRouter Auto (自动路由)' },
+  'openrouter-gpt-5.4':    { max_tokens: 16384, ctx_window: 128000,  label: 'GPT-5.4 via OpenRouter' },
+  'kimi-k2.5':             { max_tokens: 16384, ctx_window: 262144,  label: 'Kimi K2.5 (256K)' },
+  'qwen-plus':             { max_tokens: 8192,  ctx_window: 131072,  label: 'Qwen Plus (129K)' },
+  'deepseek-chat':         { max_tokens: 8192,  ctx_window: 131072,  label: 'DeepSeek Chat (已下线)' },
   // OpenRouter 免费模型
-  'qwen3.6-free':          { max_tokens: 8192,   ctx_window: 128000,  label: 'Qwen3.6-Free (OR免费)', free: true },
-  'nemotron-free':         { max_tokens: 8192,   ctx_window: 128000,  label: 'Nemotron (OR免费)', free: true },
-  'gpt-oss-120b-free':     { max_tokens: 8192,   ctx_window: 128000,  label: 'GPT-OSS-120B (OR免费)', free: true }
+  'qwen3.6-free':          { max_tokens: 8192,  ctx_window: 128000,  label: 'Qwen3.6-Free (OR免费)', free: true },
+  'nemotron-free':         { max_tokens: 8192,  ctx_window: 128000,  label: 'Nemotron (OR免费)', free: true },
+  'gpt-oss-120b-free':     { max_tokens: 8192,  ctx_window: 128000,  label: 'GPT-OSS-120B (OR免费)', free: true }
 };
 
 function fmtCtx(n) {
-  if (n >= 102400) return Math.round(n/1024) + 'K';
+  if (n >= 1000000) return (Math.round(n / 100000) / 10) + 'M';
+  // 厂商有的按 1024 给（262144），有的按 1000 给（128000），各自还原成宣传口径
+  if (n >= 1000) return (n % 1024 === 0 ? Math.round(n / 1024) : Math.round(n / 1000)) + 'K';
   return n.toLocaleString();
 }
 
@@ -1799,19 +2369,52 @@ function confirmUpload() {
 }
 
 // ========== Model Guide Table (i18n-aware) ==========
+// pv = 0.3.1 里 provider 字段该填的值（取自 picoclaw 内置 provider 矩阵）
 var MODEL_GUIDE_DATA = [
-  { name:'kimi-k2.5',    provider:'Moonshot (openai)', ctx:262144, tokens:16384, note_key:'mg_note_longchat',   star:true },
-  { name:'claude-sonnet-4.6', provider:'Anthropic',      ctx:200000, tokens:8192,  note_key:'' },
-  { name:'glm-4.7',       provider:'Zhipu',              ctx:128000, tokens:8192,  note_key:'' },
-  { name:'glm-4.5-air',   provider:'Zhipu',              ctx:128000, tokens:8192,  note_key:'mg_note_default', is_default:true },
-  { name:'deepseek-v3',   provider:'DeepSeek',           ctx:128000, tokens:16384, note_key:'' },
-  { name:'gpt-5.4',       provider:'OpenAI',             ctx:128000, tokens:16384, note_key:'' },
-  { name:'qwen-plus',     provider:'Qwen / Tongyi',      ctx:131072, tokens:8192,  note_key:'' },
-  { name:'openrouter-auto',provider:'OpenRouter',         ctx:131072, tokens:16384, note_key:'mg_note_autoroute' },
-  { name:'deepseek-chat', provider:'DeepSeek',            ctx:64000,  tokens:8192,  note_key:'' },
-  { name:'qwen3.6-free',  provider:'OpenRouter (free)',  ctx:128000, tokens:8192,  note_key:'mg_note_free', free:true },
-  { name:'nemotron-free', provider:'OpenRouter (free)',  ctx:128000, tokens:8192,  note_key:'mg_note_free', free:true },
-  { name:'gpt-oss-120b-free',provider:'OpenRouter (free)',ctx:128000,tokens:8192,  note_key:'mg_note_free', free:true }
+  // 2026-11 主流模型；ctx 为厂商公布的上下文窗口，tokens 是建议的 agents.defaults.max_tokens
+  { name:'deepseek-flash',      pv:'deepseek',   ctx:1048576, tokens:16384, ctxLabel:'1M', note_key:'mg_note_think' },
+  { name:'deepseek-v4-pro',     pv:'deepseek',   ctx:1048576, tokens:16384, ctxLabel:'1M', note_key:'mg_note_phasing' },
+  { name:'claude-fable-5.2',    pv:'anthropic',  ctx:1000000, tokens:8192,  ctxLabel:'1M', note_key:'mg_note_flagship' },
+  { name:'claude-sonnet-5.5',   pv:'anthropic',  ctx:1000000, tokens:8192,  ctxLabel:'1M', note_key:'mg_note_balanced' },
+  { name:'gpt-5.5',             pv:'openai',     ctx:1000000, tokens:16384, ctxLabel:'1M', note_key:'mg_note_longctx' },
+  { name:'gpt-5.4-mini',        pv:'openai',     ctx:272000,  tokens:8192,  ctxLabel:'272K', note_key:'mg_note_cheap' },
+  { name:'gemini-4-carbon',     pv:'gemini',     ctx:1000000, tokens:16384, ctxLabel:'1M', note_key:'' },
+  { name:'gemini-3.1-flash-lite',pv:'gemini',    ctx:1000000, tokens:8192,  ctxLabel:'1M', note_key:'mg_note_cheap' },
+  { name:'glm-5.3',             pv:'zhipu',      ctx:1000000, tokens:8192,  ctxLabel:'1M', note_key:'' },
+  { name:'glm-4.7',             pv:'zhipu',      ctx:200000,  tokens:8192,  ctxLabel:'200K', note_key:'' },
+  { name:'glm-4.5-air',         pv:'zhipu',      ctx:128000,  tokens:8192,  ctxLabel:'128K', note_key:'mg_note_old' },
+  { name:'kimi-k3',             pv:'moonshot',   ctx:1000000, tokens:16384, ctxLabel:'1M', note_key:'mg_note_longchat', star:true },
+  { name:'kimi-k2.5',           pv:'moonshot',   ctx:262144,  tokens:8192,  ctxLabel:'256K', note_key:'' },
+  { name:'qwen3.8-max',         pv:'qwen',       ctx:1000000, tokens:16384, ctxLabel:'1M', note_key:'' },
+  { name:'qwen-plus',           pv:'qwen',       ctx:131072,  tokens:8192,  ctxLabel:'129K', note_key:'mg_note_cheap' },
+  { name:'openrouter-auto',     pv:'openrouter', ctx:1048576, tokens:16384, ctxLabel:'1M', note_key:'mg_note_autoroute' }
+];
+
+// provider 值 / 厂商 / 认证方式，来自 picoclaw 0.3.1 内置文档
+var PROVIDER_MATRIX = [
+  ['openai',        'OpenAI',                 'auth login --provider openai，或 model_list api_keys'],
+  ['anthropic',     'Anthropic',              'model_list api_keys，或 auth login'],
+  ['anthropic-messages','Anthropic Messages API','model_list api_keys'],
+  ['gemini',        'Google Gemini',          'model_list api_keys'],
+  ['openrouter',    'OpenRouter',             'model_list api_keys'],
+  ['zhipu',         '智谱 / GLM',              'model_list api_keys'],
+  ['deepseek',      'DeepSeek',               'model_list api_keys'],
+  ['volcengine',    '火山引擎 / 豆包',          'model_list api_keys'],
+  ['qwen',          '通义千问 / DashScope',     'model_list api_keys'],
+  ['moonshot',      'Moonshot / Kimi',        'model_list api_keys'],
+  ['minimax',       'MiniMax',                'model_list api_keys'],
+  ['mistral',       'Mistral AI',             'model_list api_keys'],
+  ['groq',          'Groq',                   'model_list api_keys'],
+  ['nvidia',        'NVIDIA NIM',             'model_list api_keys'],
+  ['cerebras',      'Cerebras',               'model_list api_keys'],
+  ['azure',         'Azure OpenAI',           'model_list api_key'],
+  ['bedrock',       'AWS Bedrock',            'AWS 凭证 + bedrock 构建标签'],
+  ['antigravity',   'Antigravity',            'auth login --provider antigravity'],
+  ['github-copilot','GitHub Copilot',         '外部 Copilot 端点（默认 localhost:4321）'],
+  ['ollama',        'Ollama',                 '本地端点，无需 key'],
+  ['lmstudio',      'LM Studio',              '本地端点，key 可选'],
+  ['vllm',          'vLLM',                   '本地 OpenAI 兼容端点'],
+  ['litellm',       'LiteLLM',                '代理端点 + 代理要求的凭证']
 ];
 
 var MODEL_TAG_DATA = [
@@ -1837,26 +2440,40 @@ function renderModelGuide() {
   var tbody = document.getElementById('model-guide-table-body');
   if (!tbody) return;
   html = '';
+  var curDefault = (typeof PC_DEFAULT_MODEL === 'string') ? PC_DEFAULT_MODEL : '';
   MODEL_GUIDE_DATA.forEach(function(m) {
-    var bg = m.free ? 'background:#f1f8e9' : (m.is_default ? 'background:#fff8e1' : '');
+    var isDef = (m.name === curDefault);
+    var bg = isDef ? 'background:#fff8e1' : (m.free ? 'background:#f1f8e9' : '');
     var nameStyle = 'font-weight:600;' + (m.star ? 'color:#2e7d32' : '');
     var noteHtml = '';
-    if (m.note_key) {
+    if (isDef) noteHtml = '<span style="color:#e65100;font-weight:600">' + I('mg_note_default') + '</span>';
+    else if (m.note_key) {
       var n = I(m.note_key);
       if (m.star && n) noteHtml = '<span style="color:#2e7d32">'+n+'</span>';
-      else if (m.is_default && n) noteHtml = '<span style="color:#e65100;font-weight:600">'+n+'</span>';
       else if (m.free && n) noteHtml = '<span style="color:#388e3c">&#127873; '+n+'</span>';
       else if (n) noteHtml = n;
     }
     html += '<tr style="'+bg+'">';
     html += '<td style="padding:4px 8px;border:1px solid #eee;'+nameStyle+'">' + m.name + (m.star ? ' &#11088;' : '') + '</td>';
-    html += '<td style="padding:4px 8px;text-align:center;border:1px solid #eee">' + I('mg_prov_' + m.name, m.provider) + '</td>';
-    html += '<td style="padding:4px 8px;text-align:right;border:1px solid #eee;' + (m.ctx >= 200000 ? 'color:#2e7d32;font-weight:600' : '') + '">' + fmtCtx(m.ctx) + '</td>';
+    html += '<td style="padding:4px 8px;text-align:center;border:1px solid #eee;font-family:\'Courier New\',monospace;color:#37474f">' + m.pv + '</td>';
+    html += '<td style="padding:4px 8px;text-align:right;border:1px solid #eee;' + (m.ctx >= 200000 ? 'color:#2e7d32;font-weight:600' : '') + '">' + (m.ctxLabel || fmtCtx(m.ctx)) + '</td>';
     html += '<td style="padding:4px 8px;text-align:right;border:1px solid #eee">' + m.tokens + '</td>';
     html += '<td style="padding:4px 8px;text-align:center;border:1px solid #eee">' + noteHtml + '</td>';
     html += '</tr>';
   });
   tbody.innerHTML = html;
+
+  // provider 矩阵
+  var pmBody = document.getElementById('provider-matrix-body');
+  if (pmBody) {
+    var pmHtml = '';
+    PROVIDER_MATRIX.forEach(function(r) {
+      pmHtml += '<tr><td style="padding:4px 8px;border:1px solid #eee;font-family:\'Courier New\',monospace;color:#1565c0;white-space:nowrap">' + r[0] + '</td>'
+             + '<td style="padding:4px 8px;border:1px solid #eee">' + r[1] + '</td>'
+             + '<td style="padding:4px 8px;border:1px solid #eee;color:#666">' + r[2] + '</td></tr>';
+    });
+    pmBody.innerHTML = pmHtml;
+  }
 
   // Render code example
   var codeEl = document.getElementById('model-example-code');
@@ -1865,22 +2482,32 @@ function renderModelGuide() {
     if (ex && ex !== 'model_guide_example_code') {
       codeEl.innerHTML = ex;
     } else {
-      codeEl.innerHTML = '<span style="color:#80cbc4">// config.json → model_list array</span>\n'
-        + '<span style="color:#ffcc80">"model_list"</span>: [\n'
+      var c1 = 'color:#ffcc80', c2 = 'color:#a5d6a7', c3 = 'color:#80cbc4', c4 = 'color:#546e7d';
+      codeEl.innerHTML = '<span style="'+c3+'">// config.json → model_list（0.3.1 允许的字段只有这 6 个）</span>\n'
+        + '<span style="'+c1+'">"model_list"</span>: [\n'
         + '  {\n'
-        + '    <span style="color:#ffcc80">"model_name"</span>: <span style="color:#a5d6a7">"glm-4.5-air"</span>,   <span style="color:#546e7d">// ← set this in agents.defaults.model_name</span>\n'
-        + '    <span style="color:#ffcc80">"model"</span>: <span style="color:#a5d6a7">"zhipu/glm-4.5-air"</span>,\n'
-        + '    <span style="color:#ffcc80">"api_base"</span>: <span style="color:#a5d6a7">"https://open.bigmodel.cn/api/paas/v4"</span>,\n'
-        + '    <span style="color:#ffcc80">"api_keys"</span>: [<span style="color:#a5d6a7">"your API key"</span>],\n'
-        + '    <span style="color:#ffcc80">"enabled"</span>: true\n'
+        + '    <span style="'+c1+'">"model_name"</span>: <span style="'+c2+'">"glm-4.5-air"</span>,   <span style="'+c4+'">// agents.defaults.model_name 指向这里</span>\n'
+        + '    <span style="'+c1+'">"provider"</span>: <span style="'+c2+'">"zhipu"</span>,        <span style="'+c4+'">// 可留空，由 model 前缀推断</span>\n'
+        + '    <span style="'+c1+'">"model"</span>: <span style="'+c2+'">"zhipu/glm-4.5-air"</span>,\n'
+        + '    <span style="'+c1+'">"api_base"</span>: <span style="'+c2+'">"https://open.bigmodel.cn/api/paas/v4"</span>,\n'
+        + '    <span style="'+c1+'">"thinking_level"</span>: <span style="'+c2+'">"high"</span>,  <span style="'+c4+'">// low / medium / high / max / adaptive，可留空</span>\n'
+        + '    <span style="'+c1+'">"enabled"</span>: <span style="'+c2+'">true</span>\n'
         + '  },\n'
         + '  {\n'
-        + '    <span style="color:#ffcc80">"model_name"</span>: <span style="color:#a5d6a7">"kimi-k2.5"</span>,\n'
-        + '    <span style="color:#ffcc80">"model"</span>: <span style="color:#a5d6a7">"openai"</span>,\n'
-        + '    <span style="color:#ffcc80">"api_base"</span>: <span style="color:#a5d6a7">"https://api.moonshot.ai/v1"</span>,\n'
-        + '    <span style="color:#ffcc80">"enabled"</span>: true\n'
+        + '    <span style="'+c1+'">"model_name"</span>: <span style="'+c2+'">"kimi-k2.5"</span>,\n'
+        + '    <span style="'+c1+'">"model"</span>: <span style="'+c2+'">"openai"</span>,          <span style="'+c4+'">// 走 moonshot 的 OpenAI 兼容端点</span>\n'
+        + '    <span style="'+c1+'">"api_base"</span>: <span style="'+c2+'">"https://api.moonshot.ai/v1"</span>,\n'
+        + '    <span style="'+c1+'">"enabled"</span>: <span style="'+c2+'">true</span>\n'
         + '  }\n'
-        + ']';
+        + ']\n'
+        + '\n'
+        + '<span style="'+c3+'">// 密钥不在 config.json：~/.picoclaw/.security.yml</span>\n'
+        + '<span style="'+c3+'">// model_list:</span>\n'
+        + '<span style="'+c3+'">//   glm-4.5-air:0:</span>\n'
+        + '<span style="'+c3+'">//     api_keys:</span>\n'
+        + '<span style="'+c3+'">//       - &lt;你的 key&gt;</span>\n'
+        + '\n'
+        + '<span style="'+c3+'">// 最省事：picoclaw model add -b https://api.xxx/v1 -k sk-xxx -m 模型ID -n 别名</span>';
     }
   }
 }

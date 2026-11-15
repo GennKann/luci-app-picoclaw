@@ -6,12 +6,12 @@
 
 <p align="center">
   <b>Machen Sie Ihren Router zum AI-Assistenten — <a href="https://github.com/sipeed/picoclaw">PicoClaw</a> im Browser verwalten</b><br>
-  <sub>Dienstverwaltung · Modellkonfiguration · Hardwaresteuerung</sub>
+  <sub>Dienst · Channels · Modelle · Zeitpläne · MCP · Skills · Hardware</sub>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/OpenWrt-24.10%20%7C%2025.xx%20%7C%20iStoreOS-blue?logo=openwrt" alt="OpenWrt">
-  <img src="https://img.shields.io/badge/Version-1.1.6-brightgreen" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.2.0-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -27,33 +27,27 @@
 
 ## Was ist das?
 
-**[PicoClaw](https://github.com/sipeed/picoclaw)** ist ein KI-Assistent, der auf Ihrem Router läuft. Er verbindet sich mit großen Sprachmodellen (wie ChatGPT, DeepSeek, GLM usw.) und ermöglicht Chats über Feishu, Telegram, Discord, WeChat und mehr.
+**[PicoClaw](https://github.com/sipeed/picoclaw)** ist ein KI-Assistent, der **auf deinem Router** läuft — er verbindet sich mit Sprachmodellen (DeepSeek, GLM, Qwen, OpenAI…) und chattet mit dir über Feishu, Telegram, Discord, WeChat und mehr.
 
-Allerdings hat PicoClaw selbst keine grafische Oberfläche — die Konfiguration muss über die Kommandozeile oder durch manuelles Bearbeiten von JSON-Dateien erfolgen.
-
-**Dieses Projekt fügt eine Web-Verwaltungsoberfläche** (ein LuCI-Plugin) für PicoClaw hinzu. Alles lässt sich im Browser erledigen: Dienst starten/stoppen, KI-Modelle wechseln, API-Keys konfigurieren, Suchmaschinen verwalten und mehr — keine Kommandozeile nötig.
-
-> **LuCI** ist das Web-Interface-Framework von OpenWrt-Routern. Wenn Sie die Admin-Seite Ihres Routers öffnen (z.B. 192.168.1.1), ist das LuCI.
-
-## 📸 Screenshots
-
-| Dashboard | Konfigurationseditor |
-|:---:|:---:|
-| ![Dashboard](Screenshots/screenshot_main.png) | ![Config](Screenshots/screenshot_config.png) |
-
-| Hardwaresteuerung | Mobile Ansicht |
-|:---:|:---:|
-| ![Hardware](Screenshots/screenshot_hardware.png) | ![Mobile](Screenshots/screenshot_mobile.png) |
+PicoClaw selbst hat keine grafische Oberfläche — alles wird per Hand in JSON-Dateien konfiguriert. **Dieses Plugin ist diese Oberfläche**: eine LuCI-Seite, auf der du Dienst, Modelle, Channels, Zeitpläne, MCP-Server, Skills und Hardware direkt im Browser verwaltest. Kein SSH, kein handgeschriebenes JSON.
 
 ## ✨ Funktionen
 
-- **Dienststeuerung** — Ein-Klick Start / Stopp / Neustart, Autostart, Echtzeit-Logs
-- **Kanalverwaltung** — Verbindungsstatus für Feishu, Telegram, Discord, WeChat usw.
-- **Modellkonfiguration** — Visueller Formular-Editor für KI-Modelle mit Anbieter-Voreinstellungen (Zhipu, DeepSeek, Qwen, OpenAI usw.) — einfach API-Key eintragen
-- **Suchmaschinen-Konfiguration** — KI kann das Web durchsuchen. Unterstützt GLM Search, Baidu, DuckDuckGo usw. (mit China-Verfügbarkeitshinweisen)
-- **Hardwaresteuerung** — Systeminfo, USB-Geräte, GPIO-Schalter
-- **Skill-Verwaltung** — PicoClaw-Skills anzeigen, löschen, importieren; 3 integrierte Voreinstellungen (Diagnose, Backup, App-Installer)
-- **JSON-Editor** — Direkte Konfigurationsbearbeitung für Fortgeschrittene
+Neun Tabs auf einer Seite:
+
+| Tab | Was du damit machen kannst |
+|---|---|
+| **Channels** | Verbindungsstatus von Feishu / Telegram / Discord / WeChat … ansehen und umschalten |
+| **Chat** | Mit dem Assistenten chatten, ohne die Router-Oberfläche zu verlassen |
+| **Config Editor** | Geführtes Formular für `config.json`, plus roher JSON-Modus für Fortgeschrittene |
+| **Logs** | PicoClaw-Ausgabe in Echtzeit — Fehler, LLM-Aufrufe, Token-Verbrauch |
+| **Hardware** | Systeminfo, USB-Geräte, GPIO-Schalter |
+| **Scheduled Tasks** | Cron-/Intervall-Jobs — anlegen, aktivieren, deaktivieren, löschen |
+| **MCP Servers** | MCP-Server hinzufügen oder entfernen (stdio / http / sse) |
+| **Skills** | Agent-Skills ansehen, installieren, importieren, löschen |
+| **Models & Auth** | Modellliste, Standardmodell, Ein-/Ausschalten, API-Key-Status, Thinking Level |
+
+Dazu ein-Klick-Start / Stopp / Neustart des Dienstes, Autostart, Suchmaschinen-Presets und ein JSON-Editor.
 
 ## 📋 Voraussetzungen
 
@@ -65,57 +59,97 @@ Allerdings hat PicoClaw selbst keine grafische Oberfläche — die Konfiguration
 
 ## 🚀 Installation
 
-### Schritt 1: PicoClaw installieren
+### Schritt 1 — PicoClaw-Binary installieren
 
-PicoClaw ist das Kernprogramm des KI-Assistenten — es muss zuerst installiert werden. Per SSH auf den Router verbinden und ausführen:
+Dieses Plugin ist nur die Web-Oberfläche. PicoClaw selbst ist ein eigenes Programm — zuerst per SSH installieren:
 
 ```bash
 cd /tmp
-wget https://github.com/sipeed/picoclaw/releases/download/v0.2.7/picoclaw_Linux_x86_64.tar.gz
+wget https://github.com/sipeed/picoclaw/releases/download/v0.3.1/picoclaw_Linux_x86_64.tar.gz
 tar xzf picoclaw_Linux_x86_64.tar.gz
 cp picoclaw /usr/bin/picoclaw && chmod +x /usr/bin/picoclaw
-picoclaw --version   # Versionsnummer sollte angezeigt werden
+picoclaw --version
 ```
 
-> ⚠️ Der obige Link ist für x86_64. Wenn Ihr Router ARM verwendet (die meisten Xiaomi-, TP-Link-Router), laden Sie das richtige Binary von [PicoClaw Releases](https://github.com/sipeed/picoclaw/releases) herunter.
+> ⚠️ Der Link ist für **x86_64**. ARM-Router (die meisten Xiaomi-, TP-Link-Geräte) brauchen `picoclaw_Linux_arm64.tar.gz` oder `picoclaw_Linux_armv7.tar.gz` — siehe [PicoClaw Releases](https://github.com/sipeed/picoclaw/releases). `uname -m` verrät dir die Architektur.
 
-### Schritt 2: LuCI-Oberfläche installieren
+### Schritt 2 — Dieses Plugin installieren
 
-**Option A: iStore** (empfohlen, am einfachsten)
+**Option A — iStore** (am einfachsten)
 
-iStore auf dem Router öffnen → `picoclaw` suchen → Installieren klicken
+iStore auf dem Router öffnen → `picoclaw` suchen → Install
 
-**Option B: IPK über Kommandozeile installieren**
+**Option B — IPK** (OpenWrt mit `opkg`)
 
 ```bash
 cd /tmp
-wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.1.6-1_all.ipk
-opkg install luci-app-picoclaw_1.1.6-1_all.ipk
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.2.0-1_all.ipk
+opkg install luci-app-picoclaw_1.2.0-1_all.ipk
 rm -rf /tmp/luci-*   # LuCI-Cache leeren
 ```
 
-Nach der Installation im Browser öffnen: `http://<ROUTER_IP>/cgi-bin/luci/admin/services/picoclaw`
+**Option C — APK** (OpenWrt 25.x mit `apk`)
+
+```bash
+cd /tmp
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw-1.2.0-r1.apk
+apk add --allow-untrusted luci-app-picoclaw-1.2.0-r1.apk
+rm -rf /tmp/luci-*   # LuCI-Cache leeren
+```
+
+> Das APK ist nicht signiert, daher ist `--allow-untrusted` erforderlich.
+
+**Aus dem Quellcode bauen**
+
+```bash
+# IPK (Systeme mit opkg)
+python3 scripts/build-ipk.py
+
+# APK v3 (OpenWrt 25.x / apk) — direkt auf dem Router ausführen
+sh scripts/build-apk-v3.sh
+```
+
+> Windows-Klone: Mit aktivem `core.autocrlf` wandelt Git LF in CRLF um. Der Lua/HTML-Parser von LuCI akzeptiert nur LF (CRLF führt zu `unfinished string`) — vor dem Deploy `dos2unix` ausführen oder `git config core.autocrlf false` setzen.
+
+### Schritt 3 — Öffnen
+
+`http://<ROUTER-IP>/cgi-bin/luci/admin/services/picoclaw`
+
+Dann ein Modell und einen API-Key hinterlegen — siehe [Modellkonfiguration](#-modellkonfiguration).
+
+## 📸 Screenshots
+
+| Channels | Models & Auth |
+|:---:|:---:|
+| ![Channels](Screenshots/screenshot_main.png) | ![Models](Screenshots/screenshot_models.png) |
+
+| Skills | Scheduled Tasks |
+|:---:|:---:|
+| ![Skills](Screenshots/screenshot_skills.png) | ![Cron](Screenshots/screenshot_cron.png) |
 
 ## 🤖 Modellkonfiguration
 
-PicoClaw muss sich mit einem großen Sprachmodell verbinden, um zu funktionieren. Stellen Sie es sich als „Client" vor — es enthält keine KI selbst, sondern ruft KI-Dienste über deren APIs auf. Sie müssen einen **API-Key** (ähnlich einem Passwort) angeben, damit PicoClaw auf den Dienst zugreifen kann.
+PicoClaw braucht einen **API-Key** (denk an ein Passwort) für mindestens einen Modellanbieter.
 
-**So konfigurieren Sie:**
+**Schnellster Weg — über die Oberfläche:**
 
-1. Gehen Sie zum Tab **Konfigurationseditor** → finden Sie den Bereich **Modellliste**
-2. Klicken Sie auf eine Anbieter-Voreinstellung (z.B. „Zhipu GLM", „DeepSeek") — die API-Base-URL wird automatisch ausgefüllt
-3. Geben Sie Ihren **API-Key** ein (auf der Anbieter-Website durch Registrierung erhältlich)
-4. Wählen Sie ein **Standardmodell** aus dem Dropdown
-5. Klicken Sie auf **Speichern**
+1. Tab **Models & Auth** öffnen
+2. **Add model** klicken und ein Preset wählen (DeepSeek / Zhipu GLM / Qwen / OpenAI / Anthropic / OpenRouter / Ollama) — API-Base und Modell-ID werden automatisch eingetragen
+3. **API-Key** einfügen
+4. **Set as default** klicken, dann **Save**
 
-**Unterstützte Anbieter:** Zhipu · DeepSeek · Qwen · OpenAI · Anthropic · OpenRouter · Ollama
+**Oder über die Konsole** (der Key landet nicht in `config.json`):
 
-> 💡 **Noch keinen API-Key?** Die meisten Anbieter bieten kostenlose Credits zum Testen:
-> - [Zhipu (智谱)](https://open.bigmodel.cn/) — China-basiert, kostenlose Credits bei Registrierung
-> - [DeepSeek](https://platform.deepseek.com/) — China-basiert, kostenlose Credits bei Registrierung
-> - [OpenRouter](https://openrouter.ai/) — Aggregiert mehrere Modelle
+```bash
+picoclaw model add -b https://api.deepseek.com/v1 -k sk-xxx -m deepseek-flash -n deepseek-flash
+picoclaw model deepseek-flash        # als Standard setzen
+```
 
-> 🔒 API-Keys werden über PicoClaws Dual-Datei-Sicherheitssystem gespeichert (`config.json` speichert nur einen Platzhalter, echte Keys in `.security.yml`), nie im Klartext offengelegt.
+> 🔒 Im UI eingegebene Keys landen in Picoclaws `.security.yml`, nicht in `config.json`.
+
+**Thinking Level** — jede Modellzeile hat ein Dropdown (default / low / medium / high / max / adaptive), das auf `thinking_level` abbildet. Ob es die Antwort wirklich verändert, hängt vom Anbieter ab: DeepSeek akzeptiert low/high/max, manche Anbieter nur `adaptive`, nicht unterstützte Werte fallen auf den Standard zurück.
+
+**Woher der Key?** [Zhipu](https://open.bigmodel.cn/) · [DeepSeek](https://platform.deepseek.com/) · [OpenRouter](https://openrouter.ai/) — alle drei geben bei der Registrierung Gratis-Credits.
 
 ## 🔍 Suchmaschine
 
@@ -138,6 +172,8 @@ PicoClaw kann das Web durchsuchen, um Fragen zu beantworten. Für Nutzer in Chin
 | API-Key-Feld zeigt `[NOT_HERE]`? | Normal — echte Keys in `.security.yml`, über LuCI UI verwalten |
 | Was ist ein API-Key? | Ein Passwort für den Aufruf von KI-Diensten. Auf der Anbieter-Website registrieren — die meisten bieten kostenlose Credits |
 | Router-Architektur prüfen? | Per SSH `uname -m` ausführen. Häufige Werte: x86_64, aarch64, mipsel |
+| OpenWrt 25.x installiert das IPK nicht? | 25.x nutzt `apk` statt `opkg` — nimm das `.apk` und `apk add --allow-untrusted` |
+| Beim Speichern erscheint "unknown field(s)"? | PicoClaw 0.3.1 prüft `config.json` streng. Erlaubt sind nur `model_name`, `provider`, `model`, `api_base`, `api_keys`, `enabled`, `thinking_level` — `max_tokens` gehört nach `agents.defaults` |
 
 ## Changelog
 

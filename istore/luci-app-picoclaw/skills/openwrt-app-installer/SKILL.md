@@ -1,3 +1,5 @@
+---
+name: openwrt-app-installer
 description: "OpenWrt 智能应用安装 - 通过自然语言搜索、安装和管理 iStore/opkg 软件包"
 ---
 

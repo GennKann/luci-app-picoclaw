@@ -1,3 +1,5 @@
+---
+name: openwrt-backup
 description: "OpenWrt 配置备份与恢复 - 系统/应用/服务配置的一键备份和恢复"
 ---
 

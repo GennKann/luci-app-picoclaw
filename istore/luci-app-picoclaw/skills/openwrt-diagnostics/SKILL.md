@@ -1,3 +1,5 @@
+---
+name: openwrt-diagnostics
 description: "OpenWrt 系统诊断与故障排查 - 日志分析、网络检测、服务状态检查"
 ---
 

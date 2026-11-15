@@ -6,12 +6,12 @@
 
 <p align="center">
   <b>让你的路由器变成 AI 助手 — 在浏览器里管理 PicoClaw</b><br>
-  <sub>服务管理 · 模型配置 · 硬件控制</sub>
+  <sub>服务 · 通道 · 模型 · 定时任务 · MCP · 技能 · 硬件</sub>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/OpenWrt-24.10%20%7C%2025.xx%20%7C%20iStoreOS-blue?logo=openwrt" alt="OpenWrt">
-  <img src="https://img.shields.io/badge/Version-1.1.6-brightgreen" alt="Version">
+  <img src="https://img.shields.io/badge/Version-1.2.0-brightgreen" alt="Version">
   <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License">
 </p>
 
@@ -27,33 +27,27 @@
 
 ## 这是什么？
 
-**[PicoClaw](https://github.com/sipeed/picoclaw)** 是一个运行在路由器上的 AI 助手程序，它可以让你的路由器接入大语言模型（如智谱 GLM、DeepSeek、ChatGPT 等），并通过飞书、Telegram、Discord、微信等通道与你对话。
+**[PicoClaw](https://github.com/sipeed/picoclaw)** 是一个跑在**路由器上**的 AI 助手 —— 它接入大语言模型（DeepSeek、智谱 GLM、通义、OpenAI 等），然后通过飞书、Telegram、Discord、微信等通道跟你对话。
 
-但 PicoClaw 本身没有图形界面，只能通过命令行或手动编辑 JSON 文件来配置，对普通用户不太友好。
-
-**本项目就是给 PicoClaw 加一个网页管理界面**（LuCI 插件），让你在浏览器里就能完成所有操作——启动服务、切换模型、配置 API Key、管理搜索引擎等，不需要敲命令行。
-
-> **LuCI** 是 OpenWrt 路由器的 Web 管理界面框架，你平时进路由器后台（如 192.168.1.1）看到的就是 LuCI。
-
-## 📸 截图
-
-| 仪表盘 | 配置编辑 |
-|:---:|:---:|
-| ![主界面](Screenshots/screenshot_main.png) | ![配置](Screenshots/screenshot_config.png) |
-
-| 硬件控制 | 移动端 |
-|:---:|:---:|
-| ![硬件](Screenshots/screenshot_hardware.png) | ![手机](Screenshots/screenshot_mobile.png) |
+PicoClaw 本身没有图形界面，所有配置都得手改 JSON。**本项目就是它的界面** —— 一个 LuCI 页面，服务、模型、通道、定时任务、MCP 服务、技能、硬件都能在浏览器里点完，不用 SSH，也不用碰配置文件。
 
 ## ✨ 功能
 
-- **服务控制** — 一键启动 / 停止 / 重启 PicoClaw，设置开机自启，查看实时运行日志
-- **通道管理** — 查看飞书、Telegram、Discord、微信等通道的连接状态
-- **模型配置** — 可视化表单配置 AI 模型，内置供应商预设（智谱、DeepSeek、通义、OpenAI 等），填入 API Key 即可使用
-- **搜索引擎配置** — 让 AI 能联网搜索信息，支持智谱搜索、百度、DuckDuckGo 等（含国内可用性提示）
-- **硬件控制** — 查看路由器系统信息、USB 设备，控制 GPIO 开关
-- **技能管理** — 查看、删除、导入 PicoClaw 技能；内置 3 个预设（系统诊断、配置备份、智能安装）
-- **JSON 编辑器** — 直接编辑底层配置文件，适合高级用户
+一个页面，九个标签：
+
+| 标签 | 能做什么 |
+|---|---|
+| **通道列表** | 查看并开关飞书 / Telegram / Discord / 微信等通道的连接状态 |
+| **对话** | 不用离开路由器后台就能跟 AI 助手聊天 |
+| **配置编辑** | 表单式编辑 `config.json`，另有原始 JSON 模式供高级用户折腾 |
+| **系统日志** | 实时查看 PicoClaw 输出 —— 报错、LLM 调用、token 用量 |
+| **硬件控制** | 系统信息、USB 设备、GPIO 开关 |
+| **定时任务** | cron / 间隔任务 —— 新建、启用、禁用、删除 |
+| **MCP 服务** | 增删 MCP 服务器（stdio / http / sse） |
+| **技能** | 浏览、安装、导入、删除 Agent 技能 |
+| **模型与认证** | 模型列表、默认模型、启停、API Key 状态、推理强度 |
+
+另外还有一键启停 / 重启服务、开机自启、搜索引擎预设，以及给高级用户用的 JSON 编辑器。
 
 ## 📋 系统要求
 
@@ -65,57 +59,99 @@
 
 ## 🚀 安装
 
-### 第一步：安装 PicoClaw 主程序
+### 第一步：装 PicoClaw 主程序
 
-PicoClaw 是 AI 助手的核心程序，需要先装好它。通过 SSH 登录路由器，执行：
+本插件只是网页界面，PicoClaw 主程序要单独装。先 SSH 登录路由器：
 
 ```bash
 cd /tmp
-wget https://github.com/sipeed/picoclaw/releases/download/v0.2.7/picoclaw_Linux_x86_64.tar.gz
+wget https://github.com/sipeed/picoclaw/releases/download/v0.3.1/picoclaw_Linux_x86_64.tar.gz
 tar xzf picoclaw_Linux_x86_64.tar.gz
 cp picoclaw /usr/bin/picoclaw && chmod +x /usr/bin/picoclaw
-picoclaw --version   # 确认安装成功，应显示版本号
+picoclaw --version
 ```
 
-> ⚠️ 上面是 x86_64 架构的下载链接。如果你的路由器是 ARM 架构（如大多数小米、TP-Link 路由器），请到 [PicoClaw Releases](https://github.com/sipeed/picoclaw/releases) 下载对应架构的版本。
+> ⚠️ 上面的链接是 **x86_64** 的。ARM 路由器（大多数小米、TP-Link）要用 `picoclaw_Linux_arm64.tar.gz` 或 `picoclaw_Linux_armv7.tar.gz`，去 [PicoClaw Releases](https://github.com/sipeed/picoclaw/releases) 对一下架构；`uname -m` 可以查。
 
-### 第二步：安装 LuCI 管理界面
+### 第二步：装本插件
 
-**方式一：iStore 商店**（推荐，最简单）
+**方式一：iStore**（最简单）
 
-在路由器后台打开 iStore → 搜索 `picoclaw` → 点击安装
+路由器后台打开 iStore → 搜索 `picoclaw` → 点击安装
 
-**方式二：命令行安装 IPK**
+**方式二：IPK**（opkg 系统的 OpenWrt）
 
 ```bash
 cd /tmp
-wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.1.6-1_all.ipk
-opkg install luci-app-picoclaw_1.1.6-1_all.ipk
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw_1.2.0-1_all.ipk
+opkg install luci-app-picoclaw_1.2.0-1_all.ipk
 rm -rf /tmp/luci-*   # 清除 LuCI 缓存
 ```
 
-安装完成后，打开浏览器访问：`http://<路由器IP>/cgi-bin/luci/admin/services/picoclaw`
+**方式三：APK**（OpenWrt 25.x 的 apk 系统）
+
+```bash
+cd /tmp
+wget https://github.com/GennKann/luci-app-picoclaw/releases/latest/download/luci-app-picoclaw-1.2.0-r1.apk
+apk add --allow-untrusted luci-app-picoclaw-1.2.0-r1.apk
+rm -rf /tmp/luci-*   # 清除 LuCI 缓存
+```
+
+> APK 没有签名，所以必须带 `--allow-untrusted`。
+
+**从源码构建**
+
+```bash
+# IPK（opkg 系统）
+python3 scripts/build-ipk.py
+
+# APK v3（OpenWrt 25.x 的 apk 系统）—— 在路由器上直接跑
+sh scripts/build-apk-v3.sh
+```
+
+> Windows 克隆仓库时：开了 `core.autocrlf` 的话 Git 会把 LF 转成 CRLF。
+> LuCI 的 Lua/HTML 解析器只吃 LF（CRLF 会报 `unfinished string`），
+> 部署前请 `dos2unix`，或者设置 `git config core.autocrlf false`。
+
+### 第三步：打开页面
+
+`http://<路由器IP>/cgi-bin/luci/admin/services/picoclaw`
+
+接着添加模型和 API Key —— 见[模型配置](#-模型配置)。
+
+## 📸 截图
+
+| 通道列表 | 模型与认证 |
+|:---:|:---:|
+| ![通道](Screenshots/screenshot_main.png) | ![模型](Screenshots/screenshot_models.png) |
+
+| 技能 | 定时任务 |
+|:---:|:---:|
+| ![技能](Screenshots/screenshot_skills.png) | ![定时任务](Screenshots/screenshot_cron.png) |
 
 ## 🤖 模型配置
 
-PicoClaw 需要接入大语言模型才能工作。你可以把它理解为一个"客户端"——它本身不包含 AI，而是调用各家 AI 服务的接口。你需要提供 **API Key**（类似密码），让 PicoClaw 有权调用对应的服务。
+PicoClaw 至少要有一个模型供应商的 **API Key**（简单说就是密码）。
 
-**配置步骤：**
+**最快的做法 —— 用界面：**
 
-1. 在**配置编辑**标签页 → 找到**模型列表**区域
-2. 点击供应商预设按钮（如"智谱 GLM"、"DeepSeek"），会自动填入 API 地址
-3. 填入你的 **API Key**（在各 AI 供应商官网注册后获取）
-4. 从下拉菜单选择**默认模型**
-5. 点击**保存**
+1. 打开**模型与认证**标签
+2. 点**添加模型**，选一个预设（DeepSeek / 智谱 GLM / 通义 / OpenAI / Anthropic / OpenRouter / Ollama），API Base 和模型 ID 会自动填好
+3. 粘贴你的 **API Key**
+4. 点**设为默认**，然后**保存**
 
-**支持供应商：** 智谱 · DeepSeek · 通义千问 · OpenAI · Anthropic · OpenRouter · Ollama
+**或者用命令行**（密钥不会进 `config.json`）：
 
-> 💡 **没有 API Key？** 大部分供应商都提供免费额度，注册即可试用：
-> - [智谱开放平台](https://open.bigmodel.cn/) — 国内，注册送免费额度
-> - [DeepSeek](https://platform.deepseek.com/) — 国内，注册送免费额度
-> - [OpenRouter](https://openrouter.ai/) — 海外，聚合多家模型
+```bash
+picoclaw model add -b https://api.deepseek.com/v1 -k sk-xxx -m deepseek-flash -n deepseek-flash
+picoclaw model deepseek-flash        # 设为默认
+```
 
-> 🔒 API Key 通过 PicoClaw 双文件安全体系存储（`config.json` 只存占位符，真实密钥在 `.security.yml` 中），不会明文暴露。
+> 🔒 界面里填的密钥会写进 PicoClaw 的 `.security.yml`，不会进 `config.json`。
+
+**推理强度** —— 每个模型行都有下拉框（默认 / low / medium / high / max / adaptive），对应配置里的 `thinking_level`。是否真的影响回答取决于厂商：DeepSeek 认 low/high/max，有些厂商只认 `adaptive`，不支持的值会安静地回落到默认。
+
+**API Key 去哪拿**：[智谱](https://open.bigmodel.cn/) · [DeepSeek](https://platform.deepseek.com/) · [OpenRouter](https://openrouter.ai/) —— 这三家注册都有免费额度。
 
 ## 🔍 搜索引擎
 
@@ -138,6 +174,8 @@ PicoClaw 可以联网搜索信息来回答问题。国内用户建议选择智�
 | API Key 那栏显示 `[NOT_HERE]`？ | 这是正常的，真实密钥存在 `.security.yml` 里，通过 LuCI 界面管理即可 |
 | 不清楚什么是 API Key？ | 简单说就是你调用 AI 服务的密码，去对应供应商官网注册获取，大部分有免费额度 |
 | 路由器架构怎么看？ | SSH 登录后执行 `uname -m`，常见有 x86_64、aarch64、mipsel |
+| OpenWrt 25.x 装不了 IPK？ | 25.x 用的是 `apk` 不是 `opkg`，下 `.apk` 然后 `apk add --allow-untrusted` |
+| 保存配置提示 "unknown field(s)"？ | PicoClaw 0.3.1 对 `config.json` 是严格校验的。只能用 `model_name`、`provider`、`model`、`api_base`、`api_keys`、`enabled`、`thinking_level`，`max_tokens` 要写在 `agents.defaults` 里 |
 
 ## 更新日志
 
