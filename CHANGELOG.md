@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] - 2026-11-21
+
+### Fixed
+- **本地上传安装崩溃** — `action_do()` 在 `check_csrf()` 之前没有注册文件处理器，而 `check_csrf()` 内部调用 `http.formvalue("token")` 会触发 multipart 请求体解析，导致上传内容被丢弃；随后 `http.formvalue("picoclaw_file")` 对文件字段返回 table 而非路径，传入 `is_safe_tmp_path` 后 `path:match` 崩溃（`attempt to call method 'match' (a nil value)`）。现在在 `check_csrf()` 之前注册 `setfilehandler`，把内容流式写入 `/tmp/picoclaw-upload-<pid>.archive`，安装后清理；`is_safe_tmp_path` 增加类型守卫
+- **对话面板标题显示成 `chat_title`** — `<h3>` 上多余的 `data-i18n="chat_title"` 指向不存在的键，i18n 兜底返回键名并整体覆盖标题，图标与内部 `<span>` 一起丢失；移除该属性
+- **刷新硬件状态无效** — 按钮是 `<a href>` GET 请求，不带 CSRF token，`check_csrf()` 直接返回 403；改为 POST 表单携带 token，并补上 `refresh_hardware` 动作分支
+
+### Changed
+- controller 与 `main.htm` 的三处副本（`luci/`、`istore/luasrc/`、`istore/luci-app-picoclaw/luasrc/`）保持完全一致
+
+---
+
 ## [1.2.0] - 2026-11-15
 
 ### Added

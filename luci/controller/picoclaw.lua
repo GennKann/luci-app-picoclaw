@@ -486,8 +486,18 @@ local function shell_quote(s)
     return "'" .. s:gsub("'", "'\\''") .. "'"
 end
 
+-- 当前进程 pid，用于隔离并发上传的临时文件
+local function get_self_pid()
+    local f = io.open("/proc/self/stat", "r")
+    if not f then return "0" end
+    local line = f:read("*l") or ""
+    f:close()
+    return line:match("^(%d+)") or "0"
+end
+
 -- Verify path is under expected prefix (prevent traversal/injection)
 local function is_safe_tmp_path(path)
+    if type(path) ~= "string" then return false end
     return path:match("^/tmp/luci%-upload") or path:match("^/tmp/")
 end
 
@@ -1021,7 +1031,34 @@ function action_chat_poll()
 end
 
 function action_do()
-    if not check_csrf() then return end
+    -- 必须在 check_csrf() 之前注册文件处理器：
+    -- check_csrf() 内部调用 http.formvalue("token") 会触发 multipart 请求体的惰性解析，
+    -- 此刻若没有 filehandler，上传的文件内容会被直接丢弃。
+    -- 而 http.formvalue() 对 <input type="file"> 返回的是 table 而非路径，
+    -- 旧代码把它传给 is_safe_tmp_path 就会在 path:match 处崩溃。
+    local upload_tmp = "/tmp/picoclaw-upload-" .. get_self_pid() .. ".archive"
+    local upload_received = false
+    local upload_fp
+
+    http.setfilehandler(function(meta, chunk, eof)
+        if not upload_fp and meta and meta.name == "picoclaw_file" then
+            upload_fp = io.open(upload_tmp, "wb")
+        end
+        if upload_fp and chunk then
+            upload_fp:write(chunk)
+            upload_received = true
+        end
+        if upload_fp and eof then
+            upload_fp:close()
+            upload_fp = nil
+        end
+    end)
+
+    if not check_csrf() then
+        if upload_fp then upload_fp:close() upload_fp = nil end
+        os.remove(upload_tmp)
+        return
+    end
 
     local action = http.formvalue("action") or ""
     local msg = ""
@@ -1105,13 +1142,15 @@ function action_do()
         do_update()
         msg = "更新完成，服务已重启！"
     elseif action == "upload_install" then
-        -- LuCI file upload: http.formvalue returns temp path for file inputs
-        local upload_path = http.formvalue("picoclaw_file") or ""
-        if upload_path == "" then
+        -- 文件内容已由上面的 setfilehandler 写入 upload_tmp。
+        -- http.formvalue("picoclaw_file") 对文件字段返回 table，不能再用。
+        if not upload_received then
+            os.remove(upload_tmp)
             msg = "错误：未选择文件"
             ok = false
         else
-            local success, result = do_upload_install(upload_path)
+            local success, result = do_upload_install(upload_tmp)
+            os.remove(upload_tmp)
             if success then
                 msg = "上传安装成功！服务已重启。"
             elseif result == "invalid_path" then
@@ -1130,6 +1169,9 @@ function action_do()
         end
     elseif action == "refresh_logs" then
         -- Just redirect to main page to refresh logs (GET with CSRF already validated)
+        msg = ""
+    elseif action == "refresh_hardware" then
+        -- 重定向回主页，服务端会重新采集硬件信息
         msg = ""
     -- Hardware actions
     elseif action == "led_set" then

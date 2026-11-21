@@ -30,7 +30,7 @@ if ! tr -d '\r' < "$0" | cmp -s - "$0"; then
 fi
 
 PKG_NAME="luci-app-picoclaw"
-PC_VERSION="${PC_VERSION:-1.2.0-r1}"
+PC_VERSION="${PC_VERSION:-1.2.1-r1}"
 PKG_MAINTAINER="GennKann <GennKann@users.noreply.github.com>"
 PKG_URL="https://github.com/GennKann/luci-app-picoclaw"
 

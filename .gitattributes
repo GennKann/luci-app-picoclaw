@@ -1,0 +1,2 @@
+# LuCI 的 .lua / .htm 必须是 LF：CRLF 会让模板编译报 `unfinished string`
+* text=auto eol=lf
