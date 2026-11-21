@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.1] - 2026-11-21
 
+### Added
+- **iStore 应用注册** — 按 `istoreos-app-hub/docs/architecture/linkease-app-registration.md`，插件包持有注册清单 `/usr/share/picoclaw/picoclaw-plugin.json`、桌面图标 `/usr/share/picoclaw/www/logo.png`，标准入口 `/usr/share/linkease/apps.d/40-picoclaw.json` 是指向设备绝对路径的软链接；postinst 自动维护旧目录 `/usr/share/linkeasefull/desktop-apps.d` 兼容入口，prerm 只清理仍指向自己的链接
+- **iStore 自动配置** — app-meta 的 `config.sh` 改为自包含脚本；插件包提供 `/usr/libexec/istorec/picoclaw.sh`（install/start/stop/restart/status/port/rm）供 iStore 调用
+
 ### Fixed
 - **本地上传安装崩溃** — `action_do()` 在 `check_csrf()` 之前没有注册文件处理器，而 `check_csrf()` 内部调用 `http.formvalue("token")` 会触发 multipart 请求体解析，导致上传内容被丢弃；随后 `http.formvalue("picoclaw_file")` 对文件字段返回 table 而非路径，传入 `is_safe_tmp_path` 后 `path:match` 崩溃（`attempt to call method 'match' (a nil value)`）。现在在 `check_csrf()` 之前注册 `setfilehandler`，把内容流式写入 `/tmp/picoclaw-upload-<pid>.archive`，安装后清理；`is_safe_tmp_path` 增加类型守卫
 - **对话面板标题显示成 `chat_title`** — `<h3>` 上多余的 `data-i18n="chat_title"` 指向不存在的键，i18n 兜底返回键名并整体覆盖标题，图标与内部 `<span>` 一起丢失；移除该属性

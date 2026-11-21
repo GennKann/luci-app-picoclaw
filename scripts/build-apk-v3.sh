@@ -59,18 +59,31 @@ echo "=== [1/4] 准备构建根 ==="
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR/root"
 
-# 文件清单：源文件 -> 包内路径 : 权限
+# 文件清单：源文件 -> 包内路径 : 权限 : 类型(text|binary)
 add_file() {
-    src="$1"; dst="$2"; mode="$3"
+    src="$1"; dst="$2"; mode="$3"; kind="${4:-text}"
     if [ ! -f "$src" ]; then
         echo "  缺少源文件: $src" >&2
         exit 1
     fi
     mkdir -p "$BUILD_DIR/root/$(dirname "$dst")"
-    # 统一转成 LF：LuCI 的 lua/htm 解析器只吃 LF，CRLF 会报 unfinished string
-    tr -d '\r' < "$src" > "$BUILD_DIR/root/$dst"
+    if [ "$kind" = "binary" ]; then
+        # 二进制原样复制，不能做换行转换
+        cp "$src" "$BUILD_DIR/root/$dst"
+    else
+        # 统一转成 LF：LuCI 的 lua/htm 解析器只吃 LF，CRLF 会报 unfinished string
+        tr -d '\r' < "$src" > "$BUILD_DIR/root/$dst"
+    fi
     chmod "$mode" "$BUILD_DIR/root/$dst"
     echo "  $dst  ($(wc -c < "$BUILD_DIR/root/$dst") B, mode $mode)"
+}
+
+# iStore 标准注册入口：必须是指向设备绝对路径的软链接
+add_symlink() {
+    dst="$1"; target="$2"
+    mkdir -p "$BUILD_DIR/root/$(dirname "$dst")"
+    ln -sf "$target" "$BUILD_DIR/root/$dst"
+    echo "  $dst -> $target  (symlink)"
 }
 
 add_file "luci/controller/picoclaw.lua" \
@@ -79,6 +92,17 @@ add_file "luci/view/picoclaw/main.htm" \
          "usr/lib/lua/luci/view/picoclaw/main.htm" 644
 add_file "scripts/picoclaw.init" \
          "etc/init.d/picoclaw" 755
+# iStore 应用注册
+add_file "share/picoclaw/picoclaw-plugin.json" \
+         "usr/share/picoclaw/picoclaw-plugin.json" 644
+add_file "share/picoclaw/www/logo.png" \
+         "usr/share/picoclaw/www/logo.png" 644 binary
+add_file "scripts/register-desktop.sh" \
+         "usr/share/picoclaw/register-desktop.sh" 755
+add_file "scripts/istorec-picoclaw.sh" \
+         "usr/libexec/istorec/picoclaw.sh" 755
+add_symlink "usr/share/linkease/apps.d/40-picoclaw.json" \
+            "/usr/share/picoclaw/picoclaw-plugin.json"
 for s in openwrt-diagnostics openwrt-backup openwrt-app-installer; do
     add_file "skills/$s/SKILL.md" \
              "usr/lib/lua/luci/picoclaw-skills/$s/SKILL.md" 644
@@ -91,6 +115,10 @@ PROBLEMS=""
 
 scan_file() {
     f="$1"
+    # 二进制文件不做换行/文本检查
+    case "$f" in
+        *.png|*.jpg|*.jpeg|*.gif|*.ico|*.bin) return 0 ;;
+    esac
     # CRLF
     if tr -d '\r' < "$f" | cmp -s - "$f"; then
         :
@@ -144,6 +172,10 @@ cat > "$BUILD_DIR/post-install" <<'EOF'
 # 清理 LuCI 编译缓存，让新页面立即生效
 rm -f /tmp/luci-indexcache* 2>/dev/null
 rm -rf /tmp/luci-modulecache/* 2>/dev/null
+# 创建 iStore 桌面兼容入口（标准入口是包内软链接）
+if [ -f /usr/share/picoclaw/register-desktop.sh ]; then
+    sh /usr/share/picoclaw/register-desktop.sh
+fi
 exit 0
 EOF
 chmod 755 "$BUILD_DIR/post-install"

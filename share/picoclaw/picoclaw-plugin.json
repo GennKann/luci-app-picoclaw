@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "id": "picoclaw",
+  "name": "PicoClaw",
+  "icon": "logo.png",
+  "staticRoot": "/usr/share/picoclaw/www",
+  "desktop": {
+    "mode": "builtin",
+    "component": "LuciContainer",
+    "props": {
+      "initialPath": "/cgi-bin/luci/admin/services/picoclaw",
+      "contentOnly": true,
+      "isolation": "scoped-dom-css",
+      "mountIds": [
+        "root",
+        "app"
+      ],
+      "hideChrome": true,
+      "preloadScripts": [
+        "/luci-static/linkeasefull-embed/embed-prelude.js"
+      ],
+      "preloadStyles": [
+        "/luci-static/linkeasefull-embed/embed.css"
+      ]
+    }
+  },
+  "standalone": {
+    "url": "/cgi-bin/luci/admin/services/picoclaw"
+  },
+  "window": {
+    "width": 1280,
+    "height": 820,
+    "singleton": true
+  },
+  "capabilities": [
+    "ai",
+    "assistant",
+    "openwrt",
+    "luci"
+  ],
+  "categories": [
+    "service",
+    "openwrt"
+  ]
+}

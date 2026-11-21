@@ -39,8 +39,18 @@ SOURCE_FILES = [
     ("luci/controller/picoclaw.lua", "./usr/lib/lua/luci/controller/picoclaw.lua", 0o644),
     ("luci/view/picoclaw/main.htm", "./usr/lib/lua/luci/view/picoclaw/main.htm", 0o644),
     ("scripts/picoclaw.init", "./etc/init.d/picoclaw", 0o755),
+    # iStore 应用注册（见 istoreos-app-hub/docs/architecture/linkease-app-registration.md）
+    ("share/picoclaw/picoclaw-plugin.json", "./usr/share/picoclaw/picoclaw-plugin.json", 0o644),
+    ("share/picoclaw/www/logo.png", "./usr/share/picoclaw/www/logo.png", 0o644),
+    ("scripts/register-desktop.sh", "./usr/share/picoclaw/register-desktop.sh", 0o755),
+    ("scripts/istorec-picoclaw.sh", "./usr/libexec/istorec/picoclaw.sh", 0o755),
 ] + [("skills/%s/SKILL.md" % s,
       "./usr/lib/lua/luci/picoclaw-skills/%s/SKILL.md" % s, 0o644) for s in SKILLS]
+
+# iStore 标准注册目录：必须是指向设备绝对路径的软链接
+SYMLINKS = [
+    ("./usr/share/linkease/apps.d/40-picoclaw.json", "/usr/share/picoclaw/picoclaw-plugin.json"),
+]
 
 DATA_DIRS = [
     (".", 0o755),
@@ -52,16 +62,38 @@ DATA_DIRS = [
     ("./usr/lib/lua/luci/view", 0o755),
     ("./usr/lib/lua/luci/view/picoclaw", 0o755),
     ("./usr/lib/lua/luci/picoclaw-skills", 0o755),
+    ("./usr/libexec", 0o755),
+    ("./usr/libexec/istorec", 0o755),
+    ("./usr/share", 0o755),
+    ("./usr/share/picoclaw", 0o755),
+    ("./usr/share/picoclaw/www", 0o755),
+    ("./usr/share/linkease", 0o755),
+    ("./usr/share/linkease/apps.d", 0o755),
 ] + [("./usr/lib/lua/luci/picoclaw-skills/%s" % s, 0o755) for s in SKILLS] + [
     ("./etc", 0o755),
     ("./etc/init.d", 0o755),
 ]
 
-POSTINST = ('#!/bin/sh\n[ "${IPKG_NO_SCRIPT}" = "1" ] && exit 0\n'
+POSTINST = ('#!/bin/sh\n'
+            '[ "${IPKG_NO_SCRIPT}" = "1" ] && exit 0\n'
             '[ -s ${IPKG_INSTROOT}/lib/functions.sh ] || exit 0\n'
-            '. ${IPKG_INSTROOT}/lib/functions.sh\ndefault_postinst $0 $@\n')
-PRERM = ('#!/bin/sh\n[ -s ${IPKG_INSTROOT}/lib/functions.sh ] || exit 0\n'
-         '. ${IPKG_INSTROOT}/lib/functions.sh\ndefault_prerm $0 $@\n')
+            '. ${IPKG_INSTROOT}/lib/functions.sh\n'
+            'default_postinst $0 $@\n'
+            '# 创建 iStore 桌面兼容入口（标准入口是包内软链接）\n'
+            'if [ -f ${IPKG_INSTROOT}/usr/share/picoclaw/register-desktop.sh ]; then\n'
+            '    sh ${IPKG_INSTROOT}/usr/share/picoclaw/register-desktop.sh\n'
+            'fi\n'
+            'exit 0\n')
+PRERM = ('#!/bin/sh\n'
+         '[ -s ${IPKG_INSTROOT}/lib/functions.sh ] || exit 0\n'
+         '. ${IPKG_INSTROOT}/lib/functions.sh\n'
+         'default_prerm $0 $@\n'
+         '# 只清理仍指向自己的兼容入口，不动他人文件\n'
+         'LEGACY=${IPKG_INSTROOT}/usr/share/linkeasefull/desktop-apps.d/40-picoclaw.json\n'
+         'if [ -L "$LEGACY" ] && [ "$(readlink "$LEGACY")" = "/usr/share/picoclaw/picoclaw-plugin.json" ]; then\n'
+         '    rm -f "$LEGACY"\n'
+         'fi\n'
+         'exit 0\n')
 
 TEXT_EXT = {'.lua', '.htm', '.sh', '.md', '.po', '.svg', '.init', '.txt', '.json'}
 SECRET_PATTERNS = [
@@ -110,6 +142,18 @@ def tar_add_bytes(tf, name, data, mode, mtime):
     tf.addfile(info, io.BytesIO(data))
 
 
+def tar_add_symlink(tf, name, target, mtime):
+    info = tarfile.TarInfo(name=name)
+    info.type = tarfile.SYMTYPE
+    info.linkname = target
+    info.size = 0
+    info.mtime = mtime
+    info.mode = 0o777
+    info.uid = info.gid = 0
+    info.uname = info.gname = 'root'
+    tf.addfile(info)
+
+
 def build_data_tar_gz(problems):
     now = int(time.time())
     hashes = {}
@@ -140,12 +184,18 @@ def build_data_tar_gz(problems):
                 raise FileNotFoundError(path)
             with open(path, 'rb') as f:
                 data = f.read()
-            data = ensure_lf(data)
+            # 只对文本文件做换行规范化；二进制（logo.png）原样复制
+            if os.path.splitext(arc)[1] in TEXT_EXT:
+                data = ensure_lf(data)
             problems.extend(scan(arc, data))
             hashes[arc] = md5(data)
             tar_add_bytes(tf, arc, data, mode, now)
             print('  file %-58s %8d bytes  md5=%s  CRLF=%d'
                   % (arc, len(data), hashes[arc], data.count(b'\r\n')))
+
+        for arc, target in SYMLINKS:
+            tar_add_symlink(tf, arc, target, now)
+            print('  link %-58s -> %s' % (arc, target))
     out = buf.getvalue()
     print('  data.tar.gz: %d bytes' % len(out))
     return out, hashes
@@ -242,12 +292,25 @@ def build_ipk():
                         if status != 'OK':
                             ok = False
                         print('    [%s] %-58s %8d bytes  mode=%o' % (status, m.name, m.size, m.mode))
-                        if d.count(b'\r\n'):
+                        if d.count(b'\r\n') and not m.name.endswith(
+                                ('.png', '.jpg', '.jpeg', '.gif', '.ico', '.bin')):
                             ok = False
                             print('    [FAIL] 含 CRLF')
                     if len(files) != len(SOURCE_FILES):
                         ok = False
                         print('  [FAIL] 文件数不符，期望 %d' % len(SOURCE_FILES))
+                    links = [m for m in dtf.getmembers() if m.issym()]
+                    print('  data 内软链接 %d 个:' % len(links))
+                    want_links = dict(SYMLINKS)
+                    for m in links:
+                        want = want_links.get(m.name)
+                        status = 'OK' if want == m.linkname else 'MISMATCH'
+                        if status != 'OK':
+                            ok = False
+                        print('    [%s] %-58s -> %s' % (status, m.name, m.linkname))
+                    if len(links) != len(SYMLINKS):
+                        ok = False
+                        print('  [FAIL] 软链接数不符，期望 %d' % len(SYMLINKS))
             if n == './control.tar.gz':
                 with tarfile.open(fileobj=io.BytesIO(content), mode='r:gz') as ctf:
                     print('  control 内:', [m.name for m in ctf.getmembers()])
@@ -269,7 +332,7 @@ def build_source():
     prefix = '%s-%s' % (PKG_NAME, PKG_VERSION)
     include_top = ['CHANGELOG.md', 'LICENSE', 'README.md', 'README.zh.md',
                    'README.ja.md', 'README.pt.md', 'README.de.md', '.gitignore']
-    include_dirs = ['luci', 'skills', 'scripts', 'istore']
+    include_dirs = ['luci', 'skills', 'scripts', 'istore', 'share']
     skip_ext = {'.ipk', '.bak', '.log', '.pyc'}
     skip_dirs = {'__pycache__', '.git'}
 
